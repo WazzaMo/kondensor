@@ -26,6 +26,28 @@ someone is about the evolution of public cloud
 services and that higher-order cloud services
 can offer significant operational and cost benefits.
 
+## Compared to existing
+
+Kondensor is about solving systems-level problems
+of data transformations, events, integration
+in high-level ways using patterns.
+
+[AWS Codestar](https://aws.amazon.com/codestar/features/)
+ offers templates for limited compute services
+and for a limited selection of programmings languages:
+
+- languages: Java, JavaScript, Python, Ruby and PHP
+- compute: EC2, Lambda and Elastic Beanstalk
+
+[AWS CloudFormation designer](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/working-with-templates-cfn-designer-why.html)
+assists the user design and model AWS infrastructure
+but this **assumes you know what infrastructure you want.**
+
+The existing AWS tools of Codestar and CF Designer are helpful
+but either limit the programming environment or make the user
+think at a lower level of the infrastructure.
+Kondensor is about the system needs.
+
 ## Concept
 
 Node-based design tools have worked fairly well
