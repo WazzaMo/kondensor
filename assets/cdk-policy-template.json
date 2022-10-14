@@ -1,0 +1,83 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "CFall",
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:RegisterType",
+                "cloudformation:CreateUploadBucket",
+                "s3:ListAccessPointsForObjectLambda",
+                "cloudformation:ListExports",
+                "cloudformation:DescribeStackDriftDetectionStatus",
+                "s3:GetAccessPoint",
+                "cloudformation:SetTypeDefaultVersion",
+                "cloudformation:RegisterPublisher",
+                "cloudformation:ActivateType",
+                "cloudformation:ListTypes",
+                "s3:PutStorageLensConfiguration",
+                "cloudformation:DeactivateType",
+                "cloudformation:SetTypeConfiguration",
+                "cloudformation:DeregisterType",
+                "cloudformation:ListTypeRegistrations",
+                "cloudformation:EstimateTemplateCost",
+                "cloudformation:DescribeAccountLimits",
+                "cloudformation:BatchDescribeTypeConfigurations",
+                "cloudformation:CreateStackSet",
+                "cloudformation:ListStacks",
+                "ecr-public:GetAuthorizationToken",
+                "s3:PutAccountPublicAccessBlock",
+                "cloudformation:DescribeType",
+                "cloudformation:ListImports",
+                "s3:ListAccessPoints",
+                "cloudformation:PublishType",
+                "s3:ListJobs",
+                "s3:ListMultiRegionAccessPoints",
+                "cloudformation:DescribePublisher",
+                "cloudformation:DescribeTypeRegistration",
+                "s3:ListStorageLensConfigurations",
+                "s3:GetAccountPublicAccessBlock",
+                "s3:ListAllMyBuckets",
+                "s3:PutAccessPointPublicAccessBlock",
+                "s3:CreateJob",
+                "cloudformation:TestType",
+                "cloudformation:ValidateTemplate",
+                "cloudformation:ListTypeVersions"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "S3CFECR",
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "cloudformation:*",
+                "ecr-public:*"
+            ],
+            "Resource": [
+                "arn:aws:s3:::*",
+                "arn:aws:s3-object-lambda:*:${accountid}:accesspoint/*",
+                "arn:aws:s3:*:${accountid}:accesspoint/*",
+                "arn:aws:s3:*:${accountid}:job/*",
+                "arn:aws:s3:us-west-2:${accountid}:async-request/mrap/*/*",
+                "arn:aws:s3:*:${accountid}:storage-lens/*",
+                "arn:aws:cloudformation:*:${accountid}:changeSet/*/*",
+                "arn:aws:cloudformation:*:${accountid}:stack/*/*",
+                "arn:aws:cloudformation:*:${accountid}:stackset-target/*",
+                "arn:aws:cloudformation:*:${accountid}:stackset/*:*",
+                "arn:aws:cloudformation:*:${accountid}:type/resource/*",
+                "arn:aws:ecr-public::${accountid}:repository/*",
+                "arn:aws:ecr-public::${accountid}:registry/*"
+            ]
+        },
+        {
+            "Sid": "S3",
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::*/*",
+                "arn:aws:s3::${accountid}:accesspoint/*"
+            ]
+        }
+    ]
+}

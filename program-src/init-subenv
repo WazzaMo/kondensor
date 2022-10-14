@@ -28,7 +28,7 @@ function isValidArgs() {
         echo "Policy ARN is missing"
         ok=false
     fi
-    
+
     test $ok == "false" && echo "--------"
     `${ok}`
 }
@@ -37,7 +37,7 @@ function showHelp() {
     echo "${program} of Kondensor"
     echo "This shell script configures an AWS CDK environment in a given sub account and region."
     echo ""
-    echo "Usage ${program} <account-id> <region-id> <admin-account-arn>"
+    echo "Usage ${program} <account-id> <region-id> <admin-account-arn> <policy-arn>"
 }
 
 if [ $account == "--help" ] || ! isValidArgs
@@ -51,3 +51,4 @@ echo "cdk bootstrap \
     --cloudformation-execution-policies ${policy} \
     aws://${account}/${region}"
 
+cdk bootstrap --trust ${admin} --cloudformation-execution-policies ${policy} aws://${account}/${region}
