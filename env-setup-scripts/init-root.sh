@@ -6,6 +6,7 @@
 numargs=$#
 program=$0
 account=$1
+region=$2
 
 function isValidArgs() {
     ok=true
