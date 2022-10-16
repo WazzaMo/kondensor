@@ -1,13 +1,83 @@
 # 2. Getting Started
 
-## AWS tools
+## Steps - the plan
 
-### CDK Needs a working NodeJS
+The instructions given here are for Ubuntu which should work
+in Windows Subsystem for Linux Ubuntu or Ubuntu (native).
 
-I recommend using NVM - Node Version Manager - to install
-NodeJs in a local user directory.
+1. Install Node JS (to make CDK work)
+2. Install AWS-CDK
+3. Install AWS CLI v2
+4. Install dotnet 6 or later
+
+## Installing NodeJS
+
+You can install NodeJS as you see fit but I will document what I like doing
+as a suggestion. NodeJS releases can move quickly so using Node Version Manager, NVM,
+is recommended and makes for a per-user install very easy in Linux, rather than installing
+NodeJS centrally for all users.
+
+### Install Node Version Mananger (nvm)
+
+Using NVM - Node Version Manager - to install NodeJs in a local user directory.
 
 [Go to this page to see how to install NVM](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+I had to install curl and then run the following command.
+
+NOTE: this downloads and executes a BASH script and we all know that running a script
+off the internet is a bit scary. It is executed under the permissions of a normal user,
+so a wise idea is to create a dev user with no special privileges and run it under that user.
+
+```sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+```
+
+With NVM installed and .bashrc updated to add NVM to PATH, either:
+1. restart BASH to get a terminal with the updated PATH; or
+2. run `source ~/.bashrc` to update PATH in the current session.
+
+### Install NodeJS
+
+I installed NodeJS 16.17.1 (current LTS) using the following.
+Best to use the major number (16 in this case) of the current LTS NodeJS version.
+
+```bash
+nvm use 16
+```
+
+Now, you should be able to confirm NodeJS is working....
+
+```bash
+node --version
+```
+
+
+## AWS tools
+
+### AWS CDK
+
+Use NPM (from NodeJS) to install CDK.
+If your NodeJS was installed in a local user,
+then you can install as below.
+
+```bash
+npm install -g aws-cdk
+```
+
+If, instead, your NodeJS was installed with root or administrative user
+privileges, you may need root powers to install aws-cdk, as follows:
+
+```bash
+sudo npm install -g aws-cdk
+```
+
+This should make the `cdk` available to you and you can test this with:
+
+```bash
+cdk --version
+```
+
 
 ### AWS CLI v2
 
@@ -32,20 +102,10 @@ Then install the AWS CDK library...
 
 `dotnet add package Amazon.CDK.Lib`
 
-## Getting ready to work in AWS
 
-CDK needs to be [bootstrapped.](https://docs.aws.amazon.com/cdk/v2/guide/bootstrapping.html)
+# Antivirus software for Linux
 
-Create a bootstrap template using:
+In case you're worried about running code to install packages, anti-virus software is available
+for Linux.
 
-```sh
-cdk bootstrap --show-template > bootstrap-template.yaml
-```
-
-And can then use AWS CLI to do the bootstrap.
-
-```sh
-aws cloudformation create-stack \
-  --stack-name CDKToolkit \
-  --template-body file://bootstrap-template.yaml
-```
+[ClamAV is a free, open source, CLI virus scanning tool - documentation here](https://www.clamav.net/downloads)
