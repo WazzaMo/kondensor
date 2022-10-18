@@ -27,3 +27,12 @@ User access to member accounts can be controlled through IAM.
 see [Organizations - Manage account access](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html)
 
 Default role name `OrganizationAccountAccessRole`
+
+# References
+
+[Accessing and administering member accounts](https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html)
+
+[Switching roles to access member account](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-cli.html)
+
+[Landing Zone and Control Tower](https://docs.aws.amazon.com/controltower/latest/userguide/customize-landing-zone.html)
+
