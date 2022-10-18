@@ -9,6 +9,7 @@ account=$1
 region=$2
 admin=$3
 policy=$4
+profile=$5
 
 function isValidArgs() {
     ok=true
@@ -37,18 +38,35 @@ function showHelp() {
     echo "${program} of Kondensor"
     echo "This shell script configures an AWS CDK environment in a given sub account and region."
     echo ""
-    echo "Usage ${program} <account-id> <region-id> <admin-account-arn> <policy-arn>"
+    echo "Usage ${program} <account-id> <region-id> <admin-account-arn> <policy-arn> [profile]"
 }
+
+function doJob() {
+    # echo "cdk bootstrap \
+    #     --trust ${admin} \
+    #     --cloudformation-execution-policies ${policy} \
+    #     aws://${account}/${region}"
+
+    cdk bootstrap --trust ${admin} \
+        --cloudformation-execution-policies ${policy} aws://${account}/${region}
+}
+
+function doJobWithProfile() {
+    cdk bootstrap --trust ${admin} \
+        --cloudformation-execution-policies ${policy} aws://${account}/${region} \
+        --profile ${profile}
+}
+
 
 if [ $account == "--help" ] || ! isValidArgs
 then
     showHelp
+else
+    if [ "X${profile}" == "X" ]
+    then
+        doJob
+    else
+        doJobWithProfile
+    fi
 fi
 
-
-echo "cdk bootstrap \
-    --trust ${admin} \
-    --cloudformation-execution-policies ${policy} \
-    aws://${account}/${region}"
-
-cdk bootstrap --trust ${admin} --cloudformation-execution-policies ${policy} aws://${account}/${region}
