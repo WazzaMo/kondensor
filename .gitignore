@@ -1,2 +1,13 @@
 
 .vscode/
+
+# build files
+
+cfgen/cfgen/bin/Debug/net6.0/cfgen.dll
+cfgen/cfgen/bin/Debug/net6.0/cfgen.pdb
+cfgen/cfgen/bin/Debug/net6.0/cfgenlib.dll
+cfgen/cfgen/bin/Debug/net6.0/cfgenlib.pdb
+cfgen/cfgen/obj/Debug/net6.0/cfgen.csproj.AssemblyReference.cache
+cfgen/cfgen/obj/Debug/net6.0/cfgen.dll
+cfgen/cfgen/obj/Debug/net6.0/cfgen.pdb
+cfgen/cfgen/test.yaml
