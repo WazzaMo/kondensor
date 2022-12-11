@@ -12,12 +12,12 @@ namespace kondensor.cfgenlib.primitives
   {
     public List<Tag> TagList;
 
-    public void Write(StreamWriter output, string indent)
+    public void Write(StreamWriter output, string name, string indent)
     {
       var _1_indent = indent + YamlWriter.INDENT;
       var _2_indent = _1_indent + YamlWriter.INDENT;
 
-      YamlWriter.Write(output, message: "Tags:", indent);
+      YamlWriter.Write(output, message: $"{name}:", indent);
       foreach(Tag tag in TagList)
       {
         YamlWriter.Write(output, message: $"- Key: {tag.Name}", _1_indent);
