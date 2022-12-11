@@ -9,5 +9,7 @@ namespace kondensor.cfgenlib
   {
     string Name { get; }
     Dictionary<string, ResourceProperty> Properties { get; }
+
+    void SetProp(ResourceProperty prop);
   }
 }

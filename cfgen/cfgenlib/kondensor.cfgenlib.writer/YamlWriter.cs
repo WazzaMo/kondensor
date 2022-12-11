@@ -29,6 +29,7 @@ namespace kondensor.cfgenlib.writer
       using (StreamWriter output = File.CreateText(writeFileName))
       {
         WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
+        WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetWriter<Resource>());
       }
     }
 
@@ -62,6 +63,16 @@ namespace kondensor.cfgenlib.writer
     private static void WhenHaveValue<T>(Option<T> value, StreamWriter output, string indent, WriterDelegate<T> writer) where T : struct
     {
       value.MatchSome( toWrite => writer(output, toWrite, indent));
+    }
+
+    private static void WhenHaveMultiple<T>(List<T> values, StreamWriter output, string indent, WriterDelegate<T> writer) where T : struct
+    {
+      if (values != null && values.Count > 0) {
+        foreach( T value in values)
+        {
+          writer(output, value, indent);
+        }
+      }
     }
 
     private static StreamWriter ErrorWriter(StreamWriter output, Option<object> o, Type type, string indent)

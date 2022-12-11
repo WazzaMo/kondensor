@@ -12,6 +12,8 @@ namespace kondensor.cfgenlib
 
       public List<Parameter> Parameters;
 
+      public List<Resource> Resources;
+
       public Option<Mapping> Mappings;
 
 
@@ -22,6 +24,7 @@ namespace kondensor.cfgenlib
         Header = Option.Some(header);
         Metadata = Option.None<Metadata>();
         Parameters = new List<Parameter>();
+        Resources = new List<Resource>();
         Mappings = Option.None<Mapping>();
       }
     }

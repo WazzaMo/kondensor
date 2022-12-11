@@ -24,7 +24,7 @@ namespace kondensor.cfgenlib
       return value;
     }
 
-    void SetValue<T>(T value)
+    public void SetValue<T>(T value)
     {
       Type type = typeof(T);
       Inner = type.IsValueType
@@ -32,6 +32,15 @@ namespace kondensor.cfgenlib
         : value != null
           ? Option.Some(value)
           : (object) Option.None<T>;
+    }
+
+    public bool Assign(ResourceProperty other)
+    {
+      if (other.Name == Name) {
+        Inner = other.Inner;
+        return true;
+      }
+      return false;      
     }
 
     public ResourceProperty(string name)
