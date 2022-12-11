@@ -1,0 +1,128 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/warwick/src/kondensor/cfgen/cfgen/cfgen.csproj": {}
+  },
+  "projects": {
+    "/home/warwick/src/kondensor/cfgen/cfgen/cfgen.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/warwick/src/kondensor/cfgen/cfgen/cfgen.csproj",
+        "projectName": "cfgen",
+        "projectPath": "/home/warwick/src/kondensor/cfgen/cfgen/cfgen.csproj",
+        "packagesPath": "/home/warwick/.nuget/packages/",
+        "outputPath": "/home/warwick/src/kondensor/cfgen/cfgen/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/warwick/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/home/warwick/src/kondensor/cfgen/cfgenlib/cfgenlib.csproj": {
+                "projectPath": "/home/warwick/src/kondensor/cfgen/cfgenlib/cfgenlib.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Optional": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.111/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/warwick/src/kondensor/cfgen/cfgenlib/cfgenlib.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/warwick/src/kondensor/cfgen/cfgenlib/cfgenlib.csproj",
+        "projectName": "cfgenlib",
+        "projectPath": "/home/warwick/src/kondensor/cfgen/cfgenlib/cfgenlib.csproj",
+        "packagesPath": "/home/warwick/.nuget/packages/",
+        "outputPath": "/home/warwick/src/kondensor/cfgen/cfgenlib/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/warwick/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Optional": {
+              "target": "Package",
+              "version": "[4.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/6.0.111/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
