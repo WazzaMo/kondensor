@@ -10,17 +10,12 @@ namespace kondensor.cfgenlib
   {
     public string ResourceId;
     public IResourceType ResourceType;
-    public List<ResourceProperty> Properties;
+    public Dictionary<string, ResourceProperty> Properties => ResourceType.Properties;
 
-    public Resource(string id, IResourceType type, params ResourceProperty[] props)
+    public Resource(string id, IResourceType type)
     {
       ResourceId = id;
       ResourceType = type;
-      Properties = new List<ResourceProperty>();
-
-      foreach(var aProp in props){
-        Properties.Add(aProp);
-      }
     }
   }
 

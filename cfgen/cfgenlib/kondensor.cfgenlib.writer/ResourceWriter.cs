@@ -26,10 +26,11 @@ namespace kondensor.cfgenlib.writer
         string propChild = child + YamlWriter.INDENT;
 
         YamlWriter.Write(output, $"Properties:", child);
-        foreach(var prop in value.Properties)
+        foreach(var propKey in value.Properties.Keys)
         {
-          string name = prop.Name;
-          Option<string> propValue = prop.GetValue<string>();
+          ResourceProperty resProp = value.Properties[propKey];
+          string name = resProp.Name;
+          Option<string> propValue = resProp.GetValue<string>();
           propValue.MatchSome(
             valueString => YamlWriter.Write(output, $"{name}: {valueString}", propChild)
           );
