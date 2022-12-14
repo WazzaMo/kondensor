@@ -1,5 +1,6 @@
 
 using kondensor.cfgenlib.writer;
+using System;
 
 namespace kondensor.cfgenlib.primitives
 {
@@ -7,9 +8,10 @@ namespace kondensor.cfgenlib.primitives
   {
     public bool Value;
 
-    public void Write(StreamWriter output, string name, string indent)
+    void IPrimitive.Write(StreamWriter output, string name, string indent)
     {
       YamlWriter.Write(output, $"{name}: '{Value}'", indent);
+      Console.WriteLine($"Bool name{name}: {Value}");
     }
 
     public Bool(bool value)

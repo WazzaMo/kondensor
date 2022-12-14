@@ -1,38 +1,30 @@
 using Optional;
 using System;
 
+using kondensor.cfgenlib.primitives;
+
 namespace kondensor.cfgenlib
 {
 
   public struct ResourceProperty
   {
-    private object? Inner;
+    private Option<IPrimitive> Inner;
 
     public string Name { get; }
 
-    public Option<T> GetValue<T>()
+    public Option<IPrimitive> GetValue()
     {
-      Option<T> value;
-      if (Inner != null && Inner is Option<T> )
-      {
-        value = (Option<T>) Inner;
-      }
-      else 
-      {
-        value = Option.None<T>();
-      }
-      return value;
+      return Inner;
     }
 
-    public void SetValue<T>(T value)
+    public ResourceProperty SetValue<T>(T value) where T : IPrimitive
     {
-      Type type = typeof(T);
-      Inner = type.IsValueType
-        ? Option.Some(value)
-        : value != null
-          ? Option.Some(value)
-          : (object) Option.None<T>;
+      Console.WriteLine($"Set {Name} to have {value.GetType().Name}");
+      Inner = Option.Some( (IPrimitive) value);
+      return this;
     }
+
+    public bool IsSet() => Inner.HasValue;
 
     public bool Assign(ResourceProperty other)
     {
@@ -46,7 +38,7 @@ namespace kondensor.cfgenlib
     public ResourceProperty(string name)
     {
       Name = name;
-      Inner = null;
+      Inner = Option.None<IPrimitive>();
     }
   }
 
