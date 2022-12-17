@@ -10,14 +10,14 @@ public class Program
   public static void Main(string[] args)
   {
     TemplateDocument template = new TemplateDocument(new Header("Test template"));
-    AwsEc2Vpc vpc = new AwsEc2Vpc();
-    vpc.SetCidrBlock(Values.CidrBlock(10,1,1,0, 16));
-    vpc.SetEnableDnsHostnames(true);
-    vpc.SetEnableDnsSupport(true);
-    vpc.SetIpv4IpamPoolId("poolId");
-    vpc.AddTag("Environment", "Test");
+    AwsEc2Vpc vpcProps = new AwsEc2Vpc();
+    vpcProps.SetCidrBlock(Values.CidrBlock(10,1,1,0, 16));
+    vpcProps.SetEnableDnsHostnames(true);
+    vpcProps.SetEnableDnsSupport(true);
+    vpcProps.SetIpv4IpamPoolId("poolId");
+    vpcProps.AddTag("Environment", "Test");
 
-    template.Resources.Add( new Resource("TestVpc", vpc));
+    template.Resources.Add( new Resource("TestVpc", vpcProps));
     
     YamlWriter writer = new YamlWriter();
 

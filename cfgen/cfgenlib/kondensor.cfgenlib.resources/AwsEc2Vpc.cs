@@ -7,64 +7,59 @@ namespace kondensor.cfgenlib.resources
 
   public struct AwsEc2Vpc : IResourceType, IHasTags
   {
-    public string Name => "AWS::EC2::VPC";
+    private ResourceProperties _Properties;
 
-    public Dictionary<string, ResourceProperty> Properties => _Properties;
+    public string Type => "AWS::EC2::VPC";
 
-    private Dictionary<string, ResourceProperty> _Properties;
+
+    public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
+
+    public void SetProp<T>(string name, T value) where T : IPrimitive
+    => _Properties.SetProp<T>(name, value);
     
-    public void SetProp(ResourceProperty prop) => BaseResourceType.SetProp(prop, _Properties);
-
     public void SetCidrBlock(string value)
-      => _Properties["CidrBlock"].SetValue<Text>( new Text(value) );
+      => _Properties.SetProp<Text>("CidrBlock", new Text(value));
 
     public void SetEnableDnsHostnames(bool isEnable)
-    {
-      Bool _bool;
-      _bool = new Bool(isEnable);
-      _Properties["EnableDnsHostnames"] = _Properties["EnableDnsHostnames"].SetValue<Bool>(_bool);
-    }
-      // => _Properties["EnableDnsHostnames"].SetValue<Bool>( new Bool(isEnable) );
+      => _Properties.SetProp<Bool>("EnableDnsHostnames", new Bool(isEnable));
     
     public void SetEnableDnsSupport(bool isEnable)
-      => _Properties["EnableDnsSupport"] = _Properties["EnableDnsSupport"].SetValue<Bool>( new Bool(isEnable) );
+      => _Properties.SetProp<Bool>("EnableDnsSupport", new Bool(isEnable));
+      // => _Properties["EnableDnsSupport"] = _Properties["EnableDnsSupport"].SetValue<Bool>( new Bool(isEnable) );
 
     public void SetInstanceTenancy(string tenancy)
-      => _Properties["InstanceTenancy"] = _Properties["InstanceTenancy"].SetValue( new Text(tenancy) );
+      => _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
+      // => _Properties["InstanceTenancy"] = _Properties["InstanceTenancy"].SetValue( new Text(tenancy) );
 
     public void SetIpv4IpamPoolId(string poolId)
-      => _Properties["Ipv4IpamPoolId"] = _Properties["Ipv4IpamPoolId"].SetValue( new Text(poolId) );
+      => _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId));
+      // => _Properties["Ipv4IpamPoolId"] = _Properties["Ipv4IpamPoolId"].SetValue( new Text(poolId) );
     
     public void SetIpv4NetmaskLength(int length)
-      => _Properties["Ipv4NetmaskLength"] = _Properties["Ipv4NetmaskLength"].SetValue( new IntNumber(length) );
+      => _Properties.SetProp<IntNumber>("Ipv4NetmaskLength", new IntNumber(length));
+      // => _Properties["Ipv4NetmaskLength"] = _Properties["Ipv4NetmaskLength"].SetValue( new IntNumber(length) );
     
     public void SetTags(Tags tags)
-      => _Properties["Tags"] = _Properties["Tags"].SetValue(tags);
+      => _Properties.SetProp<Tags>("Tags", tags);
+      // => _Properties["Tags"] = _Properties["Tags"].SetValue(tags);
 
     public void AddTag(string key, string value)
     {
       Tag tag = new Tag(key, value);
-      if (_Properties["Tags"].IsSet())
+      if (! _Properties.HasValue<Tags>("Tags"))
       {
-        _Properties["Tags"].GetValue().MatchSome( _tags => {
-          Tags tags = (Tags) _tags;
-          tags.TagList.Add(tag);
-        });
+        Tags tags = new Tags(tag);
+        _Properties.SetProp<Tags>("Tags", tags);
       }
       else
       {
-        CreateTagsAndAddTag(tag);
+        _Properties.Access<Tags>("Tags", tags=> tags.TagList.Add(tag));
       }
-    }
-
-    private void CreateTagsAndAddTag(Tag tag)
-    {
-      _Properties["Tags"].SetValue<Tags>(new Tags(tag));
     }
 
     public AwsEc2Vpc()
     {
-      _Properties = BaseResourceType.DeclareProperties(
+      _Properties = new ResourceProperties(
         "CidrBlock",
         "EnableDnsHostnames", //: Boolean
         "EnableDnsSupport", //: Boolean

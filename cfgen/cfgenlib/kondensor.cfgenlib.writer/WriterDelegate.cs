@@ -1,4 +1,5 @@
 using System.IO;
+using System.Collections.Generic;
 using Optional;
 
 namespace kondensor.cfgenlib.writer
@@ -14,6 +15,10 @@ namespace kondensor.cfgenlib.writer
   /// <returns>StreamWriter object.</returns>
   public delegate StreamWriter WriterDelegate<T>(
     StreamWriter output, T value, string indent
+  ) where T : struct;
+
+  public delegate StreamWriter ListWriterDelegate<T>(
+    StreamWriter output, List<T> list, string indent
   ) where T : struct;
 
   public delegate StreamWriter Writer(

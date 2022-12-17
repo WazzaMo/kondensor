@@ -29,7 +29,7 @@ namespace kondensor.cfgenlib.writer
       using (StreamWriter output = File.CreateText(writeFileName))
       {
         WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
-        WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetWriter<Resource>());
+        WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetListWriter<Resource>());
       }
     }
 
@@ -44,10 +44,21 @@ namespace kondensor.cfgenlib.writer
       );
     }
 
+    public void RegisterListWriter<T>(ListWriterDelegate<T> writer) where T : struct
+    {
+      Writers.Add(
+        typeof(List<T>),
+        (StreamWriter sw, Option<object> o, Type type, string indent) => {
+          o.MatchSome( (object list) => writer(sw, (List<T>) list, indent));
+          return sw;
+        }
+      );
+    }
+
     private void RegisterBasicWriters()
     {
       RegisterWriter( (WriterDelegate<Header>) HeaderWriter.Write );
-      RegisterWriter( (WriterDelegate<Resource>) ResourceWriter.Write);
+      RegisterListWriter( (ListWriterDelegate<Resource>) ResourceWriter.Write);
       RegisterWriter( (WriterDelegate<Metadata>) MetadataWriter.Write );
     }
 
@@ -60,18 +71,24 @@ namespace kondensor.cfgenlib.writer
       return (WriterDelegate<T>) ((StreamWriter output, T value, string indent) => writer(output, Option.Some<object>((object)value), typeof(T), indent));
     }
 
+    private ListWriterDelegate<T> GetListWriter<T>() where T: struct
+    {
+      Type listWriterType = typeof(List<T>);
+      Writer writer = Writers.ContainsKey(listWriterType)
+        ? Writers[listWriterType]
+        : ErrorWriter;
+      return (ListWriterDelegate<T>) ((StreamWriter output, List<T> list, string indent) => writer(output, Option.Some<object>((object) list), typeof(List<T>), indent));
+    }
+
     private static void WhenHaveValue<T>(Option<T> value, StreamWriter output, string indent, WriterDelegate<T> writer) where T : struct
     {
       value.MatchSome( toWrite => writer(output, toWrite, indent));
     }
 
-    private static void WhenHaveMultiple<T>(List<T> values, StreamWriter output, string indent, WriterDelegate<T> writer) where T : struct
+    private static void WhenHaveMultiple<T>(List<T> values, StreamWriter output, string indent, ListWriterDelegate<T> writer) where T : struct
     {
       if (values != null && values.Count > 0) {
-        foreach( T value in values)
-        {
-          writer(output, value, indent);
-        }
+        writer(output, values, indent);
       }
     }
 
