@@ -19,7 +19,6 @@ namespace kondensor.cfgenlib
 
     public ResourceProperty SetValue<T>(T value) where T : IPrimitive
     {
-      Console.WriteLine($"Set {Name} to have {value.GetType().Name}");
       Inner = Option.Some( (IPrimitive) value);
       return this;
     }

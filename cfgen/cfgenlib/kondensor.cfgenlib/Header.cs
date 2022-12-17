@@ -2,6 +2,7 @@
 
 using Optional;
 
+using kondensor.cfgenlib.primitives;
 
 namespace kondensor.cfgenlib
 {
@@ -12,17 +13,21 @@ namespace kondensor.cfgenlib
   /// </summary>
   public struct Header
   {
-    public Option<string> Description;
+    public Text Description;
+
+    public void SetDescription(string header)
+      => Description = new Text(header);
 
     public Header(string description)
     {
+      Description = default;
       if (string.IsNullOrEmpty(description))
       {
-        Description = Option.Some("template generated with Kondensor.");
+        SetDescription("template generated with Kondensor.");
       }
       else
       {
-        Description = Option.Some(description);
+        SetDescription(description);
       }
     }
   }

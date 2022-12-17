@@ -11,7 +11,6 @@ namespace kondensor.cfgenlib.primitives
     void IPrimitive.Write(StreamWriter output, string name, string indent)
     {
       YamlWriter.Write(output, $"{name}: '{Value}'", indent);
-      Console.WriteLine($"Bool name{name}: {Value}");
     }
 
     public Bool(bool value)

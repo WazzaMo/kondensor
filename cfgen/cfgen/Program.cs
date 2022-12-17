@@ -14,7 +14,7 @@ public class Program
     vpcProps.SetCidrBlock(Values.CidrBlock(10,1,1,0, 16));
     vpcProps.SetEnableDnsHostnames(true);
     vpcProps.SetEnableDnsSupport(true);
-    vpcProps.SetIpv4IpamPoolId("poolId");
+    vpcProps.SetIpv4IpamPoolId(IpamPoolIdValues.CidrBlock);
     vpcProps.AddTag("Environment", "Test");
 
     template.Resources.Add( new Resource("TestVpc", vpcProps));

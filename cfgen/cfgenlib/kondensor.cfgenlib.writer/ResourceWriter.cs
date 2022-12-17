@@ -39,11 +39,9 @@ namespace kondensor.cfgenlib.writer
             {
               ResourceProperty resProp = resource.Properties[propKey];
               string name = resProp.Name;
-              Console.WriteLine($"Prop: {name} hasVal? {resProp.IsSet()}");
               Option<IPrimitive> propValue = resProp.GetValue();
               propValue.MatchSome(
                 primitive => {
-                  Console.WriteLine($"Prop-- {name} = {primitive.GetType().Name}");
                   primitive.Write(output, name, _3_indent);
                 }
               );

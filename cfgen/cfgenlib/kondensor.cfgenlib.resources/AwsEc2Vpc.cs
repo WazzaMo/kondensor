@@ -31,8 +31,8 @@ namespace kondensor.cfgenlib.resources
       => _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
       // => _Properties["InstanceTenancy"] = _Properties["InstanceTenancy"].SetValue( new Text(tenancy) );
 
-    public void SetIpv4IpamPoolId(string poolId)
-      => _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId));
+    public void SetIpv4IpamPoolId(IpamPoolIdValues poolId)
+      => _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId.ToString("F")));
       // => _Properties["Ipv4IpamPoolId"] = _Properties["Ipv4IpamPoolId"].SetValue( new Text(poolId) );
     
     public void SetIpv4NetmaskLength(int length)

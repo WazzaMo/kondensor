@@ -13,10 +13,10 @@ namespace kondensor.cfgenlib.writer
 
     public static StreamWriter Write(StreamWriter output, Header header, string indent)
     {
-      YamlWriter.Write(output, HEADER, indent: "");
-      header.Description.MatchSome( description =>
-        YamlWriter.Write(output, message: $"{DESCRIPTION}: {description}", YamlWriter.INDENT)
-      );
+      string  _0_indent = indent;
+
+      YamlWriter.Write(output, HEADER, indent: _0_indent);
+      header.Description.Write(output, "Description", _0_indent);
       return output;
     }
   }
