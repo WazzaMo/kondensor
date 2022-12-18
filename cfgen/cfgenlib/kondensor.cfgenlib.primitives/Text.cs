@@ -27,6 +27,20 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
+    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    {
+      string
+        _0_indent = indent,
+        _1_indent = _0_indent + YamlWriter.INDENT;
+      string[] parts = SplitTextByLength(Value, MAX_LEN);
+
+      YamlWriter.Write(output, message: $"{prefix} {parts[0]}", _0_indent);
+      for(int index = 1; index < parts.Length; index++)
+      {
+        YamlWriter.Write(output, message: parts[index], _1_indent);
+      }
+    }
+
     public Text(string text)
     {
       Value = text;
@@ -59,6 +73,7 @@ namespace kondensor.cfgenlib.primitives
       }
       return chunks.ToArray();
     }
-  }
+
+  } // -- Text
 
 }

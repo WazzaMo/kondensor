@@ -25,6 +25,19 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
+    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    {
+      var _1_indent = indent + YamlWriter.INDENT;
+      var _2_indent = _1_indent + YamlWriter.INDENT;
+
+      YamlWriter.Write(output, message: $"{prefix}", indent);
+      foreach(Tag tag in TagList)
+      {
+        YamlWriter.Write(output, message: $"- Key: {tag.Name}", _1_indent);
+        YamlWriter.Write(output, message: $"Value: {tag.Value}", _2_indent);
+      }
+    }
+
     public Tags(params Tag[] tags)
     {
       TagList = tags.Length > 0 ? tags.ToList() : new List<Tag>();

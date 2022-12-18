@@ -14,6 +14,8 @@ namespace kondensor.cfgenlib.primitives
     /// <param name="name">Name to write</param>
     /// <param name="indent">Base indent to use</param>
     void Write(StreamWriter output, string name, string indent);
+
+    void WritePrefixed(StreamWriter output, string prefix, string indent);
   }
 
 }
