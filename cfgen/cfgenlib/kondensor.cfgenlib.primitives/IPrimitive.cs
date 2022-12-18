@@ -15,7 +15,16 @@ namespace kondensor.cfgenlib.primitives
     /// <param name="indent">Base indent to use</param>
     void Write(StreamWriter output, string name, string indent);
 
+    /// <summary>
+    /// Write a prefixed value to the output stream.
+    /// This was added to support <see href="PrimitiveList"/> originally
+    /// and allows values to be prefixed with any given string.
+    /// </summary>
+    /// <param name="output">Output stream</param>
+    /// <param name="prefix">Prefix to used - can be blank string.</param>
+    /// <param name="indent">Indent to use before prefix.</param>
     void WritePrefixed(StreamWriter output, string prefix, string indent);
+
   }
 
 }

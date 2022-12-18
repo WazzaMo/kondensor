@@ -25,23 +25,19 @@ namespace kondensor.cfgenlib.resources
     
     public void SetEnableDnsSupport(bool isEnable)
       => _Properties.SetProp<Bool>("EnableDnsSupport", new Bool(isEnable));
-      // => _Properties["EnableDnsSupport"] = _Properties["EnableDnsSupport"].SetValue<Bool>( new Bool(isEnable) );
 
     public void SetInstanceTenancy(string tenancy)
       => _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
-      // => _Properties["InstanceTenancy"] = _Properties["InstanceTenancy"].SetValue( new Text(tenancy) );
 
+    // TODO
     public void SetIpv4IpamPoolId(IpamPoolIdValues poolId)
       => _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId.ToString("F")));
-      // => _Properties["Ipv4IpamPoolId"] = _Properties["Ipv4IpamPoolId"].SetValue( new Text(poolId) );
     
     public void SetIpv4NetmaskLength(int length)
       => _Properties.SetProp<IntNumber>("Ipv4NetmaskLength", new IntNumber(length));
-      // => _Properties["Ipv4NetmaskLength"] = _Properties["Ipv4NetmaskLength"].SetValue( new IntNumber(length) );
     
     public void SetTags(Tags tags)
       => _Properties.SetProp<Tags>("Tags", tags);
-      // => _Properties["Tags"] = _Properties["Tags"].SetValue(tags);
 
     public void AddTag(string key, string value)
     {
