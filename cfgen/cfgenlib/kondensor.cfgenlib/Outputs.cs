@@ -18,6 +18,11 @@ namespace kondensor.cfgenlib
     public void AddOutput(IOutput value)
       => _OutputList.Add(value);
     
+    public bool HasOutputs => _OutputList.Count > 0;
+
+    public void ForEachOutput( Action<IOutput> job)
+      => _OutputList.ForEach(job);
+    
     public Outputs()
     {
       _OutputList = new List<IOutput>();

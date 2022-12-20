@@ -6,8 +6,7 @@ namespace kondensor.cfgenlib.outputs
 
   public interface IExport
   {
-    Text Name { get; }
-    Text ExportValue { get; }
+    string ExportValue { get; }
 
     void Write( StreamWriter output, string indent);
   }
