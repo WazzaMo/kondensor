@@ -30,6 +30,8 @@ namespace kondensor.cfgenlib.writer
       {
         WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
         WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetListWriter<Resource>());
+        WhenHaveValue<Metadata>(document.Metadata, output, indent: "", GetWriter<Metadata>() );
+        WhenHaveValue<Outputs>(document.Outputs, output, indent: "", GetWriter<Outputs>() );
       }
     }
 
@@ -60,6 +62,7 @@ namespace kondensor.cfgenlib.writer
       RegisterWriter( (WriterDelegate<Header>) HeaderWriter.Write );
       RegisterListWriter( (ListWriterDelegate<Resource>) ResourceWriter.Write);
       RegisterWriter( (WriterDelegate<Metadata>) MetadataWriter.Write );
+      RegisterWriter( (WriterDelegate<Outputs>) OutputsWriter.Write );
     }
 
     private WriterDelegate<T> GetWriter<T>() where T : struct
