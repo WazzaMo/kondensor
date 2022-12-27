@@ -5,6 +5,7 @@
  */
 
 using System.Collections.Generic;
+using Optional;
 
 using kondensor.cfgenlib.outputs;
 
@@ -26,6 +27,27 @@ namespace kondensor.cfgenlib
     public Outputs()
     {
       _OutputList = new List<IOutput>();
+    }
+
+    /// <summary>
+    /// Standard decoder for the optional AddOutput() strings
+    /// that give definition or conditions. Order and presence
+    /// is important so to pass condition,
+    /// a description is mandatory.
+    /// </summary>
+    /// <param name="description"></param>
+    /// <param name="condition"></param>
+    public static (Option<string> description, Option<string> condition)
+      GetOutputOptionsFrom(string[] optionalText)
+    {
+      Option<string> description, condition;
+      description = optionalText.Length >=1
+        ? Option.Some(optionalText[0])
+        : Option.None<string>();
+      condition = optionalText.Length >= 2
+        ? Option.Some(optionalText[1])
+        : Option.None<string>();
+      return (description, condition);
     }
   }
 

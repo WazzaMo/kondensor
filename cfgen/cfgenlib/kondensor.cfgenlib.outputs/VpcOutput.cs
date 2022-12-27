@@ -25,7 +25,7 @@ namespace kondensor.cfgenlib.outputs
       private string _EnvName;
       private string _VpcName;
 
-      public string ExportValue => $"!Sub \"${{{_EnvName}}}-{_VpcName}\"";
+      public string ExportValue => $"{_EnvName}-{_VpcName}";
 
       public VpcExport(string environment, string vpcName)
       {
@@ -62,7 +62,7 @@ namespace kondensor.cfgenlib.outputs
       _LogId = new Text($"Vpc{vpcName}");
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
-      _Value = new Text(text: $"Ref! {vpcName}");
+      _Value = new Text(text: $"!Ref {vpcName}");
       _Export = Option.Some<IExport>(new VpcExport(environment, vpcName));
     }
 

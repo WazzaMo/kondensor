@@ -1,6 +1,8 @@
 
+using Optional;
 using kondensor.cfgenlib;
 using kondensor.cfgenlib.primitives;
+using kondensor.cfgenlib.outputs;
 
 namespace kondensor.cfgenlib.resources
 {
@@ -14,9 +16,6 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void SetProp<T>(string name, T value) where T : IPrimitive
-    => _Properties.SetProp<T>(name, value);
-    
     public void SetCidrBlock(string value)
       => _Properties.SetProp<Text>("CidrBlock", new Text(value));
 
@@ -52,6 +51,23 @@ namespace kondensor.cfgenlib.resources
         _Properties.Access<Tags>("Tags", tags=> tags.TagList.Add(tag));
       }
     }
+
+    public void AddOutput(
+      TemplateDocument document,
+      string environment,
+      string name,
+      params string[] optionalText
+    )
+    {
+      var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
+      VpcOutput vpcOut = new VpcOutput(environment, name);
+      description.MatchSome( desc => vpcOut.SetDescription(desc) );
+      condition.MatchSome(cond => vpcOut.SetCondition(cond));
+      document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
+    }
+
+    private string UniqueExportName(string environment, string name)
+      => $"{environment}:{name}";
 
     public AwsEc2Vpc()
     {

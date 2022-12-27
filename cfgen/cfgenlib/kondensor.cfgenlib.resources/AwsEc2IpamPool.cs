@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using kondensor.cfgenlib.primitives;
+using Optional;
 
 namespace kondensor.cfgenlib.resources
 {
@@ -64,6 +65,18 @@ namespace kondensor.cfgenlib.resources
       => _Properties.SetProp<Text>(name: "SourceIpamPoolId", value: new Text(sourceIpamPoolId));
     public void SetTag(Tags tags)
       => _Properties.SetProp<Tags>(name: "Tags", value: tags);
+
+    public void AddOutput(
+      TemplateDocument document,
+      string environment,
+      string name,
+      params string[] optionalText
+    )
+    {
+      var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
+      throw new NotImplementedException();
+    }
+
     public AwsEc2IpamPool()
     {
       _Properties = new ResourceProperties(

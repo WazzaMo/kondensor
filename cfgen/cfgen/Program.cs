@@ -19,6 +19,7 @@ public class Program
     vpcProps.AddTag(key: "Name", value: "TestVpc");
 
     template.Resources.Add( new Resource("TestVpc", vpcProps));
+    vpcProps.AddOutput(document: template, environment: "Test",name: "TestVpc", "First test VPC");
     
     YamlWriter writer = new YamlWriter();
 
