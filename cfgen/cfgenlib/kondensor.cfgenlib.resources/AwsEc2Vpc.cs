@@ -7,7 +7,7 @@ using kondensor.cfgenlib.outputs;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct AwsEc2Vpc : IResourceType, IHasTags
+  public struct AwsEc2Vpc : IOutputResourceType, IHasTags
   {
     private ResourceProperties _Properties;
 
