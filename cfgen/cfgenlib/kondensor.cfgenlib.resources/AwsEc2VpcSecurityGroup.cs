@@ -15,6 +15,14 @@ namespace kondensor.cfgenlib.resources
 
   public struct AwsEc2VpcSecurityGroup : IOutputResourceType, IHasTags
   {
+    public readonly string 
+        GROUP_DESCRIPTION = "GroupDescription",
+        GROUP_NAME = "GroupName",
+        GROUP_EGRESS = "SecurityGroupEgress",
+        GROUP_INGRESS = "SecurityGroupIngress",
+        GROUP_TAGS = "Tags",
+        GROUP_VPC = "VpcId";
+
     private ResourceProperties _Properties;
     public string Type => "AWS::EC2::SecurityGroup";
 
@@ -25,36 +33,37 @@ namespace kondensor.cfgenlib.resources
       throw new NotImplementedException();
     }
 
-    public void SetGroupDescription(Text description)
-      => _Properties.SetProp(name: GROUP_DESCRIPTION, description);
+    public void SetGroupDescription(string description)
+      => _Properties.SetProp(name: GROUP_DESCRIPTION, new Text(description) );
 
-    public void SetGroupName(Text name)
-      => _Properties.SetProp(name: GROUP_NAME, name);
+    public void SetGroupName(string name)
+      => _Properties.SetProp(name: GROUP_NAME, new Text(name) );
     
-    
+    public void AddEgressRule(VpcEgress egress)
+    {
+      if (_Properties.HasValue<ResourceList<VpcEgress>>(GROUP_EGRESS) )
+        _Properties.Access<ResourceList<VpcEgress>>(GROUP_EGRESS, rList => rList.Add(egress));
+      else
+        _Properties.SetProp<ResourceList<VpcEgress>>(GROUP_EGRESS, new ResourceList<VpcEgress>(egress));
+    }
+
+    public void AddIngressRule(VpcIngress ingress)
+    {
+      if (_Properties.HasValue<ResourceList<VpcIngress>>(GROUP_INGRESS))
+        _Properties.Access<ResourceList<VpcIngress>>(GROUP_INGRESS, rList => rList.Add(ingress));
+      else
+        _Properties.SetProp<ResourceList<VpcIngress>>(GROUP_INGRESS, new ResourceList<VpcIngress>(ingress));
+    }
 
     public void AddTag(string key, string value)
     {
       Tag _newTag = new Tag(key, value);
 
       if (_Properties.HasValue<Tags>(GROUP_TAGS))
-      {
         _Properties.Access<Tags>(GROUP_TAGS, (Tags tags) => tags.TagList.Add(_newTag));
-      }
       else
-      {
-        Tags _tags = new Tags(_newTag);
-        _Properties.SetProp<Tags>(GROUP_TAGS, _tags);
-      }
+        _Properties.SetProp<Tags>(GROUP_TAGS, new Tags(_newTag));
     }
-
-    public readonly string 
-        GROUP_DESCRIPTION = "GroupDescription",
-        GROUP_NAME = "GroupName",
-        GROUP_EGRESS = "SecurityGroupEgress",
-        GROUP_INGRESS = "SecurityGroupIngress",
-        GROUP_TAGS = "Tags",
-        GROUP_VPC = "VpcId";
 
     public AwsEc2VpcSecurityGroup(string description)
     {
