@@ -39,6 +39,12 @@ namespace kondensor.cfgenlib.resources
     public void SetGroupName(string name)
       => _Properties.SetProp(name: GROUP_NAME, new Text(name) );
     
+    public void SetVpcId(Ref vpcRef)
+      => _Properties.SetProp<Ref>(GROUP_VPC, vpcRef);
+    
+    public void SetVpcId(Import vpcImport)
+      => _Properties.SetProp<Import>(GROUP_VPC, vpcImport);
+
     public void AddEgressRule(VpcEgress egress)
     {
       if (_Properties.HasValue<ResourceList<VpcEgress>>(GROUP_EGRESS) )
