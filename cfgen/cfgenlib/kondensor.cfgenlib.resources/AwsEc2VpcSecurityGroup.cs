@@ -28,9 +28,20 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    public void AddOutput(
+      TemplateDocument document,
+      string environment,
+      string name,
+      params string[] optionalText
+    )
     {
-      throw new NotImplementedException();
+      // Need security group output
+      
+      // var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
+      //  vpcOut = new VpcOutput(environment, name);
+      // description.MatchSome( desc => vpcOut.SetDescription(desc) );
+      // condition.MatchSome(cond => vpcOut.SetCondition(cond));
+      // document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
     }
 
     public void SetGroupDescription(string description)

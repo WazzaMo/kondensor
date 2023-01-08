@@ -10,11 +10,16 @@ public class Program
 {
   static readonly string
     ENVIRONMENT = "Test",
-    VPC_NAME = "TestVpc";
+    VPC_NAME = "TestVpc",
+    SECGROUP_NAME = "AllowWeb",
+
+    VPC_TEST = "VpcTest.yaml",
+    SEC_GROUP = "SecGrp.yaml";
 
   public static void Main(string[] args)
   {
-    
+    TestVpc();
+    TestSecGroup();
   }
 
   private static void TestVpc()
@@ -33,7 +38,7 @@ public class Program
     
     YamlWriter writer = new YamlWriter();
 
-    writer.WriteFile(writeFileName:"test.yaml", template);
+    writer.WriteFile(VPC_TEST, template);
   }
 
   private static void TestSecGroup()
@@ -46,6 +51,20 @@ public class Program
 
     VpcEgress egress = new VpcEgress();
     egress.SetCidrIp( IpCidrAddress.AnyAddress() );
-    egress.SetIpProtocol(new IpProtocol(IpProtocol.IpProtocolType.DNS_TCP));
+    egress.SetIpProtocol( IpProtocol.AllProtocols() );
+    secGroup.AddEgressRule(egress);
+
+    VpcIngress ingress = new VpcIngress();
+    ingress.SetFromPort(80);
+    ingress.SetDescription("Allow web traffic");
+    ingress.SetIpProtocol(IpProtocol.TCP() );
+    secGroup.AddIngressRule(ingress);
+
+    secGroup.AddOutput( template, ENVIRONMENT, SECGROUP_NAME, optionalText: "Allow web traffic.");
+
+    template.Resources.Add( new Resource( SECGROUP_NAME, secGroup) );
+
+    YamlWriter writer = new YamlWriter();
+    writer.WriteFile(SEC_GROUP, template);
   }
 }

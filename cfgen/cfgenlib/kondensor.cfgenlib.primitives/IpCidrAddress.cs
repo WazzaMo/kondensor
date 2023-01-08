@@ -18,10 +18,10 @@ namespace kondensor.cfgenlib.primitives
     public int Cidr { get; private set; }
 
     public void Write(StreamWriter output, string name, string indent)
-      => YamlWriter.Write(output, $"{name}: {Octets[0]},{Octets[1]},{Octets[2]},{Octets[3]}/{Cidr}", indent);
+      => YamlWriter.Write(output, $"{name}: {Octets[0]}.{Octets[1]}.{Octets[2]}.{Octets[3]}/{Cidr}", indent);
 
     public void WritePrefixed(StreamWriter output, string prefix, string indent)
-      => YamlWriter.Write(output, $"{prefix}: {Octets[0]},{Octets[1]},{Octets[2]},{Octets[3]}/{Cidr}", indent);
+      => YamlWriter.Write(output, $"{prefix}: {Octets[0]}.{Octets[1]}.{Octets[2]}.{Octets[3]}/{Cidr}", indent);
 
     public void SetCidrAndAddress(int cidr, params byte[] octets)
     {
@@ -42,7 +42,7 @@ namespace kondensor.cfgenlib.primitives
     public static byte[] OctetArray(params byte[] octets)
     {
       byte[] value = new byte[4];
-      for(int index = 0; index < 4; index++)
+      for(int index = 0; index < octets.Length && index < 4; index++)
         value[index] = octets.Length >= index ? octets[index] : (byte) 0;
       
       return value;
