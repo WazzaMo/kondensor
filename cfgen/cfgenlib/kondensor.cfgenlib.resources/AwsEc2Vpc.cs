@@ -81,6 +81,7 @@ namespace kondensor.cfgenlib.resources
         "Tags" //: 
       );
     }
-  }
+
+  }// end struct
   
 }

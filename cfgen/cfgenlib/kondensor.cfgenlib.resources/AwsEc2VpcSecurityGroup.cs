@@ -92,8 +92,8 @@ namespace kondensor.cfgenlib.resources
         GROUP_TAGS,
         GROUP_VPC
       );
+      SetGroupDescription(description);
     }
-
-    
   }
+
 }
