@@ -54,6 +54,11 @@ public class Program
     egress.SetIpProtocol( IpProtocol.AllProtocols() );
     secGroup.AddEgressRule(egress);
 
+/*
+Invalid value for portRange. Must specify both from and to ports with TCP/UDP.
+(Service: AmazonEC2; Status Code: 400; Error Code: InvalidParameterValue;
+Request ID: 6537f0b6-cf43-4c9a-8c61-d01f3ab1fa56; Proxy: null)
+*/
     VpcIngress ingress = new VpcIngress();
     ingress.SetFromPort(80);
     ingress.SetDescription("Allow web traffic");
