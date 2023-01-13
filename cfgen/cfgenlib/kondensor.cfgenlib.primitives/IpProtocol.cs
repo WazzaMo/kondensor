@@ -49,6 +49,34 @@ namespace kondensor.cfgenlib.primitives
 
     public static IpProtocol AllProtocols() => new IpProtocol(IpProtocolType.ALL_PROTOCOLS);
 
+    public static int PortForProtocol(IpProtocolType protocol)
+      => protocol switch {
+        IpProtocolType.SSH => 22,
+        IpProtocolType.DNS_TCP => 53,
+        IpProtocolType.DNS_UDP => 53,
+        IpProtocolType.HTTP => 80,
+        IpProtocolType.HTTPS => 443,
+        IpProtocolType.LDAP => 389,
+        IpProtocolType.MSSQL => 1433,
+        IpProtocolType.MYSQL_AURORA => 3306,
+        IpProtocolType.ELASTIC_GRAPHICS => 2007,
+        IpProtocolType.NFS => 2049,
+        IpProtocolType.ORACLE_RDS => 2483,
+        IpProtocolType.IMAP => 143,
+        IpProtocolType.IMAPS => 993,
+        IpProtocolType.POP3 => 110,
+        IpProtocolType.POP3S => 995,
+        IpProtocolType.POSTGRESQL => 5432,
+        IpProtocolType.RDP => 3389,
+        IpProtocolType.REDSHIFT => 5439,
+        IpProtocolType.SMB => 139,
+        IpProtocolType.SMTP => 25,
+        IpProtocolType.SMTPS => 587,
+        IpProtocolType.WINRM_HTTP => 5985,
+        IpProtocolType.WINRM_HTTPS => 5986,
+        _ => 0
+      };
+
     public enum IpProtocolType
     {
       ALL_PROTOCOLS,
@@ -78,7 +106,7 @@ namespace kondensor.cfgenlib.primitives
       ORACLE_RDS,
       WINRM_HTTP,
       WINRM_HTTPS,
-      ESASTIC_GRAPHICS
+      ELASTIC_GRAPHICS
     } // -- IpProtocolType
   } // -- end IpProtocol
 
