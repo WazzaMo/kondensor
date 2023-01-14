@@ -9,7 +9,7 @@ using kondensor.cfgenlib.primitives;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct VpcEgress : IResourceType
+  public struct VpcEgress : IResourceType, IProtocolAndPortRange
   {
     public readonly string
         EGRESS_IP = "CidrIp", //: String

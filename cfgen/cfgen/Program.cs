@@ -51,9 +51,10 @@ public class Program
 
     VpcEgress egress = new VpcEgress();
     egress.SetCidrIp( IpCidrAddress.AnyAddress() );
-    egress.SetIpProtocol( IpProtocol.AllProtocols() );
-    egress.SetFromPort(-1);
-    egress.SetToPort(-1);
+    egress = egress.SetProtocolAndPortRange(IpProtocolType.ALL_PROTOCOLS);
+    // egress.SetIpProtocol( IpProtocol.AllProtocols() );
+    // egress.SetFromPort(-1);
+    // egress.SetToPort(-1);
     secGroup.AddEgressRule(egress);
 
 /*
@@ -62,10 +63,11 @@ Invalid value for portRange. Must specify both from and to ports with TCP/UDP.
 Request ID: 6537f0b6-cf43-4c9a-8c61-d01f3ab1fa56; Proxy: null)
 */
     VpcIngress ingress = new VpcIngress();
-    ingress.SetFromPort(80);
-    ingress.SetToPort(80);
+    ingress = ingress.SetProtocolAndPortRange(IpProtocolType.HTTP);
+    // ingress.SetFromPort(80);
+    // ingress.SetToPort(80);
     ingress.SetDescription("Allow web traffic");
-    ingress.SetIpProtocol(IpProtocol.TCP() );
+    // ingress.SetIpProtocol(IpProtocol.TCP() );
     ingress.SetCidrIp(IpCidrAddress.AnyAddress());
     secGroup.AddIngressRule(ingress);
 
