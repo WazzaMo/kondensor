@@ -82,9 +82,7 @@ namespace kondensor.cfgenlib.resources
     }
 
     public void AddTag(string key, string value)
-    {
-      throw new NotImplementedException();
-    }
+      => _Properties.AddTag(key, value);
 
     public AwsEc2Subnet()
     {

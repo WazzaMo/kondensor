@@ -1,5 +1,5 @@
 /*
- *  (c) Copyright 2020 Kondensor Contributors
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
  *  Distributed under the Kondensor License.
  */
@@ -44,18 +44,7 @@ namespace kondensor.cfgenlib.resources
       => _Properties.SetProp<Tags>("Tags", tags);
 
     public void AddTag(string key, string value)
-    {
-      Tag tag = new Tag(key, value);
-      if (! _Properties.HasValue<Tags>("Tags"))
-      {
-        Tags tags = new Tags(tag);
-        _Properties.SetProp<Tags>("Tags", tags);
-      }
-      else
-      {
-        _Properties.Access<Tags>("Tags", tags=> tags.TagList.Add(tag));
-      }
-    }
+      => _Properties.AddTag(key, value);
 
     public void AddOutput(
       TemplateDocument document,
