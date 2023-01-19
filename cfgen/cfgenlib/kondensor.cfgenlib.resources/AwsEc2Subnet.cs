@@ -69,12 +69,14 @@ namespace kondensor.cfgenlib.resources
     /// <param name="arn">ARN for Outpost.</param>
     public void SetOutpostArn(string arn)
       => _Properties.SetProp<Text>(OUTPOST_ARN, new Text(arn));
-    
-    //     Available options:
-    // EnableResourceNameDnsAAAARecord (true | false)
-    // EnableResourceNameDnsARecord (true | false)
-    // HostnameType (ip-name | resource-name)
-    // public void SetPrivateDnsNameOptionsOnLaunch()
+
+    /// <summary>
+    /// Set the private DNS on-launch options.
+    /// <see cref="VpcSubnetDnsNameOptions"/>
+    /// </summary>
+    /// <param name="options">The options resource primitive <see cref="VpcSubnetDnsNameOptions" /></param>    
+    public void SetPrivateDnsNameOptionsOnLaunch(VpcSubnetDnsNameOptions options)
+      => _Properties.SetProp<VpcSubnetDnsNameOptions>(PRIVATE_DNS_NAME_OPTIONS_ON_LAUNCH, options);
 
     public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {

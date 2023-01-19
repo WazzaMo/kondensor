@@ -1,8 +1,9 @@
 /*
- *  (c) Copyright 2020 Kondensor Contributors
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
  *  Distributed under the Kondensor License.
  */
+
 
 using kondensor.cfgenlib.primitives;
 
