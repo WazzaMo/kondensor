@@ -78,6 +78,15 @@ namespace kondensor.cfgenlib.resources
     public void SetPrivateDnsNameOptionsOnLaunch(VpcSubnetDnsNameOptions options)
       => _Properties.SetProp<VpcSubnetDnsNameOptions>(PRIVATE_DNS_NAME_OPTIONS_ON_LAUNCH, options);
 
+    /// <summary>
+    /// Set the VPC ID from a Ref or Import that will
+    /// contain the subnet for use in security groups and for
+    /// EC2 instances to use.
+    /// </summary>
+    /// <param name="vpcId">Ref or Import of VPC ID</param>
+    public void SetVpcId(string vpcId)
+      => _Properties.SetProp<Text>(VPC_ID, new Text(vpcId));
+
     public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
       throw new NotImplementedException();
