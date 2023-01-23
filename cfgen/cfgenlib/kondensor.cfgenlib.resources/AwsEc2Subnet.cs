@@ -1,10 +1,10 @@
 /*
- *  (c) Copyright 2020 Kondensor Contributors
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
  *  Distributed under the Kondensor License.
  */
 
-using kondensor.cfgenlib;
+using kondensor.cfgenlib.outputs;
 using kondensor.cfgenlib.primitives;
 
 namespace kondensor.cfgenlib.resources
@@ -79,17 +79,28 @@ namespace kondensor.cfgenlib.resources
       => _Properties.SetProp<VpcSubnetDnsNameOptions>(PRIVATE_DNS_NAME_OPTIONS_ON_LAUNCH, options);
 
     /// <summary>
-    /// Set the VPC ID from a Ref or Import that will
+    /// Set the VPC ID from an Import that will
     /// contain the subnet for use in security groups and for
     /// EC2 instances to use.
     /// </summary>
     /// <param name="vpcId">Ref or Import of VPC ID</param>
-    public void SetVpcId(string vpcId)
-      => _Properties.SetProp<Text>(VPC_ID, new Text(vpcId));
+    public void SetVpcId(Import vpcId)
+      => _Properties.SetProp<Import>(VPC_ID, vpcId);
+    
+    /// <summary>
+    /// Set the VPC ID from a Ref that will identify the VPC
+    /// declared in the same template, that is to
+    /// contain the subnet for use in security groups and for
+    /// EC2 instances to use.
+    /// </summary>
+    /// <param name="reference">Ref value to use.</param>
+    public void SetVpcId(Ref reference)
+      => _Properties.SetProp<Ref>(VPC_ID, reference);
 
     public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
-      throw new NotImplementedException();
+      SubnetOutput subnetOut = new SubnetOutput(environment, name);
+      Outputs.AddOutput(document, subnetOut, optionalText);
     }
 
     public void AddTag(string key, string value)

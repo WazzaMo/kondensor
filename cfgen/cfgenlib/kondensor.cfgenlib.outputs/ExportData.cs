@@ -16,9 +16,12 @@ namespace kondensor.cfgenlib.outputs
   public struct ExportData : IExport
   {
     private string _Environment;
+
+    /// <summary>Prefix indicating type</summary>
+    private string _ExpPrefix;
     private string _Id;
 
-    public string ExportValue => $"{_Environment}-{_Id}";
+    public string ExportValue => $"{_Environment}-{_ExpPrefix}{_Id}";
 
     public void Write(StreamWriter output, string indent)
     {
@@ -27,9 +30,17 @@ namespace kondensor.cfgenlib.outputs
         YamlWriter.Write(output, message: $"Name: {ExportValue}", _1_indent);
     }
 
-    public ExportData(string environment, string id)
+    /// <summary>
+    /// Create export with information for uniqueness and clarity
+    /// about the environment and resource being declared.
+    /// </summary>
+    /// <param name="environment">Environment name</param>
+    /// <param name="prefix">Prefix (Sub, Vpc etc)</param>
+    /// <param name="id">Name or ID</param>
+    public ExportData(string environment, string prefix, string id)
     {
       _Environment = environment;
+      _ExpPrefix = prefix;
       _Id = id;
     }
   }

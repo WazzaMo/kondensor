@@ -1,4 +1,11 @@
-﻿using Optional;
+﻿/*
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
+ *  Written by Warwick Molloy.
+ *  Distributed under the Kondensor License.
+ */
+
+
+using Optional;
 
 using kondensor.cfgenlib;
 using kondensor.cfgenlib.writer;
@@ -36,6 +43,13 @@ public class Program
     template.Resources.Add( new Resource("TestVpc", vpcProps));
     vpcProps.AddOutput(document: template, ENVIRONMENT, VPC_NAME, "First test VPC");
     
+    Ref vpcRef = new Ref("TestVpc");
+
+
+    AwsEc2Subnet subProps = new AwsEc2Subnet();
+    subProps.SetVpcId(vpcRef);
+    // subProps.SetAvailabilityZoneAndCidrBlock()
+
     YamlWriter writer = new YamlWriter();
 
     writer.WriteFile(VPC_TEST, template);

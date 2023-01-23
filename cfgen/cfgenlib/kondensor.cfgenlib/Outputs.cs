@@ -49,6 +49,15 @@ namespace kondensor.cfgenlib
         : Option.None<string>();
       return (description, condition);
     }
+
+    public static void AddOutput<Toutput>(TemplateDocument document, Toutput declaration, params string[] optionalText) where Toutput : struct, IOutput
+    {
+      var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
+      description.MatchSome( desc => declaration.SetDescription(desc) );
+      condition.MatchSome(cond => declaration.SetCondition(cond));
+      document.Outputs.MatchSome(outputs => outputs.AddOutput(declaration));
+    }
+
   }
 
 }

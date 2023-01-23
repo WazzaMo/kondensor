@@ -16,7 +16,7 @@ namespace kondensor.cfgenlib.outputs
   {
     private Text _LogId;
     private Option<Text> _Description;
-    private Option<IExport> _Export;
+    private IExport _Export;
     private Option<Text> _Condition;
     private Option<Text> _Value;
 
@@ -32,7 +32,7 @@ namespace kondensor.cfgenlib.outputs
       none: () => new Text("")
     );
 
-    public Option<IExport> Export => _Export;
+    public IExport Export => _Export;
 
     public void Write(StreamWriter output, string indent)
     {
@@ -49,7 +49,7 @@ namespace kondensor.cfgenlib.outputs
       _Value.MatchSome( value =>
         YamlWriter.Write(output, message: $"Value: {value}", _1_indent)
       );
-      _Export.MatchSome( exp => exp.Write(output, _1_indent));
+      _Export.Write(output, _1_indent);
     }
 
     public void SetDescription(string description)
@@ -61,15 +61,12 @@ namespace kondensor.cfgenlib.outputs
     public void SetValue(string value)
       => _Value = Option.Some<Text>(new Text(value));
     
-    public void SetExport(IExport export)
-      => _Export = Option.Some<IExport>(export);
-
-    public OutputData(string type, string id)
+    public OutputData(string type, string id, IExport export)
     {
       _LogId = new Text(text:$"{type}{id}");
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
-      _Export = Option.None<IExport>();
+      _Export = export;
       _Value = Option.None<Text>();
     }
   }

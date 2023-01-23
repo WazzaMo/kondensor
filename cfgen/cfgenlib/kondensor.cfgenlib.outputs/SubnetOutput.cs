@@ -16,24 +16,6 @@ namespace kondensor.cfgenlib.outputs
   {
     private OutputData _Output;
 
-    public struct SubnetExport : IExport
-    {
-      private string _Environment;
-      private string _SubnetName;
-
-      public string ExportValue => $"{_Environment}-{_SubnetName}";
-
-      public void Write(StreamWriter output, string indent)
-      {
-        throw new NotImplementedException();
-      }
-
-      public SubnetExport(string environment, string subnetName)
-      {
-        //
-      }
-    }
-
     public Text LogicalId => _Output.LogicalId;
 
     public Option<Text> Description => _Output.Description;
@@ -42,7 +24,13 @@ namespace kondensor.cfgenlib.outputs
 
     public Text Value => _Output.Value;
 
-    public Option<IExport> Export => _Output.Export;
+    public IExport Export => _Output.Export;
+
+    public void SetDescription(string description)
+      => _Output.SetDescription(description);
+    
+    public void SetCondition(string condition)
+      => _Output.SetCondition(condition);
 
     public void Write(StreamWriter output, string indent)
       => _Output.Write(output, indent);
@@ -51,7 +39,8 @@ namespace kondensor.cfgenlib.outputs
 
     public SubnetOutput(string environment, string subnetName)
     {
-      _Output = new OutputData(TYPE, subnetName);
+      var export = new ExportData(environment,TYPE, subnetName);
+      _Output = new OutputData(TYPE, subnetName, export);
     }
   }
 

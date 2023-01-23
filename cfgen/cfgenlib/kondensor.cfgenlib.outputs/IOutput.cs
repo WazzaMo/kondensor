@@ -19,9 +19,12 @@ namespace kondensor.cfgenlib.outputs
     Option<Text> Description { get; }
     Option<Text> Condition { get; }
     Text Value { get; }
-    Option<IExport> Export { get; }
+    IExport Export { get; }
 
     void Write( StreamWriter output, string indent);
+
+    void SetDescription(string description);
+    void SetCondition(string condition);
   }
 
 }
