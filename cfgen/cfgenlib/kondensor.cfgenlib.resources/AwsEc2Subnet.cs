@@ -46,9 +46,9 @@ namespace kondensor.cfgenlib.resources
     /// </summary>
     /// <param name="az">Availability Zone of the subnet</param>
     /// <param name="cidr">The IPv4 CIDR block assigned to the subnet.</param>
-    public void SetAvailabilityZoneAndCidrBlock(string az, IpCidrAddress cidr)
+    public void SetAvailabilityZoneAndCidrBlock(AvailabilityZone az, IpCidrAddress cidr)
     {
-      _Properties.SetProp<Text>(AVAILABILITY_ZONE, new Text(az));
+      _Properties.SetProp<AvailabilityZone>(AVAILABILITY_ZONE, az);
       _Properties.SetProp<IpCidrAddress>(CIDR_BLOCK, cidr);
     }
 

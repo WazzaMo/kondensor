@@ -39,7 +39,13 @@ namespace kondensor.cfgenlib.primitives
       return address;
     }
 
-    public static byte[] OctetArray(params byte[] octets)
+    public IpCidrAddress(int cidr, params byte[] octets)
+    {
+      Cidr = cidr;
+      Octets = OctetArray(octets);
+    }
+
+    private static byte[] OctetArray(params byte[] octets)
     {
       byte[] value = new byte[4];
       for(int index = 0; index < octets.Length && index < 4; index++)

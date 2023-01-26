@@ -48,7 +48,10 @@ public class Program
 
     AwsEc2Subnet subProps = new AwsEc2Subnet();
     subProps.SetVpcId(vpcRef);
-    // subProps.SetAvailabilityZoneAndCidrBlock()
+    AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
+    IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
+    subProps.SetAvailabilityZoneAndCidrBlock(az, cidrBlock);
+    template.Resources.Add( new Resource(id: "InnerSubnet", subProps));
 
     YamlWriter writer = new YamlWriter();
 
