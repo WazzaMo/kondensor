@@ -17,7 +17,7 @@ namespace kondensor.cfgenlib.outputs
     private Text _LogId;
     private Option<Text> _Description;
     private Option<Text> _Condition;
-    private Text _Value;
+    private Ref _Value;
     private IExport _Export; 
 
     public struct VpcExport : IExport
@@ -47,7 +47,7 @@ namespace kondensor.cfgenlib.outputs
 
     public Option<Text> Condition => _Condition;
 
-    public Text Value => _Value;
+    public Ref Value => _Value;
 
     public IExport Export => _Export;
 
@@ -62,7 +62,7 @@ namespace kondensor.cfgenlib.outputs
       _LogId = new Text($"Vpc{vpcName}");
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
-      _Value = new Text(text: $"!Ref {vpcName}");
+      _Value = new Ref(vpcName);
       _Export = new VpcExport(environment, vpcName);
     }
 
@@ -77,7 +77,8 @@ namespace kondensor.cfgenlib.outputs
       _Condition.MatchSome( cond => 
         YamlWriter.Write(output, message: $"Condition: {cond.Value}", _1_indent)
       );
-      YamlWriter.Write(output, message: $"Value: {_Value.Value}", _1_indent);
+      _Value.WritePrefixed(output, "Value:", _1_indent);
+      // YamlWriter.Write(output, message: $"Value: {_Value.Value}", _1_indent);
       _Export.Write(output, _1_indent);
     }
   }

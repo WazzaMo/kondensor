@@ -22,7 +22,7 @@ namespace kondensor.cfgenlib.outputs
 
     public Option<Text> Condition => _Output.Condition;
 
-    public Text Value => _Output.Value;
+    public Ref Value => _Output.Value;
 
     public IExport Export => _Output.Export;
 
@@ -41,6 +41,7 @@ namespace kondensor.cfgenlib.outputs
     {
       var export = new ExportData(environment,TYPE, subnetName);
       _Output = new OutputData(TYPE, subnetName, export);
+      _Output.SetValue(new Ref(subnetName));
     }
   }
 

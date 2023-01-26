@@ -51,6 +51,7 @@ public class Program
     AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
     IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
     subProps.SetAvailabilityZoneAndCidrBlock(az, cidrBlock);
+    subProps.AddOutput(template, ENVIRONMENT, "InnerSubnet", "Internal subnet in AZ0");
     template.Resources.Add( new Resource(id: "InnerSubnet", subProps));
 
     YamlWriter writer = new YamlWriter();

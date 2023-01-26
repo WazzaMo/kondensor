@@ -18,7 +18,7 @@ namespace kondensor.cfgenlib.outputs
     private Option<Text> _Description;
     private IExport _Export;
     private Option<Text> _Condition;
-    private Option<Text> _Value;
+    private Option<Ref> _Value;
 
     public Text LogicalId => _LogId;
 
@@ -26,10 +26,10 @@ namespace kondensor.cfgenlib.outputs
 
     public Option<Text> Condition => _Condition;
 
-    public Text Value => _Value.Match<Text>
+    public Ref Value => _Value.Match<Ref>
     (
       some: (value) => value,
-      none: () => new Text("")
+      none: () => new Ref("")
     );
 
     public IExport Export => _Export;
@@ -47,7 +47,7 @@ namespace kondensor.cfgenlib.outputs
         YamlWriter.Write(output, message: $"Condition: {cond.Value}", _1_indent)
       );
       _Value.MatchSome( value =>
-        YamlWriter.Write(output, message: $"Value: {value}", _1_indent)
+        value.WritePrefixed(output, prefix: "Value:", _1_indent)
       );
       _Export.Write(output, _1_indent);
     }
@@ -58,8 +58,8 @@ namespace kondensor.cfgenlib.outputs
     public void SetCondition(string condition)
       => _Condition = Option.Some<Text>(value: new Text(condition));
     
-    public void SetValue(string value)
-      => _Value = Option.Some<Text>(new Text(value));
+    public void SetValue(Ref value)
+      => _Value = Option.Some<Ref>(value);
     
     public OutputData(string type, string id, IExport export)
     {
@@ -67,7 +67,7 @@ namespace kondensor.cfgenlib.outputs
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
       _Export = export;
-      _Value = Option.None<Text>();
+      _Value = Option.None<Ref>();
     }
   }
 

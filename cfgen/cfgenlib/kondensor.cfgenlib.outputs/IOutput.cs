@@ -18,7 +18,7 @@ namespace kondensor.cfgenlib.outputs
     Text LogicalId { get; }
     Option<Text> Description { get; }
     Option<Text> Condition { get; }
-    Text Value { get; }
+    Ref Value { get; }
     IExport Export { get; }
 
     void Write( StreamWriter output, string indent);
