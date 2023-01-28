@@ -21,8 +21,8 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void SetCidrBlock(string value)
-      => _Properties.SetProp<Text>("CidrBlock", new Text(value));
+    public void SetCidrBlock(IpCidrAddress cidr)
+      => _Properties.SetProp<IpCidrAddress>("CidrBlock", cidr);
 
     public void SetEnableDnsHostnames(bool isEnable)
       => _Properties.SetProp<Bool>("EnableDnsHostnames", new Bool(isEnable));

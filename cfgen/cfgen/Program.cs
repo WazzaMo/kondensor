@@ -12,6 +12,7 @@ using kondensor.cfgenlib.writer;
 using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.primitives;
 using kondensor.cfgenlib.outputs;
+using kondensor.cfgenlib.api;
 
 public class Program
 {
@@ -32,22 +33,34 @@ public class Program
   private static void TestVpc()
   {
     TemplateDocument template = new TemplateDocument(new Header("Test VPC template"));
-    AwsEc2Vpc vpcProps = new AwsEc2Vpc();
-    vpcProps.SetCidrBlock(Values.CidrBlock(10,1,1,0, 16));
-    vpcProps.SetEnableDnsHostnames(true);
-    vpcProps.SetEnableDnsSupport(true);
-    // vpcProps.SetIpv4IpamPoolId(IpamPoolIdValues.CidrBlock);
-    vpcProps.AddTag("Environment", "Test");
-    vpcProps.AddTag(key: "Name", value: "TestVpc");
 
-    template.Resources.Add( new Resource("TestVpc", vpcProps));
-    vpcProps.AddOutput(document: template, ENVIRONMENT, VPC_NAME, "First test VPC");
+    IpCidrAddress baseRange = new IpCidrAddress(8, 10);
+    Vpc vpc = new Vpc("TestVpc", ENVIRONMENT);
+    vpc
+      .SetCidrBlock(baseRange)
+      .SetEnableDnsHostnames(true)
+      .SetEnableDnsSupport(true)
+      .AddTag("Environment", ENVIRONMENT)
+      .AddTag("Name", "TestVpc")
+      .SaveTo(template, "First test VPC via API");
+
+    // AwsEc2Vpc vpcProps = new AwsEc2Vpc();
+    // vpcProps.SetCidrBlock(baseRange);
+    // vpcProps.SetEnableDnsHostnames(true);
+    // vpcProps.SetEnableDnsSupport(true);
+    // // vpcProps.SetIpv4IpamPoolId(IpamPoolIdValues.CidrBlock);
+    // vpcProps.AddTag("Environment", "Test");
+    // vpcProps.AddTag(key: "Name", value: "TestVpc");
+
+    // template.Resources.Add( new Resource("TestVpc", vpcProps));
+    // vpcProps.AddOutput(document: template, ENVIRONMENT, VPC_NAME, "First test VPC");
     
-    Ref vpcRef = new Ref("TestVpc");
+    // Ref vpcRef = new Ref("TestVpc");
 
 
     AwsEc2Subnet subProps = new AwsEc2Subnet();
-    subProps.SetVpcId(vpcRef);
+    // subProps.SetVpcId(vpcRef);
+    subProps.SetVpcId(vpc.Ref);
     AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
     IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
     subProps.SetAvailabilityZoneAndCidrBlock(az, cidrBlock);
