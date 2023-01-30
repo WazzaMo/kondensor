@@ -21,30 +21,53 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void SetCidrBlock(IpCidrAddress cidr)
-      => _Properties.SetProp<IpCidrAddress>("CidrBlock", cidr);
+    public AwsEc2Vpc SetCidrBlock(IpCidrAddress cidr)
+    {
+      _Properties.SetProp<IpCidrAddress>("CidrBlock", cidr);
+      return this;
+    }
 
-    public void SetEnableDnsHostnames(bool isEnable)
-      => _Properties.SetProp<Bool>("EnableDnsHostnames", new Bool(isEnable));
-    
-    public void SetEnableDnsSupport(bool isEnable)
-      => _Properties.SetProp<Bool>("EnableDnsSupport", new Bool(isEnable));
+    public AwsEc2Vpc SetEnableDnsHostnames(bool isEnable)
+    {
+      _Properties.SetProp<Bool>("EnableDnsHostnames", new Bool(isEnable));
+      return this;
+    }
 
-    public void SetInstanceTenancy(string tenancy)
-      => _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
+    public AwsEc2Vpc SetEnableDnsSupport(bool isEnable)
+    {
+      _Properties.SetProp<Bool>("EnableDnsSupport", new Bool(isEnable));
+      return this;
+    }
+
+    public AwsEc2Vpc SetInstanceTenancy(string tenancy)
+    {
+      _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
+      return this;
+    }
 
     // TODO
-    public void SetIpv4IpamPoolId(IpamPoolIdValues poolId)
-      => _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId.ToString("F")));
-    
-    public void SetIpv4NetmaskLength(int length)
-      => _Properties.SetProp<IntNumber>("Ipv4NetmaskLength", new IntNumber(length));
-    
-    public void SetTags(Tags tags)
-      => _Properties.SetProp<Tags>("Tags", tags);
+    public AwsEc2Vpc SetIpv4IpamPoolId(IpamPoolIdValues poolId)
+    {
+      _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId.ToString("F")));
+      return this;
+    }
+
+    public AwsEc2Vpc SetIpv4NetmaskLength(int length)
+    {
+      _Properties.SetProp<IntNumber>("Ipv4NetmaskLength", new IntNumber(length));
+      return this;
+    }
+
+    public AwsEc2Vpc SetTags(Tags tags)
+    {
+      _Properties.SetProp<Tags>("Tags", tags);
+      return this;
+    }
 
     public void AddTag(string key, string value)
-      => _Properties.AddTag(key, value);
+    {
+      _Properties.AddTag(key, value);
+    }
 
     public void AddOutput(
       TemplateDocument document,

@@ -44,32 +44,46 @@ namespace kondensor.cfgenlib.resources
       // document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
     }
 
-    public void SetGroupDescription(string description)
-      => _Properties.SetProp(name: GROUP_DESCRIPTION, new Text(description) );
+    public AwsEc2VpcSecurityGroup SetGroupDescription(string description)
+    {
+      _Properties.SetProp(name: GROUP_DESCRIPTION, new Text(description) );
+      return this;
+    }
 
-    public void SetGroupName(string name)
-      => _Properties.SetProp(name: GROUP_NAME, new Text(name) );
+    public AwsEc2VpcSecurityGroup SetGroupName(string name)
+    {
+      _Properties.SetProp(name: GROUP_NAME, new Text(name) );
+      return this;
+    }
     
-    public void SetVpcId(Ref vpcRef)
-      => _Properties.SetProp<Ref>(GROUP_VPC, vpcRef);
+    public AwsEc2VpcSecurityGroup SetVpcId(Ref vpcRef)
+    {
+      _Properties.SetProp<Ref>(GROUP_VPC, vpcRef);
+      return this;
+    }
     
-    public void SetVpcId(Import vpcImport)
-      => _Properties.SetProp<Import>(GROUP_VPC, vpcImport);
+    public AwsEc2VpcSecurityGroup SetVpcId(Import vpcImport)
+    {
+      _Properties.SetProp<Import>(GROUP_VPC, vpcImport);
+      return this;
+    }
 
-    public void AddEgressRule(VpcEgress egress)
+    public AwsEc2VpcSecurityGroup AddEgressRule(VpcEgress egress)
     {
       if (_Properties.HasValue<ResourceList<VpcEgress>>(GROUP_EGRESS) )
         _Properties.Access<ResourceList<VpcEgress>>(GROUP_EGRESS, rList => rList.Add(egress));
       else
         _Properties.SetProp<ResourceList<VpcEgress>>(GROUP_EGRESS, new ResourceList<VpcEgress>(egress));
+      return this;
     }
 
-    public void AddIngressRule(VpcIngress ingress)
+    public AwsEc2VpcSecurityGroup AddIngressRule(VpcIngress ingress)
     {
       if (_Properties.HasValue<ResourceList<VpcIngress>>(GROUP_INGRESS))
         _Properties.Access<ResourceList<VpcIngress>>(GROUP_INGRESS, rList => rList.Add(ingress));
       else
         _Properties.SetProp<ResourceList<VpcIngress>>(GROUP_INGRESS, new ResourceList<VpcIngress>(ingress));
+      return this;
     }
 
     public void AddTag(string key, string value)
