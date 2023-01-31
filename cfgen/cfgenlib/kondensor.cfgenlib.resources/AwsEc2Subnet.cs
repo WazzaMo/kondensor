@@ -46,37 +46,50 @@ namespace kondensor.cfgenlib.resources
     /// </summary>
     /// <param name="az">Availability Zone of the subnet</param>
     /// <param name="cidr">The IPv4 CIDR block assigned to the subnet.</param>
-    public void SetAvailabilityZoneAndCidrBlock(AvailabilityZone az, IpCidrAddress cidr)
+    public AwsEc2Subnet SetAvailabilityZoneAndCidrBlock(AvailabilityZone az, IpCidrAddress cidr)
     {
       _Properties.SetProp<AvailabilityZone>(AVAILABILITY_ZONE, az);
       _Properties.SetProp<IpCidrAddress>(CIDR_BLOCK, cidr);
+      return this;
     }
 
-    public void SetAvailabilityZoneId( string azId )
-      => _Properties.SetProp<Text>(AZ_ID, new Text(azId));
+    public AwsEc2Subnet SetAvailabilityZoneId( string azId )
+    {
+      _Properties.SetProp<Text>(AZ_ID, new Text(azId));
+      return this;
+    }
     
     /// <summary>
     /// Indicates whether instances launched in this subnet receive a public IPv4 address. The default value is false
     /// Opional.
     /// </summary>
     /// <param name="isEnabled">True causes EC2 intances to get public IP on launch.</param>
-    public void SetMapPublicIpOnLaunch(bool isEnabled)
-      => _Properties.SetProp<Bool>(MAP_PUBLIC_IP_ON_LAUNCH, new Bool(isEnabled));
+    public AwsEc2Subnet SetMapPublicIpOnLaunch(bool isEnabled)
+    {
+      _Properties.SetProp<Bool>(MAP_PUBLIC_IP_ON_LAUNCH, new Bool(isEnabled));
+      return this;
+    }
 
     /// <summary>
     /// The Amazon Resource Name (ARN) of the Outpost. (Optional)
     /// </summary>
     /// <param name="arn">ARN for Outpost.</param>
-    public void SetOutpostArn(string arn)
-      => _Properties.SetProp<Text>(OUTPOST_ARN, new Text(arn));
+    public AwsEc2Subnet SetOutpostArn(string arn)
+    {
+      _Properties.SetProp<Text>(OUTPOST_ARN, new Text(arn));
+      return this;
+    }
 
     /// <summary>
     /// Set the private DNS on-launch options.
     /// <see cref="VpcSubnetDnsNameOptions"/>
     /// </summary>
     /// <param name="options">The options resource primitive <see cref="VpcSubnetDnsNameOptions" /></param>    
-    public void SetPrivateDnsNameOptionsOnLaunch(VpcSubnetDnsNameOptions options)
-      => _Properties.SetProp<VpcSubnetDnsNameOptions>(PRIVATE_DNS_NAME_OPTIONS_ON_LAUNCH, options);
+    public AwsEc2Subnet SetPrivateDnsNameOptionsOnLaunch(VpcSubnetDnsNameOptions options)
+    {
+      _Properties.SetProp<VpcSubnetDnsNameOptions>(PRIVATE_DNS_NAME_OPTIONS_ON_LAUNCH, options);
+      return this;
+    }
 
     /// <summary>
     /// Set the VPC ID from an Import that will
@@ -84,8 +97,11 @@ namespace kondensor.cfgenlib.resources
     /// EC2 instances to use.
     /// </summary>
     /// <param name="vpcId">Ref or Import of VPC ID</param>
-    public void SetVpcId(Import vpcId)
-      => _Properties.SetProp<Import>(VPC_ID, vpcId);
+    public AwsEc2Subnet SetVpcId(Import vpcId)
+    {
+      _Properties.SetProp<Import>(VPC_ID, vpcId);
+      return this;
+    }
     
     /// <summary>
     /// Set the VPC ID from a Ref that will identify the VPC
@@ -94,8 +110,11 @@ namespace kondensor.cfgenlib.resources
     /// EC2 instances to use.
     /// </summary>
     /// <param name="reference">Ref value to use.</param>
-    public void SetVpcId(Ref reference)
-      => _Properties.SetProp<Ref>(VPC_ID, reference);
+    public AwsEc2Subnet SetVpcId(Ref reference)
+    {
+      _Properties.SetProp<Ref>(VPC_ID, reference);
+      return this;
+    }
 
     public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
@@ -104,7 +123,9 @@ namespace kondensor.cfgenlib.resources
     }
 
     public void AddTag(string key, string value)
-      => _Properties.AddTag(key, value);
+    {
+      _Properties.AddTag(key, value);
+    }
 
     public AwsEc2Subnet()
     {

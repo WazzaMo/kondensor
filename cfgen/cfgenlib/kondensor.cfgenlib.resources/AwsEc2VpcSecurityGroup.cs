@@ -96,7 +96,7 @@ namespace kondensor.cfgenlib.resources
         _Properties.SetProp<Tags>(GROUP_TAGS, new Tags(_newTag));
     }
 
-    public AwsEc2VpcSecurityGroup(string description)
+    public AwsEc2VpcSecurityGroup()
     {
       _Properties = new ResourceProperties(
         GROUP_DESCRIPTION,
@@ -106,7 +106,6 @@ namespace kondensor.cfgenlib.resources
         GROUP_TAGS,
         GROUP_VPC
       );
-      SetGroupDescription(description);
     }
   }
 
