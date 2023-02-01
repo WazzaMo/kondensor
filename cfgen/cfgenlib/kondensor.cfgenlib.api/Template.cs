@@ -11,7 +11,9 @@ using kondensor.cfgenlib.primitives;
 
 namespace kondensor.cfgenlib.api
 {
+
   public static class Template {
     
   }
+  
 }

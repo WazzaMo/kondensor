@@ -32,44 +32,35 @@ public class Program
 
   private static void TestVpc()
   {
-    TemplateDocument template = new TemplateDocument(new Header("Test VPC template"));
+    Stack stack = new Stack(
+      environment:"Test", name: "TestVpc", description: "Test VPC template"
+    );
 
     IpCidrAddress baseRange = new IpCidrAddress(8, 10);
-    Vpc vpc = new Vpc("TestVpc", ENVIRONMENT);
-    vpc
-      .SetCidrBlock(baseRange)
-      .SetEnableDnsHostnames(true)
-      .SetEnableDnsSupport(true)
-      .AddTag("Environment", ENVIRONMENT)
-      .AddTag("Name", "TestVpc")
-      .SaveTo(template, "First test VPC via API");
-
-    // AwsEc2Vpc vpcProps = new AwsEc2Vpc();
-    // vpcProps.SetCidrBlock(baseRange);
-    // vpcProps.SetEnableDnsHostnames(true);
-    // vpcProps.SetEnableDnsSupport(true);
-    // // vpcProps.SetIpv4IpamPoolId(IpamPoolIdValues.CidrBlock);
-    // vpcProps.AddTag("Environment", "Test");
-    // vpcProps.AddTag(key: "Name", value: "TestVpc");
-
-    // template.Resources.Add( new Resource("TestVpc", vpcProps));
-    // vpcProps.AddOutput(document: template, ENVIRONMENT, VPC_NAME, "First test VPC");
+    stack.AddResourceWithTags<AwsEc2Vpc>(
+      id: "MainVpc",
+      (vpcProps) => vpcProps
+        .SetCidrBlock(baseRange)
+        .SetEnableDnsHostnames(true)
+        .SetEnableDnsSupport(true),
+      (tagged) =>
+        tagged.AddTag("Name", "TestVpc"),
+      "Second test VPC creatd by API."
+    );
     
-    // Ref vpcRef = new Ref("TestVpc");
-
-
-    AwsEc2Subnet subProps = new AwsEc2Subnet();
-    // subProps.SetVpcId(vpcRef);
-    subProps.SetVpcId(vpc.Ref);
     AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
     IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
-    subProps.SetAvailabilityZoneAndCidrBlock(az, cidrBlock);
-    subProps.AddOutput(template, ENVIRONMENT, "InnerSubnet", "Internal subnet in AZ0");
-    template.Resources.Add( new Resource(id: "InnerSubnet", subProps));
+    stack.AddResource<AwsEc2Subnet>(
+      id: "InnerSubnet",
+      (subnetProps) => subnetProps
+        .SetVpcId( stack.Ref("MainVpc"))
+        .SetAvailabilityZoneAndCidrBlock(az, cidrBlock),
+      optText: "Internal subnet in AZ0"
+    );
 
     YamlWriter writer = new YamlWriter();
 
-    writer.WriteFile(VPC_TEST, template);
+    writer.WriteFile(VPC_TEST, stack.Document);
   }
 
   private static void TestSecGroup()
