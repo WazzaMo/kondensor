@@ -96,7 +96,12 @@ namespace kondensor.cfgenlib.resources
     
     public bool HasToPort()
       => _Properties.HasValue<IntNumber>(INGRESS_TO_PORT);
-    
+
+    public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    {
+      return this;
+    }
+
     public VpcIngress()
     {
       _Properties = new ResourceProperties(

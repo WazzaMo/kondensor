@@ -15,7 +15,7 @@ namespace kondensor.cfgenlib.resources
   /// EC2 instances launched in that subnet.
   /// <see cref="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet.html"/>
   /// </summary>
-  public struct AwsEc2Subnet : IOutputResourceType, IHasTags
+  public struct AwsEc2Subnet : IResourceType
   {
     private ResourceProperties _Properties;
 
@@ -116,15 +116,17 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public void AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
       SubnetOutput subnetOut = new SubnetOutput(environment, name);
       Outputs.AddOutput(document, subnetOut, optionalText);
+      return this;
     }
 
-    public void AddTag(string key, string value)
+    public IResourceType AddTag(string key, string value)
     {
       _Properties.AddTag(key, value);
+      return this;
     }
 
     public AwsEc2Subnet()

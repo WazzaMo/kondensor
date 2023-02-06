@@ -24,7 +24,7 @@ namespace kondensor.cfgenlib.api
       Func<Tr,Tr> propSetter,
       params string[] optText
     )
-    where Tr : struct, IOutputResourceType, IHasTags, IResourceType
+    where Tr : struct, IHasTags, IResourceType
     {
       Tr empty = new Tr();
       Tr props = propSetter(empty);
@@ -43,7 +43,7 @@ namespace kondensor.cfgenlib.api
       Func<Wrap<Tr>, Wrap<Tr>> tagSetter,
       params string[] optText
     )
-    where Tr : struct, IOutputResourceType, IHasTags, IResourceType
+    where Tr : struct, IHasTags, IResourceType
     {
       Tr empty = new Tr();
       Tr props = propSetter(empty);
@@ -70,7 +70,7 @@ namespace kondensor.cfgenlib.api
     }
 
     public struct Wrap<Tr>
-      where Tr : struct, IOutputResourceType, IHasTags, IResourceType
+      where Tr : struct, IHasTags, IResourceType
     {
       public Tr ResourceProp { get; private set; }
 

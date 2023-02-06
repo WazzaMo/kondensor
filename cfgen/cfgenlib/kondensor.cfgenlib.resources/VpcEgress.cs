@@ -53,6 +53,11 @@ namespace kondensor.cfgenlib.resources
     public bool HasCidrIp()
       => _Properties.HasValue<IpCidrAddress>(EGRESS_IP);
 
+    public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    {
+      return this;
+    }
+
     public VpcEgress()
     {
       _Properties = new ResourceProperties(

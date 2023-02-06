@@ -12,7 +12,7 @@ using kondensor.cfgenlib.outputs;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct AwsEc2Vpc : IOutputResourceType, IHasTags
+  public struct AwsEc2Vpc : IResourceType
   {
     private ResourceProperties _Properties;
 
@@ -64,12 +64,13 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public void AddTag(string key, string value)
+    public IResourceType AddTag(string key, string value)
     {
       _Properties.AddTag(key, value);
+      return this;
     }
 
-    public void AddOutput(
+    public IResourceType AddOutput(
       TemplateDocument document,
       string environment,
       string name,
@@ -81,6 +82,7 @@ namespace kondensor.cfgenlib.resources
       description.MatchSome( desc => vpcOut.SetDescription(desc) );
       condition.MatchSome(cond => vpcOut.SetCondition(cond));
       document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
+      return this;
     }
 
     private string UniqueExportName(string environment, string name)

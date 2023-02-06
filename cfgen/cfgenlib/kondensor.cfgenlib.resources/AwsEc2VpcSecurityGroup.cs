@@ -9,11 +9,12 @@ using Optional;
 using System.Collections.Generic;
 
 using kondensor.cfgenlib.primitives;
+using kondensor.cfgenlib.outputs;
 
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct AwsEc2VpcSecurityGroup : IOutputResourceType, IHasTags
+  public struct AwsEc2VpcSecurityGroup : IResourceType
   {
     public readonly string 
         GROUP_DESCRIPTION = "GroupDescription",
@@ -86,7 +87,7 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public void AddTag(string key, string value)
+    public IResourceType AddTag(string key, string value)
     {
       Tag _newTag = new Tag(key, value);
 
@@ -94,6 +95,17 @@ namespace kondensor.cfgenlib.resources
         _Properties.Access<Tags>(GROUP_TAGS, (Tags tags) => tags.TagList.Add(_newTag));
       else
         _Properties.SetProp<Tags>(GROUP_TAGS, new Tags(_newTag));
+      return this;
+    }
+
+
+
+    IResourceType IResourceType.AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    {
+      ExportData export = new ExportData(environment, "SecurityGroup", name);
+      OutputData data = new OutputData(Type, name, export);
+      Outputs.AddOutput(document, data, optionalText);
+      return this;
     }
 
     public AwsEc2VpcSecurityGroup()

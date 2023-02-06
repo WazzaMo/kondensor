@@ -66,6 +66,17 @@ namespace kondensor.cfgenlib.resources
     public void SetTag(Tags tags)
       => _Properties.SetProp<Tags>(name: "Tags", value: tags);
 
+    public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
+    {
+      return this;
+    }
+
+    public IResourceType AddTag(string key, string value)
+    {
+      _Properties.AddTag(key, value);
+      return this;
+    }
+
     public AwsEc2IpamPool()
     {
       _Properties = new ResourceProperties(
