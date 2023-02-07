@@ -27,10 +27,18 @@ namespace kondensor.cfgenlib
     string Type { get; }
 
     /// <summary>
+    /// The resource's ID
+    /// </summary>
+    /// <value>Id of the resource when it is defined in YAML.</value>
+    string Id { get; }
+
+    /// <summary>
     /// Accessor to the stored resource types.
     /// </summary>
     /// <value></value>
     Dictionary<string, ResourceProperty> Properties { get; }
+
+    void setId(string id);
 
     /// <summary>
     /// Instructs the resource to create an output entry

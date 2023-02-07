@@ -21,6 +21,10 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
+    public string Id {get; private set;}
+
+    public void setId(string id) => Id = id;
+
     public void SetProp<T>(string name, T value) where T : IPrimitive
       => _Properties.SetProp<T>(name, value);
     
@@ -95,6 +99,7 @@ namespace kondensor.cfgenlib.resources
         "SourceIpamPoolId",
         "Tags"  
       );
+      Id = "empty";
     }
   }
 

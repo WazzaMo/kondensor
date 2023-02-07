@@ -21,6 +21,8 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
+    public string Id { get; private set; }
+
     public AwsEc2Vpc SetCidrBlock(IpCidrAddress cidr)
     {
       _Properties.SetProp<IpCidrAddress>("CidrBlock", cidr);
@@ -78,12 +80,14 @@ namespace kondensor.cfgenlib.resources
     )
     {
       var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
-      VpcOutput vpcOut = new VpcOutput(environment, name);
+      VpcOutput vpcOut = new VpcOutput(environment, Id, name);
       description.MatchSome( desc => vpcOut.SetDescription(desc) );
       condition.MatchSome(cond => vpcOut.SetCondition(cond));
       document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
       return this;
     }
+
+    public void setId(string id) => Id = id;
 
     private string UniqueExportName(string environment, string name)
       => $"{environment}:{name}";
@@ -99,6 +103,7 @@ namespace kondensor.cfgenlib.resources
         "Ipv4NetmaskLength", //: Integer
         "Tags" //: 
       );
+      Id = "empty";
     }
 
   }// end struct

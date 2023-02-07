@@ -36,6 +36,10 @@ namespace kondensor.cfgenlib.resources
 
     public string Type => "AWS::EC2::Subnet";
 
+    public string Id {get; private set;}
+
+    public void setId(string id) => Id = id;
+
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
     // public void SetAssignIpv6AddressOnCreation(bool isEnabled)
@@ -145,6 +149,7 @@ namespace kondensor.cfgenlib.resources
         TAGS,
         VPC_ID
       );
+      Id = "needs to be set";
     }
   }
 

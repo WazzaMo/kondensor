@@ -27,6 +27,7 @@ namespace kondensor.cfgenlib.api
     where Tr : struct, IResourceType
     {
       Tr empty = new Tr();
+      empty.setId(id);
       Tr props = (Tr) propSetter(empty);
       props.AddOutput(Document, Document.Environment, Document.Name, optText);
       props.AddTag(key: "Environment", Document.Environment);

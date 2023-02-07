@@ -57,12 +57,12 @@ namespace kondensor.cfgenlib.outputs
     public void SetCondition(string condition)
       => _Condition = Option.Some(new Text(condition));
 
-    public VpcOutput(string environment, string vpcName)
+    public VpcOutput(string environment, string id, string vpcName)
     {
-      _LogId = new Text($"Vpc{vpcName}");
+      _LogId = new Text($"Vpc{id}");
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
-      _Value = new Ref(vpcName);
+      _Value = new Ref(id);
       _Export = new VpcExport(environment, vpcName);
     }
 

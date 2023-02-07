@@ -29,6 +29,11 @@ namespace kondensor.cfgenlib.resources
 
     public string Type => "AWS::EC2::SecurityGroupIngress";
 
+    public string Id {get; private set;}
+
+    public void setId(string id) => Id = id;
+
+
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
     public void SetCidrIp(IpCidrAddress address)
@@ -123,6 +128,7 @@ namespace kondensor.cfgenlib.resources
         INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID,
         INGRESS_TO_PORT
       );
+      Id = "empty";
     }
   }
 

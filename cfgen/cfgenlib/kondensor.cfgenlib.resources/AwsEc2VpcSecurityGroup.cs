@@ -27,6 +27,10 @@ namespace kondensor.cfgenlib.resources
     private ResourceProperties _Properties;
     public string Type => "AWS::EC2::SecurityGroup";
 
+    public string Id {get; private set;}
+
+    public void setId(string id) => Id = id;
+
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
     public void AddOutput(
@@ -118,6 +122,7 @@ namespace kondensor.cfgenlib.resources
         GROUP_TAGS,
         GROUP_VPC
       );
+      Id = "empty";
     }
   }
 

@@ -27,6 +27,10 @@ namespace kondensor.cfgenlib.resources
 
     public string Type => "AWS::EC2::SecurityGroupEgress";
 
+    public string Id {get; private set;}
+
+    public void setId(string id) => Id = id;
+
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
     public void SetIpProtocol(IpProtocol protocol)
@@ -76,6 +80,7 @@ namespace kondensor.cfgenlib.resources
         "IpProtocol", //: String
         "ToPort" //: Integer
       );
+      Id = "Needs to be set!";
     }
   }
 
