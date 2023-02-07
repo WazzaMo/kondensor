@@ -58,6 +58,11 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
+    public IResourceType AddTag(string key, string value)
+    {
+      throw new NotImplementedException(message:"Add tags to the security group, instead.");
+    }
+
     public VpcEgress()
     {
       _Properties = new ResourceProperties(

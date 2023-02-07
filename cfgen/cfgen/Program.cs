@@ -37,14 +37,13 @@ public class Program
     );
 
     IpCidrAddress baseRange = new IpCidrAddress(8, 10);
-    stack.AddResourceWithTags<AwsEc2Vpc>(
+    stack.AddResource<AwsEc2Vpc>(
       id: "MainVpc",
       (vpcProps) => vpcProps
         .SetCidrBlock(baseRange)
         .SetEnableDnsHostnames(true)
-        .SetEnableDnsSupport(true),
-      (tagged) =>
-        tagged.AddTag("Name", "TestVpc"),
+        .SetEnableDnsSupport(true)
+        .AddTag("Name", "TestVpc"),
       "Second test VPC creatd by API."
     );
     
@@ -65,33 +64,43 @@ public class Program
 
   private static void TestSecGroup()
   {
-    TemplateDocument template = new TemplateDocument( new Header("Test import VPC and add security group."));
-    AwsEc2VpcSecurityGroup secGroup = new AwsEc2VpcSecurityGroup("Test security group");
-    secGroup.AddTag("CreatedBy", "Test program");
-    secGroup.SetGroupName("TestSecurityGroup");
-    secGroup.SetVpcId(new Import( new VpcOutput.VpcExport(ENVIRONMENT, VPC_NAME)));
+    const string SECGROUP = "TestSecurityGroup";
+
+    Stack stack = new Stack(
+      ENVIRONMENT, SECGROUP,
+      description: "Test import VPC and add security group."
+    );
 
     VpcEgress egress = new VpcEgress();
     egress.SetCidrIp( IpCidrAddress.AnyAddress() );
     egress = egress.SetProtocolAndPortRange(IpProtocolType.ALL_PROTOCOLS);
-    secGroup.AddEgressRule(egress);
+
+    VpcIngress ingress = new VpcIngress();
+    ingress = ingress.SetProtocolAndPortRange(IpProtocolType.HTTP);
+    ingress.SetDescription("Allow web traffic");
+    ingress.SetCidrIp(IpCidrAddress.AnyAddress());
+
+    stack.AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
+      secGroup => secGroup
+        .SetGroupName(SECGROUP)
+        .SetVpcId(new Import( new VpcOutput.VpcExport(ENVIRONMENT, VPC_NAME)))
+        .AddEgressRule(egress)
+        .AddIngressRule(ingress)
+        .AddTag(key: "CreatedBy", value: "Test program")
+    );
 
 /*
 Invalid value for portRange. Must specify both from and to ports with TCP/UDP.
 (Service: AmazonEC2; Status Code: 400; Error Code: InvalidParameterValue;
 Request ID: 6537f0b6-cf43-4c9a-8c61-d01f3ab1fa56; Proxy: null)
 */
-    VpcIngress ingress = new VpcIngress();
-    ingress = ingress.SetProtocolAndPortRange(IpProtocolType.HTTP);
-    ingress.SetDescription("Allow web traffic");
-    ingress.SetCidrIp(IpCidrAddress.AnyAddress());
-    secGroup.AddIngressRule(ingress);
+    // secGroup.AddIngressRule(ingress);
 
-    secGroup.AddOutput( template, ENVIRONMENT, SECGROUP_ID, optionalText: "Allow web traffic.");
+    // secGroup.AddOutput( template, ENVIRONMENT, SECGROUP_ID, optionalText: "Allow web traffic.");
 
-    template.Resources.Add( new Resource( SECGROUP_ID, secGroup) );
+    // template.Resources.Add( new Resource( SECGROUP_ID, secGroup) );
 
     YamlWriter writer = new YamlWriter();
-    writer.WriteFile(SEC_GROUP, template);
+    writer.WriteFile(SEC_GROUP, stack.Document);
   }
 }
