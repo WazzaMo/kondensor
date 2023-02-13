@@ -14,15 +14,17 @@ namespace kondensor.cfgenlib.outputs
 
   public struct OutputData : IOutput
   {
-    private Text _LogId;
     private Option<Text> _Description;
     private IExport _Export;
     private Option<Text> _Condition;
     private Option<Ref> _Value;
 
-    public Text LogicalId => _LogId;
+    private string _Environment;
+    private IResourceType _Resource;
 
-    public Option<Text> Description => throw new NotImplementedException();
+    public Text LogicalId => new Text(ExportUtils.ExportNameFor(_Environment, _Resource) );
+
+    public Option<Text> Description => _Description;
 
     public Option<Text> Condition => _Condition;
 
@@ -39,7 +41,10 @@ namespace kondensor.cfgenlib.outputs
       string  _0_ident = indent,
               _1_indent = _0_ident + YamlWriter.INDENT;
       
-      YamlWriter.Write(output, message: $"{_LogId.Value}:", _0_ident);
+      YamlWriter.Write(
+        output,
+        message: $"{ExportUtils.ExportNameFor(_Environment, _Resource)}:", _0_ident
+      );
       _Description.MatchSome( desc => 
         YamlWriter.Write(output, message: $"Description: {desc.Value}", _1_indent)
       );
@@ -57,17 +62,15 @@ namespace kondensor.cfgenlib.outputs
     
     public void SetCondition(string condition)
       => _Condition = Option.Some<Text>(value: new Text(condition));
-    
-    public void SetValue(Ref value)
-      => _Value = Option.Some<Ref>(value);
-    
-    public OutputData(string type, string id, IExport export)
+        
+    public OutputData(string environment, IResourceType resource)
     {
-      _LogId = new Text(text:$"{type}{id}");
+      _Resource = resource;
+      _Environment = environment;
+      _Export = new ExportData(environment, resource);
+      _Value = Option.Some( new Ref(resource.Id) );
       _Description = Option.None<Text>();
       _Condition = Option.None<Text>();
-      _Export = export;
-      _Value = Option.None<Ref>();
     }
   }
 

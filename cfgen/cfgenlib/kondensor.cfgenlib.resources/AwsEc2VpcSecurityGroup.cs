@@ -106,8 +106,7 @@ namespace kondensor.cfgenlib.resources
 
     IResourceType IResourceType.AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
-      ExportData export = new ExportData(environment, "SecurityGroup", name);
-      OutputData data = new OutputData(Type, name, export);
+      OutputData data = new OutputData(environment, this);
       Outputs.AddOutput(document, data, optionalText);
       return this;
     }

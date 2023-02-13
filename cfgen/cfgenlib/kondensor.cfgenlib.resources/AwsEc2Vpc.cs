@@ -80,10 +80,8 @@ namespace kondensor.cfgenlib.resources
     )
     {
       var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
-      VpcOutput vpcOut = new VpcOutput(environment, Id, name);
-      description.MatchSome( desc => vpcOut.SetDescription(desc) );
-      condition.MatchSome(cond => vpcOut.SetCondition(cond));
-      document.Outputs.MatchSome(outputs => outputs.AddOutput(vpcOut));
+      OutputData outputVpc = new OutputData(environment, this);
+      Outputs.AddOutput(document, outputVpc, optionalText);
       return this;
     }
 

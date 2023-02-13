@@ -122,8 +122,8 @@ namespace kondensor.cfgenlib.resources
 
     public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
-      SubnetOutput subnetOut = new SubnetOutput(environment, name);
-      Outputs.AddOutput(document, subnetOut, optionalText);
+      OutputData subnetOutput = new OutputData(environment, this);
+      Outputs.AddOutput(document, subnetOutput, optionalText);
       return this;
     }
 

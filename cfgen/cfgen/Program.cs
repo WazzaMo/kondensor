@@ -80,10 +80,12 @@ public class Program
     ingress.SetDescription("Allow web traffic");
     ingress.SetCidrIp(IpCidrAddress.AnyAddress());
 
+    AwsEc2Vpc vpc = new AwsEc2Vpc();
+    vpc.setId(VPC_ID);
     stack.AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
       secGroup => secGroup
         .SetGroupName(SECGROUP)
-        .SetVpcId(new Import( new VpcOutput.VpcExport(ENVIRONMENT, VPC_ID)))
+        .SetVpcId(new Import( new ExportData(ENVIRONMENT, vpc)))
         .AddEgressRule(egress)
         .AddIngressRule(ingress)
         .AddTag(key: "CreatedBy", value: "Test program")

@@ -17,11 +17,10 @@ namespace kondensor.cfgenlib.outputs
   {
     private string _Environment;
 
-    /// <summary>Prefix indicating type</summary>
-    private string _ExpPrefix;
-    private string _Id;
+    /// <summary>Resource to be exported.</summary>
+    private IResourceType _Resource;
 
-    public string ExportValue => $"{_Environment}-{_ExpPrefix}{_Id}";
+    public string ExportValue => ExportUtils.ExportIdFor(_Environment, _Resource);
 
     public void Write(StreamWriter output, string indent)
     {
@@ -37,11 +36,10 @@ namespace kondensor.cfgenlib.outputs
     /// <param name="environment">Environment name</param>
     /// <param name="prefix">Prefix (Sub, Vpc etc)</param>
     /// <param name="id">Name or ID</param>
-    public ExportData(string environment, string prefix, string id)
+    public ExportData(string environment, IResourceType resource)
     {
       _Environment = environment;
-      _ExpPrefix = prefix;
-      _Id = id;
+      _Resource = resource;
     }
   }
 

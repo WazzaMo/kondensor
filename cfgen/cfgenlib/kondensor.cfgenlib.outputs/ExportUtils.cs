@@ -20,7 +20,11 @@ namespace kondensor.cfgenlib.outputs
       => $"{environment}-{GetPrefixFrom(resource)}{resource.Id}";
 
     public static string ExportIdFor(string environment, IResourceType resource)
-      => $"{GetPrefixFrom(resource)}{resource.Id}";
+      => $"{environment}-{GetPrefixFrom(resource)}{resource.Id}";
+
+    public static string ExportIdFor<Tres>(string environment, string id, Tres dummyResource)
+    where Tres : IResourceType
+      => $"{environment}-{GetPrefixFrom(dummyResource)}{id}";
 
     private static readonly TextInfo TEXT = CultureInfo.CurrentCulture.TextInfo;
     private static string GetPrefixFrom(IResourceType resource)
