@@ -22,7 +22,7 @@ namespace kondensor.cfgenlib.outputs
     private string _Environment;
     private IResourceType _Resource;
 
-    public Text LogicalId => new Text(ExportUtils.ExportNameFor(_Environment, _Resource) );
+    public Text LogicalId => new Text(ExportUtils.OutputIdFor(_Environment, _Resource) );
 
     public Option<Text> Description => _Description;
 
@@ -43,7 +43,7 @@ namespace kondensor.cfgenlib.outputs
       
       YamlWriter.Write(
         output,
-        message: $"{ExportUtils.ExportNameFor(_Environment, _Resource)}:", _0_ident
+        message: $"{ExportUtils.OutputIdFor(_Environment, _Resource)}:", _0_ident
       );
       _Description.MatchSome( desc => 
         YamlWriter.Write(output, message: $"Description: {desc.Value}", _1_indent)

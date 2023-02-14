@@ -36,7 +36,7 @@ public class Program
       environment:"Test", name: "TestVpc", description: "Test VPC template"
     );
 
-    IpCidrAddress baseRange = new IpCidrAddress(8, 10);
+    IpCidrAddress baseRange = new IpCidrAddress(16, 10,1,1);
     stack.AddResource<AwsEc2Vpc>(
       VPC_ID,
       (vpcProps) => vpcProps

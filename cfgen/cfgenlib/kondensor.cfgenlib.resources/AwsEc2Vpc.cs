@@ -14,6 +14,9 @@ namespace kondensor.cfgenlib.resources
 
   public struct AwsEc2Vpc : IResourceType
   {
+    const int
+      IPV4_MIN_CIDR_SUBNET_SIZE = 16,
+      IPV4_MAX_CIDR_SUBNET_SIZE = 28;
     private ResourceProperties _Properties;
 
     public string Type => "AWS::EC2::VPC";
@@ -25,6 +28,12 @@ namespace kondensor.cfgenlib.resources
 
     public AwsEc2Vpc SetCidrBlock(IpCidrAddress cidr)
     {
+      const string CIDR_WARNING = "VPC CIDR subnet size must be between 16 and 28";
+
+      if (cidr.Cidr < IPV4_MIN_CIDR_SUBNET_SIZE)
+        throw new ArgumentException(message: $"{CIDR_WARNING} and {cidr.Cidr} is too small.");
+      if (cidr.Cidr > IPV4_MAX_CIDR_SUBNET_SIZE)
+        throw new ArgumentException(message: $"{CIDR_WARNING} and {cidr.Cidr} is too large.");
       _Properties.SetProp<IpCidrAddress>("CidrBlock", cidr);
       return this;
     }
