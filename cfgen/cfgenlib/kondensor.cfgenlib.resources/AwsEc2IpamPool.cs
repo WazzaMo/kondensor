@@ -81,6 +81,11 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
+    public void AssertRequiredPropertiesSet()
+    {
+      // TO BE DONE
+    }
+
     public AwsEc2IpamPool()
     {
       _Properties = new ResourceProperties(

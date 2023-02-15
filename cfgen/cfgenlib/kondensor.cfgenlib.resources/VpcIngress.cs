@@ -112,6 +112,11 @@ namespace kondensor.cfgenlib.resources
       throw new NotImplementedException(message:"Add tags to the security group, instead.");
     }
 
+    public void AssertRequiredPropertiesSet()
+    {
+      // only SourceSecurityGroupOwnerId is conditionally required.
+    }
+
     public VpcIngress()
     {
       _Properties = new ResourceProperties(

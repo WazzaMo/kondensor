@@ -99,6 +99,14 @@ namespace kondensor.cfgenlib.resources
     private string UniqueExportName(string environment, string name)
       => $"{environment}:{name}";
 
+    public void AssertRequiredPropertiesSet()
+    {
+      // conditionally required only: 
+      // - CidrBlock
+      // - Ipv4IpamPoolId
+      // conditions not yet clear.
+    }
+
     public AwsEc2Vpc()
     {
       _Properties = new ResourceProperties(

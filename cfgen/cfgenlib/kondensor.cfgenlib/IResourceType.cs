@@ -56,6 +56,12 @@ namespace kondensor.cfgenlib
       params string[] optionalText
     );
 
+    /// <summary>
+    /// Throws an exception if any of the required property values
+    /// are missing from the resource.
+    /// </summary>
+    void AssertRequiredPropertiesSet();
+
     IResourceType AddTag(string key, string value);
   }
 

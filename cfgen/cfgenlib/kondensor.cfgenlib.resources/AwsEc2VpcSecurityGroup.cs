@@ -111,6 +111,12 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
+    public void AssertRequiredPropertiesSet()
+    {
+      if (! _Properties.HasValue<Text>(GROUP_DESCRIPTION))
+        throw new PropertyNeededExcetpion(GROUP_DESCRIPTION);
+    }
+
     public AwsEc2VpcSecurityGroup()
     {
       _Properties = new ResourceProperties(

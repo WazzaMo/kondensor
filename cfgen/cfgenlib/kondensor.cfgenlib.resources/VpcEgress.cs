@@ -67,6 +67,12 @@ namespace kondensor.cfgenlib.resources
       throw new NotImplementedException(message:"Add tags to the security group, instead.");
     }
 
+    public void AssertRequiredPropertiesSet()
+    {
+      if (! _Properties.HasValue<IpProtocol>(EGRESS_IP_PROTOCOL))
+        throw new PropertyNeededExcetpion(EGRESS_IP_PROTOCOL);
+    }
+
     public VpcEgress()
     {
       _Properties = new ResourceProperties(
