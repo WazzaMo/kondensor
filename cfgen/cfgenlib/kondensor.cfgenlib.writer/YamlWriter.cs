@@ -101,9 +101,19 @@ namespace kondensor.cfgenlib.writer
       return output;
     }
 
+    const int WRAP_LENGTH = 55;
+
     public static StreamWriter Write(StreamWriter output, string message, string indent)
     {
-      output.WriteLine(indent + message);
+      string formatted = indent + message;
+      if (formatted.Length > WRAP_LENGTH)
+      {
+        string[] parts = message.Split(':');
+        output.WriteLine($"{indent}{parts[0]}:");
+        output.WriteLine(INDENT + indent + parts[1]);
+      }
+      else
+        output.WriteLine(formatted);
       return output;
     }
   }

@@ -84,6 +84,7 @@ public class Program
     vpc.setId(VPC_ID);
     stack.AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
       secGroup => secGroup
+        .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
         .SetGroupName(SECGROUP)
         .SetVpcId(new Import( new ExportData(ENVIRONMENT, vpc)))
         .AddEgressRule(egress)

@@ -29,6 +29,7 @@ namespace kondensor.cfgenlib.api
       Tr empty = new Tr();
       empty.setId(id);
       Tr props = (Tr) propSetter(empty);
+      props.AssertRequiredPropertiesSet();
       props.AddOutput(Document, Document.Environment, Document.Name, optText);
       props.AddTag(key: "Environment", Document.Environment);
       props.AddTag(key: "Project", Document.Name);
