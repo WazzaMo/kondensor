@@ -44,16 +44,10 @@ namespace kondensor.cfgenlib.resources
       _Properties.SetProp(name: GROUP_NAME, new Text(name) );
       return this;
     }
-    
-    public AwsEc2VpcSecurityGroup SetVpcId(Ref vpcRef)
+       
+    public AwsEc2VpcSecurityGroup SetVpcId(IReference vpcId)
     {
-      _Properties.SetProp<Ref>(GROUP_VPC, vpcRef);
-      return this;
-    }
-    
-    public AwsEc2VpcSecurityGroup SetVpcId(Import vpcImport)
-    {
-      _Properties.SetProp<Import>(GROUP_VPC, vpcImport);
+      _Properties.SetProp<IReference>(GROUP_VPC, vpcId);
       return this;
     }
 
@@ -98,7 +92,7 @@ namespace kondensor.cfgenlib.resources
     public void AssertRequiredPropertiesSet()
     {
       if (! _Properties.HasValue<Text>(GROUP_DESCRIPTION))
-        throw new PropertyNeededExcetpion(GROUP_DESCRIPTION);
+        throw new PropertyNeededException(GROUP_DESCRIPTION);
     }
 
     public AwsEc2VpcSecurityGroup()

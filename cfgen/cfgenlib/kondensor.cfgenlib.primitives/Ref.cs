@@ -16,7 +16,7 @@ namespace kondensor.cfgenlib.primitives
   /// Represents a reference to an existing resource in the same
   /// generated YAML.
   /// </summary>
-  public struct Ref : IPrimitive
+  public struct Ref : IReference
   {
     private string _Reference;
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 using kondensor.cfgenlib.primitives;
 using kondensor.cfgenlib.resources;
+using kondensor.cfgenlib.outputs;
 
 namespace kondensor.cfgenlib.api
 {
@@ -39,12 +40,42 @@ namespace kondensor.cfgenlib.api
       return this;
     }
 
-    public Ref Ref(string id)
+    public Stack AddResourceAndGetRef<Tr>(
+      string id,
+      out Ref reference,
+      Func<Tr,IResourceType> propSetter,
+      params string[] optText
+    )
+    where Tr : struct, IResourceType
     {
-      if (_Ids.ContainsKey(id))
-        return new Ref(id);
-      else
+      AddResource<Tr>(id, propSetter, optText);
+      reference = new Ref(id);
+      return this;
+    }
+
+    /// <summary>
+    /// Declare an import variable for use in the stack program.
+    /// </summary>
+    /// <param name="id">Original ID that export was based on in original stack.</param>
+    /// <param name="import">Import variable to be returned.</param>
+    /// <typeparam name="Tr">Resource type</typeparam>
+    /// <returns>Same fluid stack.</returns>
+    public Stack AddImport<Tr>(string id, out Import import)
+      where Tr : struct, IResourceType
+    {
+      Tr empty = new Tr();
+      empty.setId(id);
+      ExportData export = new ExportData(Document.Environment, empty);
+      import = new Import(export);
+      return this;
+    }
+
+    public Stack Ref(string id, out Ref reference)
+    {
+      if (!_Ids.ContainsKey(id))
         throw new ArgumentException($"ID {id} does not exist - no such resource.");
+      reference = new Ref(id);
+      return this;
     }
 
     public Stack(string environment, string name, string description)

@@ -17,6 +17,8 @@ namespace kondensor.cfgenlib
       ResourceId = id;
       ResourceType = type;
     }
+
+    public static readonly string DEFAULT_ID = "needs to be set";
   }
 
 }

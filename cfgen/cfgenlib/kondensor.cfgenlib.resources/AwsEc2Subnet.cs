@@ -136,7 +136,7 @@ namespace kondensor.cfgenlib.resources
     public void AssertRequiredPropertiesSet()
     {
       if (! _Properties.HasValue<Ref>(VPC_ID))
-        throw new PropertyNeededExcetpion(VPC_ID);
+        throw new PropertyNeededException(VPC_ID);
     }
 
     public AwsEc2Subnet()

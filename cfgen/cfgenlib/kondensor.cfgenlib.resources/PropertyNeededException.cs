@@ -11,9 +11,9 @@ namespace kondensor.cfgenlib.resources
   /// This exception class should be the only class in the project
   /// other than static classes for extension methods.
   /// </summary>
-  public class PropertyNeededExcetpion : System.Exception
+  public class PropertyNeededException : System.Exception
   {
-    public PropertyNeededExcetpion(string propertyName )
+    public PropertyNeededException(string propertyName )
     : base(message: $"Property needed and missing: {propertyName}")
     {}
   }

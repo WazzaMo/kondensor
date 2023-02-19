@@ -70,7 +70,7 @@ namespace kondensor.cfgenlib.resources
     public void AssertRequiredPropertiesSet()
     {
       if (! _Properties.HasValue<IpProtocol>(EGRESS_IP_PROTOCOL))
-        throw new PropertyNeededExcetpion(EGRESS_IP_PROTOCOL);
+        throw new PropertyNeededException(EGRESS_IP_PROTOCOL);
     }
 
     public VpcEgress()

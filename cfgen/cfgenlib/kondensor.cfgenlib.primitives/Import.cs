@@ -11,7 +11,7 @@ namespace kondensor.cfgenlib.primitives
 {
 
 
-  public struct Import : IPrimitive
+  public struct Import : IReference
   {
     private IExport _Exported;
 

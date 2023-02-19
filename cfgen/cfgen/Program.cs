@@ -37,8 +37,9 @@ public class Program
     );
 
     IpCidrAddress baseRange = new IpCidrAddress(16, 10,1,1);
-    stack.AddResource<AwsEc2Vpc>(
+    stack.AddResourceAndGetRef<AwsEc2Vpc>(
       VPC_ID,
+      out Ref vpcId,
       (vpcProps) => vpcProps
         .SetCidrBlock(baseRange)
         .SetEnableDnsHostnames(true)
@@ -52,7 +53,7 @@ public class Program
     stack.AddResource<AwsEc2Subnet>(
       id: "InnerSubnet",
       (subnetProps) => subnetProps
-        .SetVpcId( stack.Ref(VPC_ID))
+        .SetVpcId( vpcId)
         .SetAvailabilityZoneAndCidrBlock(az, cidrBlock),
       optText: "Internal subnet in AZ0"
     );
@@ -80,17 +81,17 @@ public class Program
     ingress.SetDescription("Allow web traffic");
     ingress.SetCidrIp(IpCidrAddress.AnyAddress());
 
-    AwsEc2Vpc vpc = new AwsEc2Vpc();
-    vpc.setId(VPC_ID);
-    stack.AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
-      secGroup => secGroup
-        .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
-        .SetGroupName(SECGROUP)
-        .SetVpcId(new Import( new ExportData(ENVIRONMENT, vpc)))
-        .AddEgressRule(egress)
-        .AddIngressRule(ingress)
-        .AddTag(key: "CreatedBy", value: "Test program")
-    );
+    stack
+      .AddImport<AwsEc2Vpc>(VPC_ID, out Import vpc)
+      .AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
+        secGroup => secGroup
+          .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
+          .SetGroupName(SECGROUP)
+          .SetVpcId(vpc) //new Import( new ExportData(ENVIRONMENT, vpc)))
+          .AddEgressRule(egress)
+          .AddIngressRule(ingress)
+          .AddTag(key: "CreatedBy", value: "Test program")
+      );
 
     YamlWriter writer = new YamlWriter();
     writer.WriteFile(SEC_GROUP, stack.Document);

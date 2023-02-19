@@ -71,6 +71,30 @@ namespace kondensor.cfgenlib.resources {
       return false;
     }
 
+    /// <summary>
+    /// Convenience method for asserting required properties.
+    /// </summary>
+    /// <param name="name">Name of property to assert existence.</param>
+    /// <typeparam name="T">Expected primitive type of property.</typeparam>
+    public void AssertHasValue<T>(string name) where T : IPrimitive
+    {
+      if (! HasValue<T>(name))
+        throw new PropertyNeededException(name);
+    }
+
+    public void AssertHasOnlyOneOf(params string[] names)
+    {
+      List<string> matches = new();
+
+      for(int index = 0; index < names.Length; index++)
+      {
+        if (_Properties.ContainsKey(names[index]))
+          matches.Add(names[index]);
+      }
+      if (matches.Count > 1)
+        throw new PropertyNeededException($"Only one of {matches}");
+    }
+
     private static Dictionary<string, ResourceProperty> DeclareProperties(string[] props)
     {
       Dictionary<string, ResourceProperty> _Properties;
