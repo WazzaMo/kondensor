@@ -105,7 +105,7 @@ namespace kondensor.cfgenlib.resources
         GROUP_TAGS,
         GROUP_VPC
       );
-      Id = "empty";
+      Id = Resource.DEFAULT_ID;
     }
   }
 
