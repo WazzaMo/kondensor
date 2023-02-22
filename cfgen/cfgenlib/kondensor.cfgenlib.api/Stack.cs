@@ -53,6 +53,17 @@ namespace kondensor.cfgenlib.api
       return this;
     }
 
+    public Tr AddChild<Tr>(
+      string id,
+      Func<Tr,Tr> propSetter
+    ) where Tr : struct, IResourceType
+    {
+      Tr empty = new Tr();
+      empty.setId(id);
+      Tr props = propSetter(empty);
+      return props;
+    }
+
     /// <summary>
     /// Declare an import variable for use in the stack program.
     /// </summary>

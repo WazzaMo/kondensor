@@ -22,7 +22,7 @@ namespace kondensor.cfgenlib.primitives
     ///   If invalid, the IpProtocol, fromPort and toPort will not be set.
     /// </returns>
     /// </summary>
-    public static T SetProtocolAndPortRange<T>(this T self, IpProtocolType protocolType) where T : struct, IProtocolAndPortRange
+    public static T SetProtocolAndPortRange<T>(this T self, IpProtocolType protocolType) where T : struct, IResourceType, IProtocolAndPortRange<T>
     {
       var value = self;
       int fromPort = ProtocolMethods.MinPortForProtocol(protocolType);

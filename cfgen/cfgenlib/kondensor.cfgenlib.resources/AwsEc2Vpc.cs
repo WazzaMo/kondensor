@@ -19,6 +19,14 @@ namespace kondensor.cfgenlib.resources
       IPV4_MAX_CIDR_SUBNET_SIZE = 28;
     private ResourceProperties _Properties;
 
+    const string
+      ENABLE_DNS_HOSTNAMES = "EnableDnsHostnames",
+      ENABLE_DNS_SUPPORT = "EnableDnsSupport",
+      INSTANCE_TENANCY = "InstanceTenancy",
+      IPV4_IPAM_POOL_ID = "Ipv4IpamPoolId",
+      IPV4_NETMASK_LEN = "Ipv4NetmaskLength",
+      TAGS = "Tags";
+
     public string Type => "AWS::EC2::VPC";
 
 
@@ -40,38 +48,38 @@ namespace kondensor.cfgenlib.resources
 
     public AwsEc2Vpc SetEnableDnsHostnames(bool isEnable)
     {
-      _Properties.SetProp<Bool>("EnableDnsHostnames", new Bool(isEnable));
+      _Properties.SetProp<Bool>(ENABLE_DNS_HOSTNAMES, new Bool(isEnable));
       return this;
     }
 
     public AwsEc2Vpc SetEnableDnsSupport(bool isEnable)
     {
-      _Properties.SetProp<Bool>("EnableDnsSupport", new Bool(isEnable));
+      _Properties.SetProp<Bool>(ENABLE_DNS_SUPPORT, new Bool(isEnable));
       return this;
     }
 
     public AwsEc2Vpc SetInstanceTenancy(string tenancy)
     {
-      _Properties.SetProp<Text>("InstanceTenancy", new Text(tenancy));
+      _Properties.SetProp<Text>(INSTANCE_TENANCY, new Text(tenancy));
       return this;
     }
 
     // TODO
     public AwsEc2Vpc SetIpv4IpamPoolId(IpamPoolIdValues poolId)
     {
-      _Properties.SetProp<Text>("Ipv4IpamPoolId", new Text(poolId.ToString("F")));
+      _Properties.SetProp<Text>(IPV4_IPAM_POOL_ID, new Text(poolId.ToString("F")));
       return this;
     }
 
     public AwsEc2Vpc SetIpv4NetmaskLength(int length)
     {
-      _Properties.SetProp<IntNumber>("Ipv4NetmaskLength", new IntNumber(length));
+      _Properties.SetProp<IntNumber>(IPV4_NETMASK_LEN, new IntNumber(length));
       return this;
     }
 
     public AwsEc2Vpc SetTags(Tags tags)
     {
-      _Properties.SetProp<Tags>("Tags", tags);
+      _Properties.SetProp<Tags>(TAGS, tags);
       return this;
     }
 

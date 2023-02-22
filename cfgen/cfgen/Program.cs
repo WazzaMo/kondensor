@@ -72,9 +72,6 @@ public class Program
       description: "Test import VPC and add security group."
     );
 
-    VpcEgress egress = new VpcEgress();
-    egress.SetCidrIp( IpCidrAddress.AnyAddress() );
-    egress = egress.SetProtocolAndPortRange(IpProtocolType.ALL_PROTOCOLS);
 
     VpcIngress ingress = new VpcIngress();
     ingress = ingress.SetProtocolAndPortRange(IpProtocolType.HTTP);
@@ -87,8 +84,14 @@ public class Program
         secGroup => secGroup
           .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
           .SetGroupName(SECGROUP)
-          .SetVpcId(vpc) //new Import( new ExportData(ENVIRONMENT, vpc)))
-          .AddEgressRule(egress)
+          .SetVpcId(vpc)
+          .AddEgressRule( stack.AddChild<VpcEgress>("AnyEgress",
+            propSetter: egress => 
+              egress
+              .SetCidrIp(IpCidrAddress.AnyAddress())
+              .SetProtocolAndPortRange(IpProtocolType.ALL_PROTOCOLS)
+            )
+          )
           .AddIngressRule(ingress)
           .AddTag(key: "CreatedBy", value: "Test program")
       );

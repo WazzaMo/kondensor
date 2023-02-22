@@ -10,7 +10,7 @@ using kondensor.cfgenlib.primitives;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct VpcEgress : IResourceType, IProtocolAndPortRange
+  public struct VpcEgress : IResourceType, IProtocolAndPortRange<VpcEgress>
   {
     public readonly string
         EGRESS_IP = "CidrIp", //: String
@@ -33,26 +33,38 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void SetIpProtocol(IpProtocol protocol)
-      => _Properties.SetProp<IpProtocol>(EGRESS_IP_PROTOCOL, protocol);
+    public VpcEgress SetIpProtocol(IpProtocol protocol)
+    {
+      _Properties.SetProp<IpProtocol>(EGRESS_IP_PROTOCOL, protocol);
+      return this;
+    }
     
     public bool HasIpProtocol()
       => _Properties.HasValue<IpProtocol>(EGRESS_IP_PROTOCOL);
     
-    public void SetFromPort(int port)
-      => _Properties.SetProp<IntNumber>(EGRESS_FROM_PORT, new IntNumber(port) );
+    public VpcEgress SetFromPort(int port)
+    {
+      _Properties.SetProp<IntNumber>(EGRESS_FROM_PORT, new IntNumber(port) );
+      return this;
+    }
     
     public bool HasFromPort()
-      => _Properties.HasValue<IntNumber>(EGRESS_FROM_PORT);
+        => _Properties.HasValue<IntNumber>(EGRESS_FROM_PORT);
     
-    public void SetToPort(int port)
-      => _Properties.SetProp<IntNumber>(EGRESS_TO_PORT, new IntNumber(port));
+    public VpcEgress SetToPort(int port)
+    {
+      _Properties.SetProp<IntNumber>(EGRESS_TO_PORT, new IntNumber(port));
+      return this;
+    }
     
     public bool HasToPort()
       => _Properties.HasValue<IntNumber>(EGRESS_TO_PORT);
     
-    public void SetCidrIp(IpCidrAddress ipCidr)
-      => _Properties.SetProp<IpCidrAddress>(EGRESS_IP, ipCidr);
+    public VpcEgress SetCidrIp(IpCidrAddress ipCidr)
+    {
+      _Properties.SetProp<IpCidrAddress>(EGRESS_IP, ipCidr);
+      return this;
+    }
     
     public bool HasCidrIp()
       => _Properties.HasValue<IpCidrAddress>(EGRESS_IP);
@@ -69,8 +81,7 @@ namespace kondensor.cfgenlib.resources
 
     public void AssertRequiredPropertiesSet()
     {
-      if (! _Properties.HasValue<IpProtocol>(EGRESS_IP_PROTOCOL))
-        throw new PropertyNeededException(EGRESS_IP_PROTOCOL);
+      _Properties.AssertHasValue<IpProtocol>(EGRESS_IP_PROTOCOL);
     }
 
     public VpcEgress()
@@ -86,7 +97,7 @@ namespace kondensor.cfgenlib.resources
         "IpProtocol", //: String
         "ToPort" //: Integer
       );
-      Id = "Needs to be set!";
+      Id = Resource.DEFAULT_ID;
     }
   }
 

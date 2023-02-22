@@ -9,12 +9,12 @@
 namespace kondensor.cfgenlib.primitives
 {
 
-  public interface IProtocolAndPortRange
+  public interface IProtocolAndPortRange<Tr> where Tr : struct, IResourceType
   {
-    void SetIpProtocol(IpProtocol protocol);
+    Tr SetIpProtocol(IpProtocol protocol);
 
-    void SetToPort(int port);
-    void SetFromPort(int port);
+    Tr SetToPort(int port);
+    Tr SetFromPort(int port);
   }
 
 }

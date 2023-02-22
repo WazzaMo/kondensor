@@ -9,7 +9,7 @@ using kondensor.cfgenlib.primitives;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct VpcIngress : IResourceType, IProtocolAndPortRange
+  public struct VpcIngress : IResourceType, IProtocolAndPortRange<VpcIngress>
   {
     public readonly string
       INGRESS_CIDRIP = "CidrIp", //: String
@@ -36,68 +36,101 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public void SetCidrIp(IpCidrAddress address)
-      => _Properties.SetProp(INGRESS_CIDRIP, address);
+    public VpcIngress SetCidrIp(IpCidrAddress address)
+    {
+      _Properties.SetProp(INGRESS_CIDRIP, address);
+      return this;
+    }
     
     public bool HasCidrIp()
       => _Properties.HasValue<IpCidrAddress>(INGRESS_CIDRIP);
     
-    public void SetDescription(string description)
-      => _Properties.SetProp(INGRESS_DESCRIPTION, new Text( description ));
+    public VpcIngress SetDescription(string description)
+    {
+      _Properties.SetProp(INGRESS_DESCRIPTION, new Text( description ));
+      return this;
+    }
     
     public bool HasDescription()
       => _Properties.HasValue<Text>(INGRESS_DESCRIPTION);
     
-    public void SetFromPort(int port)
-      => _Properties.SetProp<IntNumber>(INGRESS_FROM_PORT, new IntNumber(port));
+    public VpcIngress SetFromPort(int port)
+    {
+      _Properties.SetProp<IntNumber>(INGRESS_FROM_PORT, new IntNumber(port));
+      return this;
+    }
     
     public bool HasFromPort()
       => _Properties.HasValue<IntNumber>(INGRESS_FROM_PORT);
     
-    public void SetGroupId(string id)
-      => _Properties.SetProp<Text>(INGRESS_GROUP_ID, new Text(id) );
+    public VpcIngress SetGroupId(string id)
+    {
+      _Properties.SetProp<Text>(INGRESS_GROUP_ID, new Text(id) );
+      return this;
+    }
     
     public bool HasGroupId()
       => _Properties.HasValue<Text>(INGRESS_GROUP_ID);
     
-    public void SetGroupName(string name)
-      => _Properties.SetProp<Text>(INGRESS_GROUP_NAME, new Text(name) );
+    public VpcIngress SetGroupName(string name)
+    {
+      _Properties.SetProp<Text>(INGRESS_GROUP_NAME, new Text(name) );
+      return this;
+    }
     
     public bool HasGroupName()
       => _Properties.HasValue<Text>(INGRESS_GROUP_NAME);
     
-    public void SetIpProtocol(IpProtocol protocol)
-      => _Properties.SetProp<IpProtocol>(INGRESS_IP_PROTOCOL, protocol);
+    public VpcIngress SetIpProtocol(IpProtocol protocol)
+    {
+      _Properties.SetProp<IpProtocol>(INGRESS_IP_PROTOCOL, protocol);
+      return this;
+    }
     
     public bool HasIpProtocol()
       => _Properties.HasValue<IpProtocol>(INGRESS_IP_PROTOCOL);
     
-    public void SetSourcePrefixListId(string id)
-      => _Properties.SetProp<Text>(INGRESS_SOURCE_PREFIX_LIST_ID,  new Text(id) );
+    public VpcIngress SetSourcePrefixListId(string id)
+    {
+      _Properties.SetProp<Text>(INGRESS_SOURCE_PREFIX_LIST_ID,  new Text(id) );
+      return this;
+    }
     
     public bool HasSourcePrefixListId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_PREFIX_LIST_ID);
     
-    public void SetSourceSecurityGroupId(string id)
-      => _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_ID, new Text(id) );
+    public VpcIngress SetSourceSecurityGroupId(string id)
+    {
+      _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_ID, new Text(id) );
+      return this;
+    }
     
     public bool HasSourceSecurityGroupId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_ID);
     
-    public void SetSourceSecurityGroupName(string name)
-      => _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_NAME, new Text(name) );
+    public VpcIngress SetSourceSecurityGroupName(string name)
+    {
+      _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_NAME, new Text(name) );
+      return this;
+    }
     
     public bool HasSourceSecurityGroupName()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_NAME);
     
-    public void SetSourceSecurityGroupOwnerId(string id)
-      => _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID, new Text(id) );
+    public VpcIngress SetSourceSecurityGroupOwnerId(string id)
+    {
+      _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID, new Text(id) );
+      return this;
+    }
     
     public bool HasSourceSecurityGroupOwnerId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID);
     
-    public void SetToPort(int port)
-      => _Properties.SetProp<IntNumber>(INGRESS_TO_PORT, new IntNumber(port));
+    public VpcIngress SetToPort(int port)
+    {
+      _Properties.SetProp<IntNumber>(INGRESS_TO_PORT, new IntNumber(port));
+      return this;
+    }
     
     public bool HasToPort()
       => _Properties.HasValue<IntNumber>(INGRESS_TO_PORT);
@@ -133,7 +166,7 @@ namespace kondensor.cfgenlib.resources
         INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID,
         INGRESS_TO_PORT
       );
-      Id = "empty";
+      Id = Resource.DEFAULT_ID;
     }
   }
 

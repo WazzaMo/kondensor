@@ -107,9 +107,9 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public AwsEc2IpamPool SetLocale(Region region)
+    public AwsEc2IpamPool SetLocale(RegionId region)
     {
-      _Properties.SetProp<Region>(LOCALE, region);
+      _Properties.SetProp<Region>(LOCALE, new Region( region) );
       return this;
     }
 
