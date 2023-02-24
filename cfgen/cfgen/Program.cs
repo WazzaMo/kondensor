@@ -72,12 +72,6 @@ public class Program
       description: "Test import VPC and add security group."
     );
 
-
-    VpcIngress ingress = new VpcIngress();
-    ingress = ingress.SetProtocolAndPortRange(IpProtocolType.HTTP);
-    ingress.SetDescription("Allow web traffic");
-    ingress.SetCidrIp(IpCidrAddress.AnyAddress());
-
     stack
       .AddImport<AwsEc2Vpc>(VPC_ID, out Import vpc)
       .AddResource<AwsEc2VpcSecurityGroup>( SECGROUP_ID,
@@ -85,6 +79,12 @@ public class Program
           .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
           .SetGroupName(SECGROUP)
           .SetVpcId(vpc)
+          .AddIngressRule( stack.AddChild<VpcIngress>(
+            "Web", ingress => ingress
+            .SetProtocolAndPortRange(IpProtocolType.HTTP)
+            .SetDescription("Allow web traffic - inlined")
+            .SetCidrIp(IpCidrAddress.AnyAddress())
+          ))
           .AddEgressRule( stack.AddChild<VpcEgress>("AnyEgress",
             propSetter: egress => 
               egress
@@ -92,7 +92,6 @@ public class Program
               .SetProtocolAndPortRange(IpProtocolType.ALL_PROTOCOLS)
             )
           )
-          .AddIngressRule(ingress)
           .AddTag(key: "CreatedBy", value: "Test program")
       );
 
