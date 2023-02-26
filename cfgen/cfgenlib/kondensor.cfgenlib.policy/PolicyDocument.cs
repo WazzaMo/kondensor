@@ -4,6 +4,7 @@
  *  Distributed under the Kondensor License.
  */
 
+using System.Collections.Generic;
 
 namespace kondensor.cfgenlib.policy
 {
@@ -17,6 +18,19 @@ namespace kondensor.cfgenlib.policy
       KW_PRINCIPAL = "Principal",
       KW_ACTION = "Action",
       KW_CONDITION = "Condition";
+
+    private List<PolicyStatement> _Statements;
+
+    public PolicyDocument AddStatement(PolicyStatement statement)
+    {
+      _Statements.Add(statement);
+      return this;
+    }
+
+    public PolicyDocument()
+    {
+      _Statements = new List<PolicyStatement>();
+    }
   }
 
 }

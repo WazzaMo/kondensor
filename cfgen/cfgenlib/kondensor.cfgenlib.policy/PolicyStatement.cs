@@ -17,13 +17,51 @@ namespace kondensor.cfgenlib.policy
   /// </summary>
   public struct PolicyStatement
   {
-    public Option<string> Sid;
+    public Option<string> Sid { get; private set; }
     public EffectValue Effect;
-    public Option<string> Principle;
+    public Option<string> Principal;
 
     public List<string> Actions;
 
     public List<string> Resources;
+
+    public PolicyStatement SetSid(string sid)
+    {
+      if (String.IsNullOrEmpty(sid))
+        return this;
+      else if (IsValidSid(sid))
+        Sid = Option.Some(sid);
+      else
+        throw new ArgumentException($"Sid {sid} must be all alphanumeric only.");
+      return this;
+    }
+
+    public PolicyStatement()
+    {
+      Sid = Option.None<string>();
+      Effect = EffectValue.Empty;
+      Principal = Option.None<string>();
+      Actions = new List<string>();
+      Resources = new List<string>();
+    }
+
+    public static bool IsValidSid(string sid)
+    {
+      bool result;
+      if (String.IsNullOrEmpty(sid))
+        result = false;
+      else
+      {
+        var chars = sid.ToCharArray();
+        if (chars == null)
+          result = false;
+        else
+        {
+          result = chars.All(x => Char.IsLetterOrDigit(x));
+        }
+      }
+      return result;
+    }
   }
 
 }
