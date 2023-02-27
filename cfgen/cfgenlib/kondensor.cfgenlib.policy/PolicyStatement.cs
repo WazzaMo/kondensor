@@ -36,6 +36,24 @@ namespace kondensor.cfgenlib.policy
       return this;
     }
 
+    public PolicyStatement SetEffect(EffectValue effect)
+    {
+      Effect = effect;
+      return this;
+    }
+
+    public PolicyStatement AddAction(string action)
+    {
+      Actions.Add(action);
+      return this;
+    }
+
+    public PolicyStatement AddResource(string resource)
+    {
+      Resources.Add(resource);
+      return this;
+    }
+
     public PolicyStatement()
     {
       Sid = Option.None<string>();
