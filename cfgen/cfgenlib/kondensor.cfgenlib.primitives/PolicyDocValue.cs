@@ -23,6 +23,11 @@ namespace kondensor.cfgenlib.primitives
     {
       throw new NotImplementedException();
     }
+
+    public PolicyDocValue()
+    {
+      _Policy = new PolicyDocument();
+    }
   }
 
 }
