@@ -15,7 +15,9 @@ namespace kondensor.cfgenlib.writer
 
   public struct YamlWriter
   {
-    public const string INDENT = "  ";
+    public const string
+      INDENT = "  ",
+      COMMENT = "#";
 
     private Dictionary<Type, Writer> Writers;
 
@@ -112,6 +114,12 @@ namespace kondensor.cfgenlib.writer
     {
       string formatted = indent + message;
       output.WriteLine(formatted);
+      return output;
+    }
+
+    public static StreamWriter WriteComment(StreamWriter output, string comment, string indent )
+    {
+      output.WriteLine(value: $"{indent}{COMMENT} {comment}");
       return output;
     }
   }

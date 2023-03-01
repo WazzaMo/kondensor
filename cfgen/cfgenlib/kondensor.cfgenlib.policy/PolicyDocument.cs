@@ -21,6 +21,8 @@ namespace kondensor.cfgenlib.policy
 
     private List<PolicyStatement> _Statements;
 
+    public List<PolicyStatement> Statements => _Statements;
+
     public PolicyDocument AddStatement(PolicyStatement statement)
     {
       _Statements.Add(statement);
