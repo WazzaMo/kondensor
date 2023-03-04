@@ -13,6 +13,7 @@ using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.primitives;
 using kondensor.cfgenlib.outputs;
 using kondensor.cfgenlib.api;
+using kondensor.cfgenlib.policy;
 
 public class Program
 {
@@ -22,7 +23,8 @@ public class Program
     SECGROUP_ID = "TestSecGrp",
 
     VPC_TEST = "VpcTest.yaml",
-    SEC_GROUP = "SecGrp.yaml";
+    SEC_GROUP = "SecGrp.yaml",
+    IAM_USER_WM = "WMtestUser";
 
   public static void Main(string[] args)
   {
@@ -46,6 +48,17 @@ public class Program
         .SetEnableDnsSupport(true)
         .AddTag("Name", "TestVpc"),
       "Second test VPC creatd by API."
+    )
+    .AddResource<AwsIamPolicy>(IAM_USER_WM, policy => policy
+      .SetUsers("test")
+      .SetPolicyDocument( PolicyDocument.Create(
+        s1 => s1.SetSid("S1")
+        .SetEffect(EffectValue.Allow)
+        .AddAction("iam:ListRoles")
+        .AddAction("iam:ListUsers")
+        .AddResource("*")
+      )),
+      optText: "User role for IAM"
     );
     
     AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());

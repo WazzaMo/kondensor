@@ -33,6 +33,18 @@ namespace kondensor.cfgenlib.policy
     {
       _Statements = new List<PolicyStatement>();
     }
+
+    public static PolicyDocument Create(params Func<PolicyStatement, PolicyStatement>[] statements)
+    {
+      PolicyDocument document = new PolicyDocument();
+      for(int index = 0; index < statements.Length; index++) 
+      {
+        PolicyStatement policyStatement = new PolicyStatement();
+        policyStatement = statements[index](policyStatement);
+        document.AddStatement(policyStatement);
+      }
+      return document;
+    }
   }
 
 }

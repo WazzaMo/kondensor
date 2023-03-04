@@ -19,11 +19,11 @@ namespace kondensor.cfgenlib.policy
   {
     public Option<string> Sid { get; private set; }
     public EffectValue Effect;
-    public Option<string> Principal;
+    public Option<string> Principal { get; private set; }
 
-    public List<string> Actions;
+    public List<string> Actions { get; private set; }
 
-    public List<string> Resources;
+    public List<string> Resources { get; private set; }
 
     public PolicyStatement SetSid(string sid)
     {
@@ -33,6 +33,12 @@ namespace kondensor.cfgenlib.policy
         Sid = Option.Some(sid);
       else
         throw new ArgumentException($"Sid {sid} must be all alphanumeric only.");
+      return this;
+    }
+
+    public PolicyStatement SetPrincipal(string principal)
+    {
+      Principal = Option.Some(principal);
       return this;
     }
 

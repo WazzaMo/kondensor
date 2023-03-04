@@ -37,20 +37,13 @@ namespace kondensor.cfgenlib.primitives
         indent_2 = YamlWriter.INDENT + indent_1;
 
       YamlWriter.Write(output, POLICY_KEY+":", indent_0);
-      YamlWriter.Write(output, $"{VERSION_KEY}: {VERSION_VALUE}", indent_1);
-      if (_Policy.Statements == null || _Policy.Statements.Count == 0)
-      {
-        YamlWriter.WriteComment(output, comment: "No policy statements to write.", indent_1);
-      }
-      else
-      {
-
-      }
+      WriteDocumentDetails(output, indent);
     }
 
     public void WritePrefixed(StreamWriter output, string prefix, string indent)
     {
-      throw new NotImplementedException();
+      YamlWriter.Write(output, message: $"{prefix}:", indent);
+      WriteDocumentDetails(output, indent);
     }
 
     public PolicyDocValue(PolicyDocument document)
@@ -58,7 +51,22 @@ namespace kondensor.cfgenlib.primitives
       _Policy = document;
     }
 
-    private void WriteStatement(StreamWriter output, PolicyStatement statement, string indent)
+    private void WriteDocumentDetails(StreamWriter output, string _0_indent)
+    {
+      string _1_indent = YamlWriter.INDENT + _0_indent;
+
+      YamlWriter.Write(output, $"{VERSION_KEY}: {VERSION_VALUE}", _1_indent);
+      if (_Policy.Statements == null || _Policy.Statements.Count == 0)
+      {
+        YamlWriter.WriteComment(output, comment: "No policy statements to write.", _1_indent);
+      }
+      else
+      {
+        _Policy.Statements.ForEach( statement => PolicyDocValue.WriteStatement(output, statement, _1_indent));
+      }
+    }
+
+    private static void WriteStatement(StreamWriter output, PolicyStatement statement, string indent)
     {
       string
         _indent_0 = indent,
@@ -70,14 +78,33 @@ namespace kondensor.cfgenlib.primitives
       if (statement.Sid.HasValue )
       {
         statement.Sid.MatchSome( sid => YamlWriter.Write(output, message: $"- {SID_KEY}: {sid}", _indent_1));
-        YamlWriter.Write(output, message: $"{ACTION_KEY}:", _indent_2);
+        YamlWriter.Write(output, message: $"{EFFECT_KEY}: {Effect(statement.Effect)}", _indent_2);
       }
       else
-        YamlWriter.Write(output, message: $"- {ACTION_KEY}:", _indent_1);
+      {
+        YamlWriter.Write(output, message: $"- {EFFECT_KEY}: {Effect(statement.Effect)}", _indent_1);
+      }
+
+      statement.Principal.MatchSome( principal => YamlWriter.Write(output, message: $"{PRINCIPAL_KEY}: {principal}", _indent_1));
+      YamlWriter.Write(output, message: $"{ACTION_KEY}:", _indent_2);
       statement.Actions.ForEach(
         actionTxt => YamlWriter.Write(output, message: $"- {actionTxt}", _indent_3)
       );
+      YamlWriter.Write(output, message: $"{RESOURCE_KEY}:", _indent_2);
+      statement.Resources.ForEach(
+        resource => YamlWriter.Write(output, message: $"- {resource}", _indent_3)
+      );
     }
+
+    private static string Effect(EffectValue effect)
+    {
+      return  effect switch {
+        EffectValue.Allow => "Allow",
+        EffectValue.Deny => "Deny",
+        _ => "Deny # Effect not initialised to correct value."
+      };
+    }
+
   }
 
 }

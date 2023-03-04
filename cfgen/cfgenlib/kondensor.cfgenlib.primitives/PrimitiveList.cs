@@ -19,6 +19,9 @@ namespace kondensor.cfgenlib.primitives
         _List.Add(onePrimitive);
     }
 
+    public void Add(T value)
+      => _List.Add(value);
+
     public void Write(StreamWriter output, string name, string indent)
     {
       string  _0_indent = indent,

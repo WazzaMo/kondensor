@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using kondensor.cfgenlib.primitives;
 using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.outputs;
+using kondensor.cfgenlib.policy;
 
 namespace kondensor.cfgenlib.api
 {
