@@ -4,16 +4,19 @@
  *  Distributed under the Kondensor License.
  */
 
-using kondensor.cfgenlib;
 
 using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.primitives;
 
-namespace kondensor.cfgenlib.api
+namespace kondensor.cfgenlib.patterns
 {
 
-  public static class Template {
-    
-  }
-  
+  /// <summary>
+  /// Patterns of use for AWS VPC
+  /// </summary>
+  public static class VpcPatterns
+  {
+
+  } // VPC
+
 }
