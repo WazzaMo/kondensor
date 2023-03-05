@@ -6,17 +6,20 @@
 
 using kondensor.cfgenlib.writer;
 using kondensor.cfgenlib.policy;
+using kondensor.cfgenlib.primitives;
 
-namespace kondensor.cfgenlib.primitives
+namespace kondensor.cfgenlib.composites
 {
 
   /// <summary>
   /// Represents an IAM policy document as a cloudformation
   /// template primitive value to be written as YAML.
   /// </summary>
-  public struct PolicyDocValue : IPrimitive
+  public struct PolicyDocValue : IComposite
   {
-    const string POLICY_KEY = "PolicyDocument",
+    const string
+        POLICY_KEY = "PolicyDocument",
+        POLICY_NAME = "PolicyName",
         VERSION_KEY = "Version",
         VERSION_VALUE = PolicyDocument.IAM_POLICY_VERSION,
         STATEMENT_KEY = "Statement",
@@ -31,19 +34,53 @@ namespace kondensor.cfgenlib.primitives
     
     public void Write(StreamWriter output, string name, string indent)
     {
-      string
-        indent_0 = indent,
-        indent_1 = YamlWriter.INDENT + indent_0,
-        indent_2 = YamlWriter.INDENT + indent_1;
-
-      YamlWriter.Write(output, POLICY_KEY+":", indent_0);
+      Text policyName = new Text(_Policy.PolicyName);
+      policyName.WritePrefixed(output, POLICY_NAME+":", indent);
       WriteDocumentDetails(output, indent);
     }
 
+    /// <summary>
+    /// For use where policy document is provided as a sub-value
+    /// and so the first indent is to be prefixed by '-' and then
+    /// follows with regular document.
+    /// 
+    /// - PolicyName: giveaccesstotopiconly
+    ///   PolicyDocument:
+    ///     Version: '2012-10-17'
+    ///     Statement:
+    ///     - Effect: Allow
+    /// </summary>
+    /// <param name="output">Object to write into</param>
+    /// <param name="prefix">Prefix characters</param>
+    /// <param name="indent">Indent required before the prefix</param>
     public void WritePrefixed(StreamWriter output, string prefix, string indent)
     {
-      YamlWriter.Write(output, message: $"{prefix}:", indent);
+      string formattedPrefix = $"{prefix} {POLICY_NAME}:";
+      Text policyName = new Text(_Policy.PolicyName);
+
+      policyName.WritePrefixed(output, formattedPrefix, indent);
       WriteDocumentDetails(output, indent);
+    }
+
+    public void SetPolicyName(string name)
+      => _Policy.SetPolicyName(name);
+
+    /// <summary>
+    /// Best way to create the policy document.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="statements"></param>
+    /// <returns></returns>
+    public static PolicyDocValue Create(string name, params Func<PolicyStatement, PolicyStatement>[] statements)
+    {
+      PolicyDocument document = new PolicyDocument(name);
+      for(int index = 0; index < statements.Length; index++) 
+      {
+        PolicyStatement policyStatement = new PolicyStatement();
+        policyStatement = statements[index](policyStatement);
+        document.AddStatement(policyStatement);
+      }
+      return new PolicyDocValue(document);
     }
 
     public PolicyDocValue(PolicyDocument document)
@@ -55,6 +92,7 @@ namespace kondensor.cfgenlib.primitives
     {
       string _1_indent = YamlWriter.INDENT + _0_indent;
 
+      YamlWriter.Write(output, POLICY_KEY+":", _0_indent);
       YamlWriter.Write(output, $"{VERSION_KEY}: {VERSION_VALUE}", _1_indent);
       if (_Policy.Statements == null || _Policy.Statements.Count == 0)
       {

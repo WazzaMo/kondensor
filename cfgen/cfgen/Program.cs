@@ -11,7 +11,7 @@ using kondensor.cfgenlib;
 using kondensor.cfgenlib.writer;
 using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.primitives;
-using kondensor.cfgenlib.outputs;
+using kondensor.cfgenlib.composites;
 using kondensor.cfgenlib.api;
 using kondensor.cfgenlib.policy;
 
@@ -24,7 +24,10 @@ public class Program
 
     VPC_TEST = "VpcTest.yaml",
     SEC_GROUP = "SecGrp.yaml",
-    IAM_USER_WM = "WMtestUser";
+    IAM_USER_WM_ID = "WMtestUser",
+    IAM_IAM_LIST_POLICY = "ListUsersAndRoles",
+    IAM_TEST_USER = "TestUser",
+    TEST_USERNAME = "WTest";
 
   public static void Main(string[] args)
   {
@@ -49,9 +52,17 @@ public class Program
         .AddTag("Name", "TestVpc"),
       "Second test VPC creatd by API."
     )
-    .AddResource<AwsIamPolicy>(IAM_USER_WM, policy => policy
-      .SetUsers("test")
-      .SetPolicyDocument( PolicyDocument.Create(
+    .AddResource<AwsIamUser>(
+      IAM_TEST_USER,
+      user => user
+        .SetUserName(TEST_USERNAME)
+        .SetLoginProfile(UserLoginProfile.Create("badPassword#").SetPasswordResetRequired(false)),
+      "Test user to later apply policy against."
+    )
+    .AddResource<AwsIamPolicy>(IAM_USER_WM_ID, policy => policy
+      .SetPolicyName("ListUsersAndRoles")
+      .SetUsers(TEST_USERNAME)
+      .SetPolicyDocument( PolicyDocValue.Create( IAM_IAM_LIST_POLICY,
         s1 => s1.SetSid("S1")
         .SetEffect(EffectValue.Allow)
         .AddAction("iam:ListRoles")

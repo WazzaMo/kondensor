@@ -96,7 +96,7 @@ namespace kondensor.cfgenlib.resources
       params string[] optionalText
     )
     {
-      var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
+      // var (description, condition) = Outputs.GetOutputOptionsFrom(optionalText);
       OutputData outputVpc = new OutputData(environment, this);
       Outputs.AddOutput(document, outputVpc, optionalText);
       return this;

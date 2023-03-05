@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 
 using kondensor.cfgenlib.primitives;
+using kondensor.cfgenlib.composites;
 using kondensor.cfgenlib.policy;
 using kondensor.cfgenlib.outputs;
 
@@ -20,8 +21,7 @@ namespace kondensor.cfgenlib.resources
       POLICY_DOCUMENT = "PolicyDocument",
       POLICY_NAME = "PolicyName",
       ROLES = "Roles",
-      USERS = "Users",
-      TAGS = "Tags";
+      USERS = "Users";
 
 
     private ResourceProperties _Properties;
@@ -35,7 +35,6 @@ namespace kondensor.cfgenlib.resources
     public IResourceType AddOutput(TemplateDocument document, string environment, string name, params string[] optionalText)
     {
       OutputData output = new OutputData(environment, this);
-      ExportData export = new ExportData(environment, this);
       Outputs.AddOutput(document, output, optionalText);
       return this;
     }
@@ -49,7 +48,6 @@ namespace kondensor.cfgenlib.resources
         _Properties.Access<PrimitiveList<Text>>(GROUPS, list => {
           list.Add(group);
         });
-          // _Properties.SetProp(GROUPS, list);
       }
       else
       {
@@ -76,15 +74,15 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public AwsIamPolicy SetPolicyDocument(PolicyDocument document)
+    public AwsIamPolicy SetPolicyDocument(PolicyDocValue document)
     {
-      _Properties.SetProp<PolicyDocValue>(POLICY_DOCUMENT, new PolicyDocValue(document));
+      _Properties.SetProp<PolicyDocValue>(POLICY_DOCUMENT, document);
       return this;
     }
 
     public AwsIamPolicy SetPolicyName(string name)
     {
-      _Properties.SetProp<Text>(POLICY_NAME, new Text(name));
+      _Properties.Access<PolicyDocValue>(POLICY_DOCUMENT, document => document.SetPolicyName(name));
       return this;
     }
 
@@ -110,9 +108,14 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
+    /// <summary>
+    /// Tags not supported for IAM Policy definitions. Skipped.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <returns>copy of resource struct value.</returns>
     public IResourceType AddTag(string key, string value)
     {
-      _Properties.AddTag(key, value);
       return this;
     }
 
@@ -131,8 +134,7 @@ namespace kondensor.cfgenlib.resources
         POLICY_DOCUMENT,
         POLICY_NAME,
         ROLES,
-        USERS,
-        TAGS
+        USERS
       );
       Id = Resource.DEFAULT_ID;
     }

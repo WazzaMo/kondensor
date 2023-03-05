@@ -50,13 +50,15 @@ namespace kondensor.cfgenlib.policy
 
     public PolicyStatement AddAction(string action)
     {
-      Actions.Add(action);
+      string quotedAction = $"'{action}'";
+      Actions.Add(quotedAction);
       return this;
     }
 
     public PolicyStatement AddResource(string resource)
     {
-      Resources.Add(resource);
+      string quotedResource = $"'{resource}'";
+      Resources.Add(quotedResource);
       return this;
     }
 

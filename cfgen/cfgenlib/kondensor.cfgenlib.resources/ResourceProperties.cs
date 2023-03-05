@@ -101,6 +101,8 @@ namespace kondensor.cfgenlib.resources {
 
       _Properties = new Dictionary<string, ResourceProperty>();
       foreach(string name in props) {
+        if (_Properties.ContainsKey(name))
+          throw new ArgumentException($"Property named '{name}' already exists.");
         _Properties.Add(name, new ResourceProperty(name));
       }
       return _Properties;

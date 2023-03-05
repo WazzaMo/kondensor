@@ -11,17 +11,17 @@ namespace kondensor.cfgenlib.policy
 
   public struct PolicyDocument
   {
-    internal const string
-      IAM_POLICY_VERSION = "2012-10-17",
-      KW_SID = "Sid",
-      KW_EFFECT = "Effect",
-      KW_PRINCIPAL = "Principal",
-      KW_ACTION = "Action",
-      KW_CONDITION = "Condition";
+    internal const string IAM_POLICY_VERSION = "2012-10-17";
 
+    public string PolicyName { get; private set; }
     private List<PolicyStatement> _Statements;
-
     public List<PolicyStatement> Statements => _Statements;
+
+    public PolicyDocument SetPolicyName( string name )
+    {
+      PolicyName = name;
+      return this;
+    }
 
     public PolicyDocument AddStatement(PolicyStatement statement)
     {
@@ -29,22 +29,14 @@ namespace kondensor.cfgenlib.policy
       return this;
     }
 
-    public PolicyDocument()
+    const string NAME_DEFAULT = "defaultPolicyName";
+
+    public PolicyDocument(string policyName = NAME_DEFAULT)
     {
+      PolicyName = policyName;
       _Statements = new List<PolicyStatement>();
     }
 
-    public static PolicyDocument Create(params Func<PolicyStatement, PolicyStatement>[] statements)
-    {
-      PolicyDocument document = new PolicyDocument();
-      for(int index = 0; index < statements.Length; index++) 
-      {
-        PolicyStatement policyStatement = new PolicyStatement();
-        policyStatement = statements[index](policyStatement);
-        document.AddStatement(policyStatement);
-      }
-      return document;
-    }
   }
 
 }

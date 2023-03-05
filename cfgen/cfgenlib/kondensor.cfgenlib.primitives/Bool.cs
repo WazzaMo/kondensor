@@ -13,10 +13,10 @@ namespace kondensor.cfgenlib.primitives
     public bool Value;
 
     void IPrimitive.Write(StreamWriter output, string name, string indent)
-      => YamlWriter.Write(output, $"{name}: '{Value}'", indent);
+      => YamlWriter.Write(output, $"{name}: {Value}", indent);
 
     public void WritePrefixed(StreamWriter output, string prefix, string indent)
-      => YamlWriter.Write(output, $"{prefix} '{Value}'", indent);
+      => YamlWriter.Write(output, $"{prefix} {Value}", indent);
 
     public Bool(bool value)
       => Value = value;
