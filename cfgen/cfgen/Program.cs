@@ -13,12 +13,14 @@ using kondensor.cfgenlib.resources;
 using kondensor.cfgenlib.primitives;
 using kondensor.cfgenlib.composites;
 using kondensor.cfgenlib.policy;
+using kondensor.cfgenlib.patterns;
 
 public class Program
 {
   static readonly string
     ENVIRONMENT = "Test",
     VPC_ID = "MainVpc",
+    VPC_DESC = "Test main VPC",
     SECGROUP_ID = "TestSecGrp",
 
     VPC_TEST = "VpcTest.yaml",
@@ -41,15 +43,14 @@ public class Program
     );
 
     IpCidrAddress baseRange = new IpCidrAddress(16, 10,1,1);
-    stack.AddResourceAndGetRef<AwsEc2Vpc>(
-      VPC_ID,
-      out Ref vpcId,
-      (vpcProps) => vpcProps
-        .SetCidrBlock(baseRange)
-        .SetEnableDnsHostnames(true)
-        .SetEnableDnsSupport(true)
-        .AddTag("Name", "TestVpc"),
-      "Second test VPC creatd by API."
+    VpcPatterns.DefineVpc(
+      stack, VPC_ID, VPC_DESC, baseRange, true,
+      true, false, (key: "CreatedBy", value: "Warwick")
+    );
+    VpcPatterns.DefineSubnetsAcrossAzs(
+      stack, VPC_ID,
+      new IpCidrAddress(24, 10,1,1,0),
+      2
     )
     .AddResource<AwsIamUser>(
       IAM_TEST_USER,
@@ -70,6 +71,18 @@ public class Program
       )),
       optText: "User role for IAM"
     );
+
+    /*
+    stack.AddResourceAndGetRef<AwsEc2Vpc>(
+      VPC_ID,
+      out Ref vpcId,
+      (vpcProps) => vpcProps
+        .SetCidrBlock(baseRange)
+        .SetEnableDnsHostnames(true)
+        .SetEnableDnsSupport(true)
+        .AddTag("Name", "TestVpc"),
+      "Second test VPC creatd by API."
+    )
     
     AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
     IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
@@ -80,6 +93,8 @@ public class Program
         .SetAvailabilityZoneAndCidrBlock(az, cidrBlock),
       optText: "Internal subnet in AZ0"
     );
+    */
+
 
     YamlWriter writer = new YamlWriter();
 

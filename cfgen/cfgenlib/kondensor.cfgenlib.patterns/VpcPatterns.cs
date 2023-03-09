@@ -40,7 +40,7 @@ namespace kondensor.cfgenlib.patterns
       bool isUseDnsHostnames,
       bool isUseSharedEc2Hardware,
       bool isUseDedicatedHost,
-      (string key, string value)[] tags
+      params (string key, string value)[] tags
     )
     {
       string tenancy;
@@ -69,6 +69,17 @@ namespace kondensor.cfgenlib.patterns
       return stack;
     }
 
+    /// <summary>
+    /// Define subnets on the VPC using a base CIDR block
+    /// and determining a reasonable octet to create subnet
+    /// variation. The least significant octet will be used
+    /// based on the CIDR /16 -> 2nd octet; CIDR /24 -> 3rd octet
+    /// </summary>
+    /// <param name="stack">Stack to augment</param>
+    /// <param name="vpcDecl">VPC declaration to refer</param>
+    /// <param name="ipv4Range">IP CIDR block</param>
+    /// <param name="numberOfSubnets">Number of AZs and subnets</param>
+    /// <returns>same stack</returns>
     public static Stack DefineSubnetsAcrossAzs(
       Stack stack,
       string vpcDecl,
@@ -80,19 +91,20 @@ namespace kondensor.cfgenlib.patterns
 
       stack.Ref(vpcDecl, out vpc);
       byte[] octets = ipv4Range.Octets;
-      int variationIndex = ipv4Range.Cidr >= 24 ? 2
-        : ipv4Range.Cidr >= 16 ? 1 : 0;
+      int variationIndex = 
+        (ipv4Range.Cidr >= 16 && ipv4Range.Cidr < 20) ? 1 : 
+          ipv4Range.Cidr >= 24 ? 2 : 1;
       
       byte startVariation = octets[variationIndex];
       
       for(int index = 0; index < numberOfSubnets; index++)
       {
         AvailabilityZone az = new AvailabilityZone(index, Regions.CurrentRegion());
-        byte[] address = CopyOctets(octets);
+        byte[] address = IpCidrAddress.CopyOctets(octets);
         address[variationIndex] = (byte) (startVariation + (byte)index);
         IpCidrAddress block = new IpCidrAddress(ipv4Range.Cidr, address);
         stack.AddResource<AwsEc2Subnet>(
-        id: "InnerSubnet",
+          id: $"InnerSubnet{index}",
           (subnetProps) => subnetProps
             .SetVpcId( vpc)
             .SetAvailabilityZoneAndCidrBlock(az, block),
@@ -102,13 +114,7 @@ namespace kondensor.cfgenlib.patterns
       return stack;
     }
 
-    private static byte[] CopyOctets(byte[] octets)
-    {
-      byte[] result = new byte[octets.Length];
-      octets.CopyTo(result, 0);
-      return result;
-    }
-
+ 
   } // VPC
 
 }
