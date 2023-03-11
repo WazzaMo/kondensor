@@ -1,5 +1,5 @@
 /*
- *  (c) Copyright 2020 Kondensor Contributors
+ *  (c) Copyright 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
  *  Distributed under the Kondensor License.
  */
