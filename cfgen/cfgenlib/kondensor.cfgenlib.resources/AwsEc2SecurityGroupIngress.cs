@@ -9,7 +9,7 @@ using kondensor.cfgenlib.primitives;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct VpcIngress : IResourceType, IProtocolAndPortRange<VpcIngress>
+  public struct AwsEc2SecurityGroupIngress : IResourceType, IProtocolAndPortRange<AwsEc2SecurityGroupIngress>
   {
     public readonly string
       INGRESS_CIDRIP = "CidrIp", //: String
@@ -36,7 +36,7 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public VpcIngress SetCidrIp(IpCidrAddress address)
+    public AwsEc2SecurityGroupIngress SetCidrIp(IpCidrAddress address)
     {
       _Properties.SetProp(INGRESS_CIDRIP, address);
       return this;
@@ -45,7 +45,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasCidrIp()
       => _Properties.HasValue<IpCidrAddress>(INGRESS_CIDRIP);
     
-    public VpcIngress SetDescription(string description)
+    public AwsEc2SecurityGroupIngress SetDescription(string description)
     {
       _Properties.SetProp(INGRESS_DESCRIPTION, new Text( description ));
       return this;
@@ -54,7 +54,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasDescription()
       => _Properties.HasValue<Text>(INGRESS_DESCRIPTION);
     
-    public VpcIngress SetFromPort(int port)
+    public AwsEc2SecurityGroupIngress SetFromPort(int port)
     {
       _Properties.SetProp<IntNumber>(INGRESS_FROM_PORT, new IntNumber(port));
       return this;
@@ -63,7 +63,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasFromPort()
       => _Properties.HasValue<IntNumber>(INGRESS_FROM_PORT);
     
-    public VpcIngress SetGroupId(string id)
+    public AwsEc2SecurityGroupIngress SetGroupId(string id)
     {
       _Properties.SetProp<Text>(INGRESS_GROUP_ID, new Text(id) );
       return this;
@@ -72,7 +72,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasGroupId()
       => _Properties.HasValue<Text>(INGRESS_GROUP_ID);
     
-    public VpcIngress SetGroupName(string name)
+    public AwsEc2SecurityGroupIngress SetGroupName(string name)
     {
       _Properties.SetProp<Text>(INGRESS_GROUP_NAME, new Text(name) );
       return this;
@@ -81,7 +81,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasGroupName()
       => _Properties.HasValue<Text>(INGRESS_GROUP_NAME);
     
-    public VpcIngress SetIpProtocol(IpProtocol protocol)
+    public AwsEc2SecurityGroupIngress SetIpProtocol(IpProtocol protocol)
     {
       _Properties.SetProp<IpProtocol>(INGRESS_IP_PROTOCOL, protocol);
       return this;
@@ -90,7 +90,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasIpProtocol()
       => _Properties.HasValue<IpProtocol>(INGRESS_IP_PROTOCOL);
     
-    public VpcIngress SetSourcePrefixListId(string id)
+    public AwsEc2SecurityGroupIngress SetSourcePrefixListId(string id)
     {
       _Properties.SetProp<Text>(INGRESS_SOURCE_PREFIX_LIST_ID,  new Text(id) );
       return this;
@@ -99,7 +99,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasSourcePrefixListId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_PREFIX_LIST_ID);
     
-    public VpcIngress SetSourceSecurityGroupId(string id)
+    public AwsEc2SecurityGroupIngress SetSourceSecurityGroupId(string id)
     {
       _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_ID, new Text(id) );
       return this;
@@ -108,7 +108,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasSourceSecurityGroupId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_ID);
     
-    public VpcIngress SetSourceSecurityGroupName(string name)
+    public AwsEc2SecurityGroupIngress SetSourceSecurityGroupName(string name)
     {
       _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_NAME, new Text(name) );
       return this;
@@ -117,7 +117,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasSourceSecurityGroupName()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_NAME);
     
-    public VpcIngress SetSourceSecurityGroupOwnerId(string id)
+    public AwsEc2SecurityGroupIngress SetSourceSecurityGroupOwnerId(string id)
     {
       _Properties.SetProp<Text>(INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID, new Text(id) );
       return this;
@@ -126,7 +126,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasSourceSecurityGroupOwnerId()
       => _Properties.HasValue<Text>(INGRESS_SOURCE_SECURITY_GROUP_OWNER_ID);
     
-    public VpcIngress SetToPort(int port)
+    public AwsEc2SecurityGroupIngress SetToPort(int port)
     {
       _Properties.SetProp<IntNumber>(INGRESS_TO_PORT, new IntNumber(port));
       return this;
@@ -150,7 +150,7 @@ namespace kondensor.cfgenlib.resources
       // only SourceSecurityGroupOwnerId is conditionally required.
     }
 
-    public VpcIngress()
+    public AwsEc2SecurityGroupIngress()
     {
       _Properties = new ResourceProperties(
         INGRESS_CIDRIP,

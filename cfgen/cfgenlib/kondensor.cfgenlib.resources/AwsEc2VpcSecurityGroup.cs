@@ -51,21 +51,21 @@ namespace kondensor.cfgenlib.resources
       return this;
     }
 
-    public AwsEc2VpcSecurityGroup AddEgressRule(VpcEgress egress)
+    public AwsEc2VpcSecurityGroup AddEgressRule(AwsEc2SecurityGroupEgress egress)
     {
-      if (_Properties.HasValue<ResourceList<VpcEgress>>(GROUP_EGRESS) )
-        _Properties.Access<ResourceList<VpcEgress>>(GROUP_EGRESS, rList => rList.Add(egress));
+      if (_Properties.HasValue<ResourceList<AwsEc2SecurityGroupEgress>>(GROUP_EGRESS) )
+        _Properties.Access<ResourceList<AwsEc2SecurityGroupEgress>>(GROUP_EGRESS, rList => rList.Add(egress));
       else
-        _Properties.SetProp<ResourceList<VpcEgress>>(GROUP_EGRESS, new ResourceList<VpcEgress>(egress));
+        _Properties.SetProp<ResourceList<AwsEc2SecurityGroupEgress>>(GROUP_EGRESS, new ResourceList<AwsEc2SecurityGroupEgress>(egress));
       return this;
     }
 
-    public AwsEc2VpcSecurityGroup AddIngressRule(VpcIngress ingress)
+    public AwsEc2VpcSecurityGroup AddIngressRule(AwsEc2SecurityGroupIngress ingress)
     {
-      if (_Properties.HasValue<ResourceList<VpcIngress>>(GROUP_INGRESS))
-        _Properties.Access<ResourceList<VpcIngress>>(GROUP_INGRESS, rList => rList.Add(ingress));
+      if (_Properties.HasValue<ResourceList<AwsEc2SecurityGroupIngress>>(GROUP_INGRESS))
+        _Properties.Access<ResourceList<AwsEc2SecurityGroupIngress>>(GROUP_INGRESS, rList => rList.Add(ingress));
       else
-        _Properties.SetProp<ResourceList<VpcIngress>>(GROUP_INGRESS, new ResourceList<VpcIngress>(ingress));
+        _Properties.SetProp<ResourceList<AwsEc2SecurityGroupIngress>>(GROUP_INGRESS, new ResourceList<AwsEc2SecurityGroupIngress>(ingress));
       return this;
     }
 

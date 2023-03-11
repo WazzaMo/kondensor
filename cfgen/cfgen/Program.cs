@@ -92,13 +92,13 @@ public class Program
           .SetGroupDescription(description: "Allow web traffic in and all protocols-1234567890123456789")
           .SetGroupName(SECGROUP)
           .SetVpcId(vpc)
-          .AddIngressRule( stack.AddChild<VpcIngress>(
+          .AddIngressRule( stack.AddChild<AwsEc2SecurityGroupIngress>(
             "Web", ingress => ingress
             .SetProtocolAndPortRange(IpProtocolType.HTTP)
             .SetDescription("Allow web traffic - inlined")
             .SetCidrIp(IpCidrAddress.AnyAddress())
           ))
-          .AddEgressRule( stack.AddChild<VpcEgress>("AnyEgress",
+          .AddEgressRule( stack.AddChild<AwsEc2SecurityGroupEgress>("AnyEgress",
             propSetter: egress => 
               egress
               .SetCidrIp(IpCidrAddress.AnyAddress())

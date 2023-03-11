@@ -10,7 +10,7 @@ using kondensor.cfgenlib.primitives;
 namespace kondensor.cfgenlib.resources
 {
 
-  public struct VpcEgress : IResourceType, IProtocolAndPortRange<VpcEgress>
+  public struct AwsEc2SecurityGroupEgress : IResourceType, IProtocolAndPortRange<AwsEc2SecurityGroupEgress>
   {
     public readonly string
         EGRESS_IP = "CidrIp", //: String
@@ -33,7 +33,7 @@ namespace kondensor.cfgenlib.resources
 
     public Dictionary<string, ResourceProperty> Properties => _Properties.Properties;
 
-    public VpcEgress SetIpProtocol(IpProtocol protocol)
+    public AwsEc2SecurityGroupEgress SetIpProtocol(IpProtocol protocol)
     {
       _Properties.SetProp<IpProtocol>(EGRESS_IP_PROTOCOL, protocol);
       return this;
@@ -42,7 +42,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasIpProtocol()
       => _Properties.HasValue<IpProtocol>(EGRESS_IP_PROTOCOL);
     
-    public VpcEgress SetFromPort(int port)
+    public AwsEc2SecurityGroupEgress SetFromPort(int port)
     {
       _Properties.SetProp<IntNumber>(EGRESS_FROM_PORT, new IntNumber(port) );
       return this;
@@ -51,7 +51,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasFromPort()
         => _Properties.HasValue<IntNumber>(EGRESS_FROM_PORT);
     
-    public VpcEgress SetToPort(int port)
+    public AwsEc2SecurityGroupEgress SetToPort(int port)
     {
       _Properties.SetProp<IntNumber>(EGRESS_TO_PORT, new IntNumber(port));
       return this;
@@ -60,7 +60,7 @@ namespace kondensor.cfgenlib.resources
     public bool HasToPort()
       => _Properties.HasValue<IntNumber>(EGRESS_TO_PORT);
     
-    public VpcEgress SetCidrIp(IpCidrAddress ipCidr)
+    public AwsEc2SecurityGroupEgress SetCidrIp(IpCidrAddress ipCidr)
     {
       _Properties.SetProp<IpCidrAddress>(EGRESS_IP, ipCidr);
       return this;
@@ -84,7 +84,7 @@ namespace kondensor.cfgenlib.resources
       _Properties.AssertHasValue<IpProtocol>(EGRESS_IP_PROTOCOL);
     }
 
-    public VpcEgress()
+    public AwsEc2SecurityGroupEgress()
     {
       _Properties = new ResourceProperties(
         "CidrIp", //: String
