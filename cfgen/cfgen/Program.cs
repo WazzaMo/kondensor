@@ -72,32 +72,7 @@ public class Program
       optText: "User role for IAM"
     );
 
-    /*
-    stack.AddResourceAndGetRef<AwsEc2Vpc>(
-      VPC_ID,
-      out Ref vpcId,
-      (vpcProps) => vpcProps
-        .SetCidrBlock(baseRange)
-        .SetEnableDnsHostnames(true)
-        .SetEnableDnsSupport(true)
-        .AddTag("Name", "TestVpc"),
-      "Second test VPC creatd by API."
-    )
-    
-    AvailabilityZone az = new AvailabilityZone(0, Regions.CurrentRegion());
-    IpCidrAddress cidrBlock = new IpCidrAddress(24, 10,1,1,0);
-    stack.AddResource<AwsEc2Subnet>(
-      id: "InnerSubnet",
-      (subnetProps) => subnetProps
-        .SetVpcId( vpcId)
-        .SetAvailabilityZoneAndCidrBlock(az, cidrBlock),
-      optText: "Internal subnet in AZ0"
-    );
-    */
-
-
     YamlWriter writer = new YamlWriter();
-
     writer.WriteFile(VPC_TEST, stack.Document);
   }
 

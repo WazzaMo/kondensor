@@ -61,7 +61,9 @@ namespace kondensor.cfgenlib.patterns
           .SetEnableDnsHostnames(isUseDnsHostnames)
           .SetInstanceTenancy(tenancy);
           for(int index = 0; index < tags.Length; index++)
+          {
             vpc.AddTag(tags[index].key, tags[index].value);
+          }
           return vpc;
         },
         vpcDescription
