@@ -19,7 +19,7 @@ namespace kondensor.cfgenlib.primitives
   {
     public string Value;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       string
         _0_indent = indent,
@@ -36,7 +36,7 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       if (Value.Length > MAX_LEN)
       {
@@ -48,7 +48,7 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
-    private void LongLineWrite(StreamWriter output, string prefix, string indent)
+    private void LongLineWrite(ITextStream output, string prefix, string indent)
     {
       // Format longer lines over multiple YAML outputs.
       string
@@ -65,7 +65,7 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
-    private void ShortLineWrite(StreamWriter output, string prefix, string indent)
+    private void ShortLineWrite(ITextStream output, string prefix, string indent)
     {
       string
         _0_indent = indent,

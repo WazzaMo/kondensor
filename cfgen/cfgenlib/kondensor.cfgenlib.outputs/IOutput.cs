@@ -21,7 +21,7 @@ namespace kondensor.cfgenlib.outputs
     Ref Value { get; }
     IExport Export { get; }
 
-    void Write( StreamWriter output, string indent);
+    void Write( ITextStream output, string indent);
 
     void SetDescription(string description);
     void SetCondition(string condition);

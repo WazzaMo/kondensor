@@ -17,7 +17,7 @@ namespace kondensor.cfgenlib.primitives
     public byte[] Octets { get; private set; }
     public int Cidr { get; private set; }
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       if (Octets.Length < 4)
         throw new OverflowException($"{nameof(IpCidrAddress)} write expects 4 octets but has {Octets.Length}");
@@ -25,7 +25,7 @@ namespace kondensor.cfgenlib.primitives
       YamlWriter.Write(output, $"{name}: {Octets[0]}.{Octets[1]}.{Octets[2]}.{Octets[3]}/{Cidr}", indent);
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
       => YamlWriter.Write(output, $"{prefix}: {Octets[0]}.{Octets[1]}.{Octets[2]}.{Octets[3]}/{Cidr}", indent);
 
     public void SetCidrAndAddress(int cidr, params byte[] octets)

@@ -14,8 +14,8 @@ namespace kondensor.cfgenlib.writer
 
   public struct OutputsWriter 
   {
-    public static StreamWriter Write(
-      StreamWriter output,
+    public static ITextStream Write(
+      ITextStream output,
       Outputs outputsList,
       string indent
     )

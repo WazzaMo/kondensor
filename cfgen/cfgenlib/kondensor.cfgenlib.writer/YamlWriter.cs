@@ -35,7 +35,7 @@ namespace kondensor.cfgenlib.writer
     /// <param name="document">Document to write</param>
     public void WriteFile(string writeFileName, TemplateDocument document)
     {
-      using (StreamWriter output = File.CreateText(writeFileName))
+      using (TextFileStream output = new TextFileStream(writeFileName))
       {
         WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
         WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetListWriter<Resource>());
@@ -48,7 +48,7 @@ namespace kondensor.cfgenlib.writer
     {
       Writers.Add(
         typeof(T),
-        (StreamWriter sw, Option<object> o, Type type, string indent) => {
+        (ITextStream sw, Option<object> o, Type type, string indent) => {
           o.MatchSome( (object value) => writer(sw, (T) value, indent) );
           return sw;
         }
@@ -59,7 +59,7 @@ namespace kondensor.cfgenlib.writer
     {
       Writers.Add(
         typeof(List<T>),
-        (StreamWriter sw, Option<object> o, Type type, string indent) => {
+        (ITextStream sw, Option<object> o, Type type, string indent) => {
           o.MatchSome( (object list) => writer(sw, (List<T>) list, indent));
           return sw;
         }
@@ -80,7 +80,7 @@ namespace kondensor.cfgenlib.writer
       Writer writer = Writers.ContainsKey(writerType) 
         ? Writers[writerType]
         : ErrorWriter;
-      return (WriterDelegate<T>) ((StreamWriter output, T value, string indent) => writer(output, Option.Some<object>((object)value), typeof(T), indent));
+      return (WriterDelegate<T>) ((ITextStream output, T value, string indent) => writer(output, Option.Some<object>((object)value), typeof(T), indent));
     }
 
     private ListWriterDelegate<T> GetListWriter<T>() where T: struct
@@ -89,37 +89,37 @@ namespace kondensor.cfgenlib.writer
       Writer writer = Writers.ContainsKey(listWriterType)
         ? Writers[listWriterType]
         : ErrorWriter;
-      return (ListWriterDelegate<T>) ((StreamWriter output, List<T> list, string indent) => writer(output, Option.Some<object>((object) list), typeof(List<T>), indent));
+      return (ListWriterDelegate<T>) ((ITextStream output, List<T> list, string indent) => writer(output, Option.Some<object>((object) list), typeof(List<T>), indent));
     }
 
-    private static void WhenHaveValue<T>(Option<T> value, StreamWriter output, string indent, WriterDelegate<T> writer) where T : struct
+    private static void WhenHaveValue<T>(Option<T> value, ITextStream output, string indent, WriterDelegate<T> writer) where T : struct
     {
       value.MatchSome( toWrite => writer(output, toWrite, indent));
     }
 
-    private static void WhenHaveMultiple<T>(List<T> values, StreamWriter output, string indent, ListWriterDelegate<T> writer) where T : struct
+    private static void WhenHaveMultiple<T>(List<T> values, ITextStream output, string indent, ListWriterDelegate<T> writer) where T : struct
     {
       if (values != null && values.Count > 0) {
         writer(output, values, indent);
       }
     }
 
-    private static StreamWriter ErrorWriter(StreamWriter output, Option<object> o, Type type, string indent)
+    private static ITextStream ErrorWriter(ITextStream output, Option<object> o, Type type, string indent)
     {
       YamlWriter.Write(output, message: $"Writer for type {type.Name} was not registered.", indent);
       return output;
     }
 
-    public static StreamWriter Write(StreamWriter output, string message, string indent)
+    public static ITextStream Write(ITextStream output, string message, string indent)
     {
       string formatted = indent + message;
       output.WriteLine(formatted);
       return output;
     }
 
-    public static StreamWriter WriteComment(StreamWriter output, string comment, string indent )
+    public static ITextStream WriteComment(ITextStream output, string comment, string indent )
     {
-      output.WriteLine(value: $"{indent}{COMMENT} {comment}");
+      output.WriteLine($"{indent}{COMMENT} {comment}");
       return output;
     }
   }

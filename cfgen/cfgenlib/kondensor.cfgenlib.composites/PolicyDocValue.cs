@@ -32,7 +32,7 @@ namespace kondensor.cfgenlib.composites
 
     private PolicyDocument _Policy;
     
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       Text policyName = new Text(_Policy.PolicyName);
       policyName.WritePrefixed(output, POLICY_NAME+":", indent);
@@ -53,7 +53,7 @@ namespace kondensor.cfgenlib.composites
     /// <param name="output">Object to write into</param>
     /// <param name="prefix">Prefix characters</param>
     /// <param name="indent">Indent required before the prefix</param>
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       string formattedPrefix = $"{prefix} {POLICY_NAME}:";
       Text policyName = new Text(_Policy.PolicyName);
@@ -88,7 +88,7 @@ namespace kondensor.cfgenlib.composites
       _Policy = document;
     }
 
-    private void WriteDocumentDetails(StreamWriter output, string _0_indent)
+    private void WriteDocumentDetails(ITextStream output, string _0_indent)
     {
       string _1_indent = YamlWriter.INDENT + _0_indent;
 
@@ -104,7 +104,7 @@ namespace kondensor.cfgenlib.composites
       }
     }
 
-    private static void WriteStatement(StreamWriter output, PolicyStatement statement, string indent)
+    private static void WriteStatement(ITextStream output, PolicyStatement statement, string indent)
     {
       string
         _indent_0 = indent,

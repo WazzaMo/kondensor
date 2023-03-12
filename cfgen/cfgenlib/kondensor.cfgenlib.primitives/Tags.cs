@@ -12,7 +12,7 @@ namespace kondensor.cfgenlib.primitives
   {
     public List<Tag> TagList;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       var _1_indent = indent + YamlWriter.INDENT;
       var _2_indent = _1_indent + YamlWriter.INDENT;
@@ -25,7 +25,7 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       var _1_indent = indent + YamlWriter.INDENT;
       var _2_indent = _1_indent + YamlWriter.INDENT;

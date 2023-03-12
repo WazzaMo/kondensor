@@ -22,10 +22,10 @@ namespace kondensor.cfgenlib.primitives
 
     public string Referenced => _Reference;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
       => YamlWriter.Write(output, $"{name}: !Ref {_Reference}", indent);
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
       => YamlWriter.Write(output, $"{prefix} !Ref {_Reference}", indent);
 
     public Ref(string reference)

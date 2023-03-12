@@ -22,7 +22,7 @@ namespace kondensor.cfgenlib.outputs
 
     public string ExportValue => ExportUtils.ExportIdFor(_Environment, _Resource);
 
-    public void Write(StreamWriter output, string indent)
+    public void Write(ITextStream output, string indent)
     {
         string _1_indent = indent + YamlWriter.INDENT;
         YamlWriter.Write(output, message: "Export:", indent);

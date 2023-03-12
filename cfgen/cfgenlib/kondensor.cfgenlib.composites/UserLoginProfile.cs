@@ -33,7 +33,7 @@ namespace kondensor.cfgenlib.composites
       return this;
     }
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       string
         _0_indent = indent,
@@ -57,7 +57,7 @@ namespace kondensor.cfgenlib.composites
     /// <param name="output"></param>
     /// <param name="prefix"></param>
     /// <param name="indent"></param>
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       throw new NotImplementedException();
     }

@@ -36,7 +36,7 @@ namespace kondensor.cfgenlib.outputs
 
     public IExport Export => _Export;
 
-    public void Write(StreamWriter output, string indent)
+    public void Write(ITextStream output, string indent)
     {
       string  _0_ident = indent,
               _1_indent = _0_ident + YamlWriter.INDENT;

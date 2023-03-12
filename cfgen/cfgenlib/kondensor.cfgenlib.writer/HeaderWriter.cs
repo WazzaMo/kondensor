@@ -17,7 +17,7 @@ namespace kondensor.cfgenlib.writer
     private const string HEADER = @"AWSTemplateFormatVersion: ""2010-09-09""";
     private const string DESCRIPTION = @"Description: ";
 
-    public static StreamWriter Write(StreamWriter output, Header header, string indent)
+    public static ITextStream Write(ITextStream output, Header header, string indent)
     {
       string  _0_indent = indent;
 

@@ -15,11 +15,11 @@ namespace kondensor.cfgenlib.primitives
   {
     public IpProtocolType Protocol;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
       => YamlWriter.Write(output, $"{name}: {ProtocolToString()}", indent);
 
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
       => YamlWriter.Write(output, $"{prefix}: {ProtocolToString()}", indent);
 
     public string ProtocolToString()

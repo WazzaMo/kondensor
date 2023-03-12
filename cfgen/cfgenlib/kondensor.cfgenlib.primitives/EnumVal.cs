@@ -19,10 +19,10 @@ namespace kondensor.cfgenlib.primitives
     private Tenum _Value;
     private Func<Tenum, string> _WriteUtil;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
       => YamlWriter.Write(output, $"{name}: '{_WriteUtil(_Value)}'", indent);
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
       => YamlWriter.Write(output, $"{prefix} '{_WriteUtil(_Value)}'", indent);
 
     public EnumVal(Tenum value, Func<Tenum, string> toString )

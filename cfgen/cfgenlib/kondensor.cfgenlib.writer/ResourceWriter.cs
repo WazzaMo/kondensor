@@ -18,8 +18,8 @@ namespace kondensor.cfgenlib.writer
   
   public struct ResourceWriter
   {
-    public static StreamWriter Write(
-      StreamWriter output,
+    public static ITextStream Write(
+      ITextStream output,
       List<Resource> resources,
       string indent
     )

@@ -23,8 +23,8 @@ namespace kondensor.cfgenlib.writer
       PARAMS = "Parameters",
       DEFAULT = "default";
 
-    public static StreamWriter Write(
-      StreamWriter output,
+    public static ITextStream Write(
+      ITextStream output,
       Metadata metadata,
       string indent
     )
@@ -50,7 +50,7 @@ namespace kondensor.cfgenlib.writer
     }
 
     private static void WriteCloudFormationInterface(
-      StreamWriter output,
+      ITextStream output,
       ParameterMetadata paramMetadata,
       string interfaceIndent
     )
@@ -88,7 +88,7 @@ namespace kondensor.cfgenlib.writer
       }
     }
 
-    private static void WriteCfnInterfaceParamDeclaration(StreamWriter output, ParameterMetadata.ParameterGroup group, string _1_indent)
+    private static void WriteCfnInterfaceParamDeclaration(ITextStream output, ParameterMetadata.ParameterGroup group, string _1_indent)
     {
       var _2_indent = _1_indent + YamlWriter.INDENT;
       var _3_indent = _2_indent + YamlWriter.INDENT;
@@ -105,7 +105,7 @@ namespace kondensor.cfgenlib.writer
       }
     }
 
-    private static void WriteCfnInterfaceParamLabels(StreamWriter output, ParameterMetadata.ParameterGroup group, string _1_indent)
+    private static void WriteCfnInterfaceParamLabels(ITextStream output, ParameterMetadata.ParameterGroup group, string _1_indent)
     {
       var _2_indent = _1_indent + YamlWriter.INDENT;
       var _3_indent = _2_indent + YamlWriter.INDENT;

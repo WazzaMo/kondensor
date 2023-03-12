@@ -13,6 +13,6 @@ namespace kondensor.cfgenlib.outputs
   {
     string ExportValue { get; }
 
-    void Write( StreamWriter output, string indent);
+    void Write( ITextStream output, string indent);
   }
 }

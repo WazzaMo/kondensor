@@ -18,10 +18,10 @@ namespace kondensor.cfgenlib.primitives
   {
     private RegionId _RegionId;
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
       => YamlWriter.Write(output, $"{name}: {RegionString()}", indent);
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
       => YamlWriter.Write(output, $"{prefix}: {RegionString()}", indent);
     
     private string RegionString() => Regions.AsText(_RegionId).Value;

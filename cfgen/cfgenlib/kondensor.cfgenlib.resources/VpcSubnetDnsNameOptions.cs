@@ -45,7 +45,7 @@ namespace kondensor.cfgenlib.resources
       _Properties.SetProp<EnumVal<HostnameType>>(HOSTNAME_TYPE, value);
     }
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       string _0_indent = indent,
         _1_indent = _0_indent + YamlWriter.INDENT;
@@ -59,7 +59,7 @@ namespace kondensor.cfgenlib.resources
       }
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       // Not needed and should not be used.
       throw new NotImplementedException();

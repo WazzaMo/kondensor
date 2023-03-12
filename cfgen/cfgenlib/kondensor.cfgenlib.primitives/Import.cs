@@ -18,7 +18,7 @@ namespace kondensor.cfgenlib.primitives
     public string Imported => _Exported.ExportValue;
 
     private readonly string FULL_IMPORT_FUNCTION = "Fn::ImportValue:";
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       string _0_indent = indent,
              _1_indent = _0_indent + YamlWriter.INDENT,
@@ -29,7 +29,7 @@ namespace kondensor.cfgenlib.primitives
       YamlWriter.Write(output, Imported, _2_indent);
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       string _0_indent = indent,
              _1_indent = _0_indent + YamlWriter.INDENT,

@@ -22,7 +22,7 @@ namespace kondensor.cfgenlib.primitives
     public void Add(T value)
       => _List.Add(value);
 
-    public void Write(StreamWriter output, string name, string indent)
+    public void Write(ITextStream output, string name, string indent)
     {
       string  _0_indent = indent,
               _1_indent = _0_indent + YamlWriter.INDENT;
@@ -34,7 +34,7 @@ namespace kondensor.cfgenlib.primitives
       }
     }
 
-    public void WritePrefixed(StreamWriter output, string prefix, string indent)
+    public void WritePrefixed(ITextStream output, string prefix, string indent)
     {
       string  _0_indent = indent,
               _1_indent = _0_indent + YamlWriter.INDENT;
