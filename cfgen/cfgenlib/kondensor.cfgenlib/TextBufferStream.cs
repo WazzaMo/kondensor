@@ -23,10 +23,10 @@ namespace kondensor.cfgenlib
       => _Builder.Clear();
 
     public void Write(string format, params object[] values)
-      => _Builder.AppendFormat(format, values);
+      => _Builder.AppendFormat(format, values).AppendLine();
 
     public void WriteLine(string format, params object[] values)
-      => _Builder.AppendFormat(format, values);
+      => _Builder.AppendFormat(format, values).AppendLine();
 
     /// <summary>
     /// Takes all the built content and clears the buffer

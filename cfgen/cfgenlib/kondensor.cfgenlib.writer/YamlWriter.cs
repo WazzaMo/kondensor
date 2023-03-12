@@ -36,12 +36,20 @@ namespace kondensor.cfgenlib.writer
     public void WriteFile(string writeFileName, TemplateDocument document)
     {
       using (TextFileStream output = new TextFileStream(writeFileName))
-      {
-        WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
-        WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetListWriter<Resource>());
-        WhenHaveValue<Metadata>(document.Metadata, output, indent: "", GetWriter<Metadata>() );
-        WhenHaveValue<Outputs>(document.Outputs, output, indent: "", GetWriter<Outputs>() );
-      }
+        WriteToStream(output, document);
+    }
+
+    /// <summary>
+    /// Takes template document to write and writes the text to a buffer
+    /// returning the content of the buffer as a single string.
+    /// </summary>
+    /// <param name="document">Document to write</param>
+    /// <returns>String containing all text, formatted as YAML.</returns>
+    public string WriteString(TemplateDocument document)
+    {
+      TextBufferStream bufferStream = new TextBufferStream();
+      WriteToStream(bufferStream, document);
+      return bufferStream.TakeContentAndClear();
     }
 
     public void RegisterWriter<T>(WriterDelegate<T> writer) where T : struct
@@ -64,6 +72,14 @@ namespace kondensor.cfgenlib.writer
           return sw;
         }
       );
+    }
+
+    private void WriteToStream(ITextStream output, TemplateDocument document)
+    {
+      WhenHaveValue<Header>(document.Header, output, indent: "", GetWriter<Header>());
+      WhenHaveMultiple<Resource>(document.Resources, output, indent: "", GetListWriter<Resource>());
+      WhenHaveValue<Metadata>(document.Metadata, output, indent: "", GetWriter<Metadata>() );
+      WhenHaveValue<Outputs>(document.Outputs, output, indent: "", GetWriter<Outputs>() );
     }
 
     private void RegisterBasicWriters()

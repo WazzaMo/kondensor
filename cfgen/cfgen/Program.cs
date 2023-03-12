@@ -74,6 +74,9 @@ public class Program
 
     YamlWriter writer = new YamlWriter();
     writer.WriteFile(VPC_TEST, stack.Document);
+
+    var yaml = writer.WriteString(stack.Document);
+    System.Console.Write(yaml);
   }
 
   private static void TestSecGroup()
