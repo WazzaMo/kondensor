@@ -30,7 +30,6 @@ def getLine():
     line = line_buffer
     fetch = False
     line_buffer = None
-  print("GetLn: %s  fetched: %s" % (line,fetch))
   context["end_of_file"] = end_of_file
   context["line_buffer"] = line_buffer
   return line
@@ -44,11 +43,10 @@ def is_Eof():
 
 def getWord(line):
   try:
-    if len(line) == 0:
+    if line != None and len(line) == 0:
       return None
     else:
-      print("GetWord: %s" % line)
-      mm = re.search("([\w \-\*]+)", line)
+      mm = re.search("([:\w \-\*]+)", line)
       if mm == None:
         ungetLine(line)
         return None
@@ -57,19 +55,26 @@ def getWord(line):
   except Exception as e:
     return None
 
+def isDeclarationLine(line):
+  if line == None:
+    return False
+  else:
+    tab = line.find("\t")
+    return (tab > 1)
+
 def getList():
   list = []
   finished = False
-  while not finished:
+  while not finished and not is_Eof():
     line = getLine()
-    if line == None:
-      line = getLine()
-    if line != None and line.find("\t") > -1:
-      entry = getWord(line)
-      list.append(entry)
-    else:
+    if isDeclarationLine(line):
       ungetLine(line)
       finished = True
+    else:
+      entry = getWord(line)
+      if entry != None:
+        list.append(entry)
+      
   return list
 
 
@@ -91,8 +96,7 @@ def ProcessDecl(line):
 
 
 def FindContent(line):
-  tab = line.find("\t")
-  if tab > 1:
+  if isDeclarationLine(line):
     parts = line.split("\t")
     if len(parts) >= 3:
       ProcessDecl(line)
@@ -104,15 +108,11 @@ def FindContent(line):
 
 def ReadInput():
   x = ""
-  more = True
-  while more:
-    try:
-      line = getLine() #input()
-      if len(line) > 0:
-        FindContent(line)
-    except Exception as e:
-      print(e)
-      more = False
+  while not is_Eof():
+    line = getLine()
+    if line != None and len(line) > 0:
+      FindContent(line)
+
 
 ReadInput()
 
