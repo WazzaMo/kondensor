@@ -77,6 +77,21 @@ def getList():
       
   return list
 
+def splitList(list, prefix):
+  """
+  Split the given list into 2 lists.
+  RETURNS (list_no_prefix, list_prefixed)
+  The first list returned have items lacking the prefix.
+  The second list returned will have only the items with the prefix.
+  """
+  non_prefixed = []
+  prefixed = []
+  for item in list:
+    if type(item) == str and item.find(prefix) == 0:
+      prefixed.append(item)
+    else:
+      non_prefixed.append(item)
+  return (non_prefixed, prefixed)
 
 def ProcessDecl(line):
   #Actions	->|Description	->|Access level	->|Resource types (*required)	->|Condition keys	->|Dependent actions
@@ -87,12 +102,15 @@ def ProcessDecl(line):
     access = mm.group(3)
     nextLine = getLine()
     resource_types = getWord(nextLine)
-    conditions = getList()
+    items = getList()
+    (conditions, dependent_actions) = splitList(items, "iam")
     print("Action: %s" % action)
     print("Desc: %s" % description)
     print("Access: %s" % access)
     print("Res Types: %s" % resource_types)
-    print("Conditions: ", conditions)
+    print("%d Conditions: %s" % (len(conditions),conditions) )
+    print("%d Dependent Actions: %s" % (len(dependent_actions), dependent_actions))
+    print("-----")
 
 
 def FindContent(line):
