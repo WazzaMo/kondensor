@@ -97,14 +97,9 @@ def ProcessDecl(line):
 
 def FindContent(line):
   if isDeclarationLine(line):
-    parts = line.split("\t")
-    if len(parts) >= 3:
-      ProcessDecl(line)
+    ProcessDecl(line)
   else:
-    parts = line.split("\t")
-    print("Small line:", parts)
-      # [action,description,access] = parts
-      # ProcessDecl(action, description, access)
+    raise Exception("Did not handle line:" + line)
 
 def ReadInput():
   x = ""
