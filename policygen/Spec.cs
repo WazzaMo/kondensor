@@ -9,12 +9,48 @@ using Optional;
 using System.Text.RegularExpressions;
 using System.IO;
 
+
 public static class Spec
 {
   private static readonly Regex Re = new Regex(
     @"^(\w+)\s([\w \-]+)[\t]?([\w \-]+)[\t]?([\w \-]*)[\t]?",
     RegexOptions.Compiled | RegexOptions.IgnoreCase
   );
+
+  private static Option<string> OptLineBuffer = Option.None<string>();
+  private static bool EndOfFile = false;
+
+  public static Option<string> GetLine(TextReader reader)
+  {
+    Option<string> line;
+
+    if (OptLineBuffer.HasValue)
+    {
+      OptLineBuffer.MatchSome( text => line = Option.Some(text) );
+      OptLineBuffer = Option.None<string>();
+    }
+    else
+    {
+      if (reader.Peek() > 0)
+      {
+        try {
+          string? value = reader.ReadLine();
+          if (value == null)
+          {
+            EndOfFile = true;
+          }
+          else
+          {
+            line = Option.Some(value);
+          }
+        }
+        catch(Exception e)
+        {
+          
+        }
+      }
+    }
+  }
 
   public static void ProcessDeclaration(string line)
   {
@@ -27,7 +63,9 @@ public static class Spec
       var action = groups[1].Value;
       var description = groups[2].Value;
       var access = groups[3].Value;
-        Console.WriteLine($"#0 -> '{groups[0]}'");
+
+      // Console.WriteLine($"#0 -> '{groups[0]}'");
+
       Console.WriteLine($"Action: {action}");
       Console.WriteLine($"Desc: {description}");
       Console.WriteLine($"Access: {access}");
