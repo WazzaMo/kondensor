@@ -17,12 +17,20 @@ public static class Spec
     RegexOptions.Compiled | RegexOptions.IgnoreCase
   );
 
+  private static readonly Regex WordRe = new Regex(
+    pattern: @"([:\w \-\*]+)"
+  );
+
   private static Option<string> OptLineBuffer = Option.None<string>();
   private static bool EndOfFile = false;
 
+  private static void SetEof() => EndOfFile = true;
+  private static bool IsEof() => EndOfFile;
+
+
   public static Option<string> GetLine(TextReader reader)
   {
-    Option<string> line;
+    Option<string> line = Option.None<string>();
 
     if (OptLineBuffer.HasValue)
     {
@@ -31,25 +39,63 @@ public static class Spec
     }
     else
     {
-      if (reader.Peek() > 0)
-      {
-        try {
-          string? value = reader.ReadLine();
-          if (value == null)
-          {
-            EndOfFile = true;
-          }
-          else
-          {
-            line = Option.Some(value);
-          }
-        }
-        catch(Exception e)
+      try {
+        string? value = reader.ReadLine();
+        if (value == null)
         {
-          
+          SetEof();
+        }
+        else
+        {
+          line = Option.Some(value);
         }
       }
+      catch(Exception e)
+      {
+        Console.WriteLine(
+          $"Error encountered when fetching a line of text. {e.Message}"
+        );
+        SetEof();
+      }
     }
+    return line;
+  }
+
+  public static void UngetLine(Option<string> line)
+    => OptLineBuffer = line;
+
+  // def getWord(line):
+  // try:
+  //   if line != None and len(line) == 0:
+  //     return None
+  //   else:
+  //     mm = re.search("([:\w \-\*]+)", line)
+  //     if mm == None:
+  //       ungetLine(line)
+  //       return None
+  //     else:
+  //       return mm.group(1)
+  // except Exception as e:
+  //   return None
+  public static Option<string> GetWord(Option<string> line)
+  {
+    Option<string> wordResult = Option.None<string>();
+    line.MatchSome( textLine => {
+      if (textLine.Length > 0)
+      {
+        var match = WordRe.Match(textLine);
+        if (match != null && match.Length > 0)
+        {
+          GroupCollection groups = match.Groups;
+          wordResult = Option.Some(groups[1].Value);
+        }
+        else
+        {
+          UngetLine(line);
+        }
+      }
+    });
+    return wordResult;
   }
 
   public static void ProcessDeclaration(string line)
@@ -90,11 +136,8 @@ public static class Spec
 
   public static void ReadStream(TextReader reader)
   {
-    var line = reader.ReadLine();
-    if (line != null)
-    {
-      ProcessDeclaration(line);
-    }
+    var line = GetLine(reader);
+    line.MatchSome( textLine => ProcessDeclaration(textLine));
     //
   }
 
