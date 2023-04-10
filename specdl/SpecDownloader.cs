@@ -74,9 +74,7 @@ public struct SpecDownloader
           source => {
             _dest.Match(
               destination => {
-                processor.SetInput(source);
-                processor.SetOutput(destination);
-                processor.ProcessAllLines(out int countLines);
+                processor.ProcessAllLines(out int countLines, source, destination);
                 Console.WriteLine($"Lines read: {countLines}");
               },
               () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Destination not set!")

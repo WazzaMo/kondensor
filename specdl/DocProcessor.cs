@@ -25,34 +25,26 @@ using System.Text.RegularExpressions;
 /// </summary>
 public struct DocProcessor : IProcessor
 {
-  private TextReader? _Input;
-  private TextWriter? _Output;
-
-  public DocProcessor()
-  {
-    _Input = null;
-    _Output = null;
-  }
-
-  public void ProcessAllLines(out int countHandled)
+  public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
   {
     countHandled = 0;
-    if (_Input != null && _Output != null) 
+    if (input != null && output != null) 
     {
       string? line;
       do
       {
-        line = _Input.ReadLine();
+        line = input.ReadLine();
         countHandled++;
         if (line != null)
         {
-          _Output.WriteLine(line);
+          output.WriteLine(line);
         }
       } while( line != null);
     }
+    else
+      if (input == null)
+        throw new ArgumentException("Parameter input is NULL");
+      else if (output == null)
+        throw new ArgumentException("Parameter output is NULL");
   }
-
-  public void SetInput(TextReader input) => _Input = input;
-
-  public void SetOutput(TextWriter output) => _Output = output;
 }
