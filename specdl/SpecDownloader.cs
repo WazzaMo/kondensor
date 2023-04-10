@@ -95,7 +95,7 @@ public struct SpecDownloader
     HttpResponseMessage response;
     string? baseUrl = null;
 
-    Action<HttpRequestHeaders> setHeaders = CreateHeaders;
+    Action<HttpRequestHeaders> setHeaders = PopulateHeaders;
     // Action<HttpRequestMessage> showMsg = DumpHeaders;
 
     _Url.MatchSome( url => baseUrl = url);
@@ -116,7 +116,7 @@ public struct SpecDownloader
     return content;
   }
 
-  private void CreateHeaders(HttpRequestHeaders headers)
+  private void PopulateHeaders(HttpRequestHeaders headers)
   {
     const string
       Accept = "Accept",
