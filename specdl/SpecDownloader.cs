@@ -22,7 +22,11 @@ public struct SpecDownloader
 
   private Option<IProcessor> _Processor;
 
+  private int _LinesRead;
+
   public Option<string> Url => _Url;
+
+  public int LinesDownloaded => _LinesRead;
 
   public SpecDownloader()
   {
@@ -31,6 +35,7 @@ public struct SpecDownloader
     _Destination = Option.None<TextWriter>();
     _BaseClient = Option.None<HttpClient>();
     _Processor = Option.None<IProcessor>();
+    _LinesRead = 0;
   }
 
   public void SetUrl(string url)
@@ -67,6 +72,7 @@ public struct SpecDownloader
   {
     Option<TextReader> _source = _Source;
     Option<TextWriter> _dest = _Destination;
+    int countLines = 0;
 
     _Processor.Match(
       processor => {
@@ -74,8 +80,7 @@ public struct SpecDownloader
           source => {
             _dest.Match(
               destination => {
-                processor.ProcessAllLines(out int countLines, source, destination);
-                Console.WriteLine($"Lines read: {countLines}");
+                processor.ProcessAllLines(out countLines, source, destination);
               },
               () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Destination not set!")
             );
@@ -85,6 +90,7 @@ public struct SpecDownloader
       },
       () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Processor not set!")
     );
+    _LinesRead = countLines;
   }
 
   private string? DownloadText(string path)
