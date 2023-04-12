@@ -31,15 +31,20 @@ public struct DocProcessor : IProcessor
     if (input != null && output != null) 
     {
       string? line;
-      do
+      countHandled = FindAnyTableStart(countHandled, out bool IsEof, input, output);
+
+      if (!IsEof)
       {
-        line = input.ReadLine();
-        countHandled++;
-        if (line != null)
+        do
         {
-          output.WriteLine(line);
-        }
-      } while( line != null);
+          line = input.ReadLine();
+          countHandled++;
+          if (line != null)
+          {
+            output.WriteLine(line);
+          }
+        } while( line != null);
+      }
     }
     else
       if (input == null)
@@ -47,4 +52,42 @@ public struct DocProcessor : IProcessor
       else if (output == null)
         throw new ArgumentException("Parameter output is NULL");
   }
+
+  private int FindAnyTableStart(int countHandled, out bool IsEof, TextReader input, TextWriter output)
+  {
+    string? line;
+    bool isTableFound = false;
+    int lineCount = countHandled;
+    IsEof = false;
+
+    do
+    {
+      line = input.ReadLine();
+      lineCount++;
+      if (line == null)
+      {
+        IsEof = true;
+      }
+      else
+      {
+        var match = Regex.Match(line, @".*\<table.*");
+        if (match != null && match.Length > 0)
+        {
+          Console.WriteLine($"Match table: {match.Groups[1].Value}");
+          isTableFound = true;
+        }
+      }
+    } while( line != null && ! isTableFound);
+    return lineCount;
+  }
+
+  // private void FindActionsTable(out int countHandled, TextReader input, TextWriter output)
+  // {
+
+  // }
+
+  // private void HandleActionsTable(out int countHandled, TextReader input, TextWriter output)
+  // {
+
+  // }
 }
