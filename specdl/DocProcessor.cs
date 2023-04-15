@@ -72,10 +72,8 @@ public struct DocProcessor : IProcessor
       }
       else
       {
-        var match = Regex.Match(line, @".*\<table.*");
-        if (match != null && match.Length > 0)
+        if (IsTableStart(line))
         {
-          // Console.WriteLine($"Match table: {match.Groups[1].Value}");
           isTableFound = true;
           TableHeader header = IdentifyTable(lineCount, out IsEof, input, output);
           Console.WriteLine($"Table: {header.Kind}  - |{header.Headings[0]}|");
@@ -85,6 +83,27 @@ public struct DocProcessor : IProcessor
     } while( line != null && ! isTableFound);
     return lineCount;
   }
+
+  private bool IsTableStart(string line)
+  {
+    bool result = false;
+
+    var match = Regex.Match(line, @".*\<table.*");
+    result = (match != null && match.Length > 0);
+
+    return result;
+  }
+
+  private bool IsTableEnd(string line)
+  {
+    bool result = false;
+
+    var match = Regex.Match(line, @".*\<\/table.*");
+    result = (match != null && match.Length > 0);
+
+    return result;
+  }
+
 
   const string
     ACTIONS = "Actions",
@@ -113,9 +132,9 @@ public struct DocProcessor : IProcessor
         countLines++;
         if (IsStartRow(line))
         {}
-        if (IsEndRow(line))
+        else if (IsEndRow(line))
           isEndHeader = true;
-        if (IsHeading(line, out string heading))
+        else if (IsHeading(line, out string heading))
           columns.Add(heading);
       }
     }
@@ -169,13 +188,8 @@ public struct DocProcessor : IProcessor
     return result;
   }
 
-  // private void FindActionsTable(out int countHandled, TextReader input, TextWriter output)
-  // {
+  private void HandleActionsTable(string line, TextWriter output)
+  {
 
-  // }
-
-  // private void HandleActionsTable(out int countHandled, TextReader input, TextWriter output)
-  // {
-
-  // }
+  }
 }
