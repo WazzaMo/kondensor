@@ -27,6 +27,13 @@ using System.Collections.Generic;
 /// </summary>
 public struct DocProcessor : IProcessor
 {
+  private Stack<IElement> _Elements;
+
+  public DocProcessor()
+  {
+    _Elements = new Stack<IElement>();
+  }
+
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
   {
     countHandled = 0;
@@ -62,6 +69,13 @@ public struct DocProcessor : IProcessor
     int lineCount = countHandled;
     IsEof = false;
 
+    _Elements.Push(new TableStartElement());
+    // _Elements.Push(new TableHeadStartElement());
+    // _Elements.Push(new TableRowStartElement());
+    // _Elements.Push(new THSpecElement());
+    // _Elements.Push(new TableRowEndElement());
+    // _Elements.Push(new TableHeadEndElement());
+    // _Elements.Push(new TableEndElement());
     do
     {
       line = input.ReadLine();
@@ -72,6 +86,9 @@ public struct DocProcessor : IProcessor
       }
       else
       {
+        if (_Elements.Peek().IsMatch(line))
+        //---- Make stack based.
+        
         if (IsTableStart(line))
         {
           isTableFound = true;
