@@ -27,11 +27,11 @@ using System.Collections.Generic;
 /// </summary>
 public struct DocProcessor : IProcessor
 {
-  private Stack<IElement> _Elements;
+  private Stack<StackTask> _ParseStack;
 
   public DocProcessor()
   {
-    _Elements = new Stack<IElement>();
+    _ParseStack = new Stack<StackTask>();
   }
 
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
@@ -62,6 +62,25 @@ public struct DocProcessor : IProcessor
         throw new ArgumentException("Parameter output is NULL");
   }
 
+  private static void InitStackTaskForTable(Stack<StackTask> stack)
+  {
+    StackTask handleTableEnd = new StackTask() {
+      Element = new TableEndElement(),
+      UponMatch = InitStackTaskForTable
+    };
+    StackTask handleTableStart = new StackTask() {
+      Element = new TableStartElement(),
+      UponMatch = ConfigParseForHeading
+    };
+    stack.Push(handleTableEnd);
+    stack.Push(handleTableStart);
+  }
+
+  private static void ConfigParseForHeading(Stack<StackTask> stack)
+  {
+
+  }
+
   private int FindAnyTableStart(int countHandled, out bool IsEof, TextReader input, TextWriter output)
   {
     string? line;
@@ -75,7 +94,7 @@ public struct DocProcessor : IProcessor
     // _Elements.Push(new THSpecElement());
     // _Elements.Push(new TableRowEndElement());
     // _Elements.Push(new TableHeadEndElement());
-    // _Elements.Push(new TableEndElement());
+    _Elements.Push(new TableEndElement());
     do
     {
       line = input.ReadLine();
