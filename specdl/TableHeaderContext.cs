@@ -9,12 +9,12 @@ using System.Collections.Generic;
 /// <summary>
 /// A type that indicates what kind of table has been found.
 /// </summary>
-public record struct  TableHeader: IContext //(TablePurpose Kind, string[] Headings, int LinesProcessed);
+public record struct  TableHeaderContext: IContext //(TablePurpose Kind, string[] Headings, int LinesProcessed);
 {
   public TablePurpose Kind;
   public List<string> Headings;
 
-  public TableHeader()
+  public TableHeaderContext()
   {
     Kind = TablePurpose.Unknown;
     Headings = new List<string>();

@@ -28,19 +28,22 @@ using System.Collections.Generic;
 public struct DocProcessor : IProcessor
 {
   private Stack<StackTask> _ParseStack;
+  private IContext _CurrentContext;
 
   public DocProcessor()
   {
     _ParseStack = new Stack<StackTask>();
+    _CurrentContext = new NoneContext();
   }
 
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
   {
     countHandled = 0;
+    bool IsEof = false;
+
     if (input != null && output != null) 
     {
       string? line;
-      countHandled = FindAnyTableStart(countHandled, out bool IsEof, input, output);
 
       if (!IsEof)
       {
@@ -50,6 +53,7 @@ public struct DocProcessor : IProcessor
           countHandled++;
           if (line != null)
           {
+            if 
             output.WriteLine(line);
           }
         } while( line != null);
@@ -62,7 +66,18 @@ public struct DocProcessor : IProcessor
         throw new ArgumentException("Parameter output is NULL");
   }
 
-  private static void InitStackTaskForTable(Stack<StackTask> stack)
+  private bool IsMatch(string line)
+    => _ParseStack.Peek().Element.IsMatch(line);
+  
+  private IContext Process(string line, TextWriter output, IContext current)
+  {
+    StackTask task = _ParseStack.Pop();
+    IContext context = task.Element.Processed(line, output, _CurrentContext);
+    context = task.UponMatch(_ParseStack, context);
+    return context;
+  }
+
+  private static IContext InitStackTaskForTable(Stack<StackTask> stack, IContext current)
   {
     StackTask handleTableEnd = new StackTask() {
       Element = new TableEndElement(),
@@ -74,11 +89,65 @@ public struct DocProcessor : IProcessor
     };
     stack.Push(handleTableEnd);
     stack.Push(handleTableStart);
+    return new NoneContext();
   }
 
-  private static void ConfigParseForHeading(Stack<StackTask> stack)
+  private static IContext ConfigParseForHeading(Stack<StackTask> stack, IContext current)
   {
+    StackTask headingEnd = new StackTask() {
+      Element = new TableHeadEndElement(),
+      UponMatch = PrepareForDataRow
+    };
+    StackTask headingStart = new StackTask() {
+      Element = new TableHeadStartElement(),
+      // UponMatch = H
+    };
+    return new NoneContext();
+  }
 
+  private static IContext HandleEndHeading(Stack<StackTask> stack, IContext context)
+  {
+    IContext newContext;
+
+    if (context is TableHeaderContext header)
+    {
+      if (header.Headings.Count > 0)
+      {
+        header.Kind = GetKindFrom(header.Headings);
+      }
+
+      newContext = header.Kind switch {
+        TablePurpose.Actions => new ActionsTableContext(),
+        _ => new NoneContext()
+      };
+    }
+    else
+    {
+      newContext = new NoneContext();
+    }
+    return newContext;
+  }
+
+  /// <summary>
+  /// Handle data row after heading is complete.
+  /// </summary>
+  /// <param name="stack"></param>
+  /// <param name="context"></param>
+  /// <returns></returns>
+  private static IContext PrepareForDataRow(Stack<StackTask> stack, IContext context)
+  {
+    //
+  }
+
+  private static TablePurpose GetKindFrom(List<string> headings)
+  {
+    TablePurpose kind = headings[0] switch {
+      ACTIONS => TablePurpose.Actions,
+      RESOURCE_TYPES => TablePurpose.ResourceTypes,
+      CONDITION_KEYS => TablePurpose.ConditionKeys,
+      _ => TablePurpose.Unknown
+    };
+    return kind;
   }
 
   private int FindAnyTableStart(int countHandled, out bool IsEof, TextReader input, TextWriter output)
@@ -111,7 +180,7 @@ public struct DocProcessor : IProcessor
         if (IsTableStart(line))
         {
           isTableFound = true;
-          TableHeader header = IdentifyTable(lineCount, out IsEof, input, output);
+          TableHeaderContext header = IdentifyTable(lineCount, out IsEof, input, output);
           Console.WriteLine($"Table: {header.Kind}  - |{header.Headings[0]}|");
           lineCount = header.LinesProcessed;
         }
@@ -146,10 +215,10 @@ public struct DocProcessor : IProcessor
     RESOURCE_TYPES = "Resource types",
     CONDITION_KEYS = "Condition keys";
 
-  private TableHeader IdentifyTable(int countHandled, out bool IsEof, TextReader input, TextWriter output)
+  private TableHeaderContext IdentifyTable(int countHandled, out bool IsEof, TextReader input, TextWriter output)
   {
     string? line;
-    TableHeader header = new TableHeader();
+    TableHeaderContext header = new TableHeaderContext();
     List<string> columns = new List<string>();
     int countLines = countHandled;
 

@@ -20,7 +20,7 @@ public struct TableRowStartElement : IElement
   {
     bool isMatch = IsMatch(line);
     IContext result;
-    result = isMatch ? new TableHeader() : new NoneContext();
+    result = isMatch ? new TableHeaderContext() : new NoneContext();
     return result;
   }
 }

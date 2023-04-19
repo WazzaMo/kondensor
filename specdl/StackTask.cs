@@ -10,4 +10,4 @@ using System.Collections.Generic;
 /// A matching task on a parsing stack with a job to perform
 /// upon a match.
 /// </summary>
-public record struct StackTask (IElement Element, Action<Stack<StackTask>> UponMatch);
+public record struct StackTask (IElement Element, Func<Stack<StackTask>, IContext, IContext> UponMatch);

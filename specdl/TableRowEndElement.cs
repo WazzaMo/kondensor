@@ -26,7 +26,7 @@ public struct TableRowEndElement : IElement
     bool isMatch = IsMatch(line);
     IContext result = context;
 
-    if (isMatch && context is TableHeader header)
+    if (isMatch && context is TableHeaderContext header)
     {
       string lead = header.Headings[0];
       TablePurpose kind = lead switch {

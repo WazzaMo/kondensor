@@ -18,18 +18,32 @@ public struct THSpecElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    const int STRING_INDEX = 1;
     IContext result = new NoneContext();
 
     var match = Pattern.Match(line);
-    if (match != null && match.Length > 0 && context is TableHeader header)
+    if (match != null && match.Length > 0 && context is TableHeaderContext header)
     {
-      string content = match.Groups[STRING_INDEX].Value;
-      List<string> list = header.Headings;
-      list.Add(content);
-      header.Headings = list;
+      header.Headings = AddMatchTo(header.Headings, match);
+      result = header;
+    }
+    else if (match != null && match.Length > 0 && context is NoneContext)
+    {
+      header = new TableHeaderContext()
+      {
+        Headings = AddMatchTo(new List<string>(), match),
+        Kind = TablePurpose.Unknown
+      };
       result = header;
     }
     return result;
+  }
+
+  private List<string> AddMatchTo(List<string> list, Match match)
+  {
+    const int STRING_INDEX = 1;
+    string content = match.Groups[STRING_INDEX].Value;
+
+    list.Add(content);
+    return list;
   }
 }
