@@ -100,12 +100,52 @@ public struct DocProcessor : IProcessor
     };
     StackTask headingStart = new StackTask() {
       Element = new TableHeadStartElement(),
-      // UponMatch = H
+      UponMatch = ConfigForHeadingRow
     };
+    stack.Push(headingEnd);
+    stack.Push(headingStart);
     return new NoneContext();
   }
 
-  private static IContext HandleEndHeading(Stack<StackTask> stack, IContext context)
+  private static IContext ConfigForHeadingRow(Stack<StackTask> stack, IContext context)
+  {
+    StackTask
+      headingTr = new StackTask() {
+        Element = new TableRowStartElement(),
+        UponMatch = ConfigForHeadingSpec
+      },
+      headingEndTr = new StackTask() {
+        Element = new TableRowEndElement(),
+        UponMatch = ContextPassThrough
+      };
+      stack.Push(headingEndTr);
+      stack.Push(headingTr);
+      return new NoneContext();
+  }
+
+  private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
+  {
+    StackTask
+      headingSpec = new StackTask() {
+        Element = new THSpecElement(),
+        UponMatch = ContextPassThrough
+      };
+    stack.Push(headingSpec);
+    return context;
+  }
+
+  private static IContext ContextPassThrough(Stack<StackTask> stack, IContext context)
+  {
+    return context;
+  }
+
+  /// <summary>
+  /// Handle data row after heading is complete.
+  /// </summary>
+  /// <param name="stack"></param>
+  /// <param name="context"></param>
+  /// <returns></returns>
+  private static IContext PrepareForDataRow(Stack<StackTask> stack, IContext context)
   {
     IContext newContext;
 
@@ -128,15 +168,20 @@ public struct DocProcessor : IProcessor
     return newContext;
   }
 
-  /// <summary>
-  /// Handle data row after heading is complete.
-  /// </summary>
-  /// <param name="stack"></param>
-  /// <param name="context"></param>
-  /// <returns></returns>
-  private static IContext PrepareForDataRow(Stack<StackTask> stack, IContext context)
+  private static IContext ConfigForDataRow(Stack<StackTask> stack, IContext context)
   {
-    //
+    StackTask
+      dataRow = new StackTask() {
+        Element = new TableRowStartElement(),
+        UponMatch = 
+      },
+      dataRowEnd = new StackTask() {
+        Element = new TableRowEndElement(),
+        UponMatch = 
+      };
+    stack.Push(dataRowEnd);
+    stack.Push(dataRow);
+    return context;
   }
 
   private static TablePurpose GetKindFrom(List<string> headings)
