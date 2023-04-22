@@ -11,6 +11,9 @@ public struct TableEndElement : IElement
   private readonly static Regex TableEnd = new Regex(pattern: @".*\<\/table.*");
 
   public bool IsMatch(string line)
+    => false;
+
+  public bool IsFinalMatch(string line)
   {
     var match = TableEnd.Match(line);
     return match != null && match.Length > 0;
@@ -18,7 +21,7 @@ public struct TableEndElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    bool result = IsMatch(line);
+    bool result = IsFinalMatch(line);
     return new NoneContext();
   }
 }

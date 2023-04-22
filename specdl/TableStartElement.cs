@@ -10,6 +10,9 @@ public struct TableStartElement : IElement
 {
   private readonly static Regex Table = new Regex(pattern: @".*\<table.*");
   public bool IsMatch(string line)
+    => false;
+  
+  public bool IsFinalMatch(string line)
   {
     var match = Table.Match(line);
     return match != null && match.Length > 0;
@@ -17,7 +20,7 @@ public struct TableStartElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    bool result = IsMatch(line);
+    bool result = IsFinalMatch(line);
     return new NoneContext();
   }
 }

@@ -33,7 +33,7 @@ public struct DocProcessor : IProcessor
   public DocProcessor()
   {
     _ParseStack = new Stack<StackTask>();
-    _CurrentContext = new NoneContext();
+    _CurrentContext = InitStackTaskForTable(_ParseStack, new NoneContext());
   }
 
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
@@ -53,8 +53,14 @@ public struct DocProcessor : IProcessor
           countHandled++;
           if (line != null)
           {
-            if 
-            output.WriteLine(line);
+            while( IsMatch(line) )
+            {
+              _CurrentContext = Process(line, output, _CurrentContext);
+            }
+            string contextName = _CurrentContext.GetType().Name;
+            string topStack = _ParseStack.Peek().Element.GetType().Name;
+            if (topStack != nameof(TableStartElement))
+              output.WriteLine( $"Ln: Context:{contextName} Next: {topStack}");
           }
         } while( line != null);
       }
@@ -81,11 +87,13 @@ public struct DocProcessor : IProcessor
   {
     StackTask handleTableEnd = new StackTask() {
       Element = new TableEndElement(),
-      UponMatch = InitStackTaskForTable
+      UponFinalMatch = InitStackTaskForTable,
+      UponMatch = Fault
     };
     StackTask handleTableStart = new StackTask() {
       Element = new TableStartElement(),
-      UponMatch = ConfigParseForHeading
+      UponFinalMatch = ConfigParseForHeading,
+      UponMatch = Fault
     };
     stack.Push(handleTableEnd);
     stack.Push(handleTableStart);
@@ -96,11 +104,13 @@ public struct DocProcessor : IProcessor
   {
     StackTask headingEnd = new StackTask() {
       Element = new TableHeadEndElement(),
-      UponMatch = PrepareForDataRow
+      UponFinalMatch = PrepareForDataRow,
+      UponMatch = Fault
     };
     StackTask headingStart = new StackTask() {
       Element = new TableHeadStartElement(),
-      UponMatch = ConfigForHeadingRow
+      UponFinalMatch = ConfigForHeadingRow,
+      UponMatch = Fault
     };
     stack.Push(headingEnd);
     stack.Push(headingStart);
@@ -112,23 +122,47 @@ public struct DocProcessor : IProcessor
     StackTask
       headingTr = new StackTask() {
         Element = new TableRowStartElement(),
-        UponMatch = ConfigForHeadingSpec
+        UponFinalMatch = ConfigForHeadingSpec,
+        UponMatch = Fault
       },
       headingEndTr = new StackTask() {
-        Element = new TableRowEndElement(),
-        UponMatch = ContextPassThrough
+        Element = new THSpecOrEndTrElement(),
+        UponMatch = PrepareNextHeadingRow,
+        UponFinalMatch = ContextPassThrough
       };
       stack.Push(headingEndTr);
       stack.Push(headingTr);
       return new NoneContext();
   }
 
+  private static IContext Fault(Stack<StackTask> stack, IContext context)
+    => throw new Exception(message: "No valid match task.");
+
+  private static IContext PrepareNextHeadingRow(Stack<StackTask> stack, IContext context)
+  {
+    StackTask
+      headingTr = new StackTask() {
+        Element = new TableRowStartElement(),
+        UponFinalMatch = ConfigForHeadingSpec,
+        UponMatch = Fault
+      },
+      headingEndTr = new StackTask() {
+        Element = new TableRowEndElement(),
+        UponFinalMatch = PrepareNextHeadingRow,
+        UponMatch = Fault
+      };
+      stack.Push(headingEndTr);
+      stack.Push(headingTr);
+      return context;
+  }
+
   private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
   {
     StackTask
       headingSpec = new StackTask() {
-        Element = new THSpecElement(),
-        UponMatch = ContextPassThrough
+        Element = new THSpecOrEndTrElement(),
+        UponFinalMatch = ContextPassThrough,
+        UponMatch = Fault
       };
     stack.Push(headingSpec);
     return context;
@@ -173,11 +207,11 @@ public struct DocProcessor : IProcessor
     StackTask
       dataRow = new StackTask() {
         Element = new TableRowStartElement(),
-        UponMatch = 
+        UponMatch = ContextPassThrough // replace
       },
       dataRowEnd = new StackTask() {
         Element = new TableRowEndElement(),
-        UponMatch = 
+        UponMatch = ContextPassThrough // replace
       };
     stack.Push(dataRowEnd);
     stack.Push(dataRow);
@@ -193,45 +227,6 @@ public struct DocProcessor : IProcessor
       _ => TablePurpose.Unknown
     };
     return kind;
-  }
-
-  private int FindAnyTableStart(int countHandled, out bool IsEof, TextReader input, TextWriter output)
-  {
-    string? line;
-    bool isTableFound = false;
-    int lineCount = countHandled;
-    IsEof = false;
-
-    _Elements.Push(new TableStartElement());
-    // _Elements.Push(new TableHeadStartElement());
-    // _Elements.Push(new TableRowStartElement());
-    // _Elements.Push(new THSpecElement());
-    // _Elements.Push(new TableRowEndElement());
-    // _Elements.Push(new TableHeadEndElement());
-    _Elements.Push(new TableEndElement());
-    do
-    {
-      line = input.ReadLine();
-      lineCount++;
-      if (line == null)
-      {
-        IsEof = true;
-      }
-      else
-      {
-        if (_Elements.Peek().IsMatch(line))
-        //---- Make stack based.
-        
-        if (IsTableStart(line))
-        {
-          isTableFound = true;
-          TableHeaderContext header = IdentifyTable(lineCount, out IsEof, input, output);
-          Console.WriteLine($"Table: {header.Kind}  - |{header.Headings[0]}|");
-          lineCount = header.LinesProcessed;
-        }
-      }
-    } while( line != null && ! isTableFound);
-    return lineCount;
   }
 
   private bool IsTableStart(string line)
@@ -260,86 +255,4 @@ public struct DocProcessor : IProcessor
     RESOURCE_TYPES = "Resource types",
     CONDITION_KEYS = "Condition keys";
 
-  private TableHeaderContext IdentifyTable(int countHandled, out bool IsEof, TextReader input, TextWriter output)
-  {
-    string? line;
-    TableHeaderContext header = new TableHeaderContext();
-    List<string> columns = new List<string>();
-    int countLines = countHandled;
-
-    bool isEndHeader = false;
-
-    IsEof = false;
-    
-    do{
-      line = input.ReadLine();
-      if (line == null)
-      {
-        IsEof = true;
-      }
-      else
-      {
-        countLines++;
-        if (IsStartRow(line))
-        {}
-        else if (IsEndRow(line))
-          isEndHeader = true;
-        else if (IsHeading(line, out string heading))
-          columns.Add(heading);
-      }
-    }
-    while(! IsEof && ! isEndHeader);
-    header.LinesProcessed = countLines;
-    header.Headings = columns.ToArray();
-    header.Kind = header.Headings[0] switch {
-      ACTIONS => TablePurpose.Actions,
-      RESOURCE_TYPES => TablePurpose.ResourceTypes,
-      CONDITION_KEYS => TablePurpose.ConditionKeys,
-      _ => TablePurpose.Unknown
-    };
-    return header;
-  }
-
-  private bool IsStartRow(string line)
-  {
-    bool result = false;
-
-    var match = Regex.Match(line, pattern: @".*\<tr\>");
-    if (match != null && match.Length > 0)
-      result = true;
-    return result;
-  }
-
-  private bool IsEndRow(string line)
-  {
-    bool result = false;
-
-    var match = Regex.Match(line, pattern: @".*\<\/tr\>");
-    if (match != null && match.Length > 0)
-      result = true;
-    return result;
-  }
-
-  private bool IsHeading(string line, out string headingText)
-  {
-    bool result = false;
-    headingText = "";
-
-    var match = Regex.Match(line, pattern: @".*\<th\>([\w\s\(\*\)]+)<\/th\>.*");
-    if (match != null && match.Length > 0)
-    {
-      result = true;
-      var groups = match.Groups;
-      for(int index = 1; index < groups.Count; index++)
-        Console.WriteLine($"Match {index} = {groups[index].Value}");
-      if (groups.Count > 1)
-        headingText = groups[1].Value;
-    }
-    return result;
-  }
-
-  private void HandleActionsTable(string line, TextWriter output)
-  {
-
-  }
 }

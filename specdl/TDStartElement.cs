@@ -6,9 +6,9 @@
 
 using System.Text.RegularExpressions;
 
-public struct TableHeadEndElement : IElement
+public struct TDStartElement : IElement
 {
-  private readonly static Regex Table = new Regex(pattern: @"\<\/thead.*");
+  private readonly static Regex Table = new Regex(pattern: @"<td");
 
   public bool IsMatch(string line)
     => false;

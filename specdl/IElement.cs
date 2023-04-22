@@ -13,5 +13,7 @@ public interface IElement
 {
   bool IsMatch(string line);
 
+  bool IsFinalMatch(string line);
+
   IContext Processed(string line, TextWriter output, IContext context);
 }

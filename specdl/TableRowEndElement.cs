@@ -16,6 +16,9 @@ public struct TableRowEndElement : IElement
   private readonly static Regex Pattern = new Regex(pattern: @"\<\/tr.*");
 
   public bool IsMatch(string line)
+    => false;
+
+  public bool IsFinalMatch(string line)
   {
     var match = Pattern.Match(line);
     return match != null && match.Length > 0;
@@ -23,7 +26,7 @@ public struct TableRowEndElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    bool isMatch = IsMatch(line);
+    bool isMatch = IsFinalMatch(line);
     IContext result = context;
 
     if (isMatch && context is TableHeaderContext header)
