@@ -53,10 +53,25 @@ public struct DocProcessor : IProcessor
           countHandled++;
           if (line != null)
           {
-            while( IsMatch(line) )
+            bool isMatch;
+            if (IsMatch(line))
             {
+              isMatch = true;
               _CurrentContext = Process(line, output, _CurrentContext);
             }
+
+            do
+            {
+              if (IsFinalMatch(line))
+              {
+                isMatch = true;
+                _CurrentContext = FinalProcess(line, output, _CurrentContext);
+              }
+              else
+                isMatch = false;
+            }
+            while( isMatch);
+
             string contextName = _CurrentContext.GetType().Name;
             string topStack = _ParseStack.Peek().Element.GetType().Name;
             if (topStack != nameof(TableStartElement))
@@ -74,12 +89,24 @@ public struct DocProcessor : IProcessor
 
   private bool IsMatch(string line)
     => _ParseStack.Peek().Element.IsMatch(line);
-  
+
+  private bool IsFinalMatch(string line)
+    => _ParseStack.Peek().Element.IsFinalMatch(line);
+
   private IContext Process(string line, TextWriter output, IContext current)
+  {
+    StackTask task = _ParseStack.Peek();
+    IContext context = task.Element.Processed(line, output, _CurrentContext);
+    Console.WriteLine($"Element: {task.Element.GetType().Name} for: {line}");
+    context = task.UponMatch(_ParseStack, context);
+    return context;
+  }
+
+  private IContext FinalProcess(string line, TextWriter output, IContext current)
   {
     StackTask task = _ParseStack.Pop();
     IContext context = task.Element.Processed(line, output, _CurrentContext);
-    context = task.UponMatch(_ParseStack, context);
+    context = task.UponFinalMatch(_ParseStack, context);
     return context;
   }
 
@@ -147,9 +174,9 @@ public struct DocProcessor : IProcessor
         UponMatch = Fault
       },
       headingEndTr = new StackTask() {
-        Element = new TableRowEndElement(),
-        UponFinalMatch = PrepareNextHeadingRow,
-        UponMatch = Fault
+        Element = new THSpecOrEndTrElement(),
+        UponMatch = PrepareNextHeadingRow,
+        UponFinalMatch = ContextPassThrough
       };
       stack.Push(headingEndTr);
       stack.Push(headingTr);
@@ -162,7 +189,7 @@ public struct DocProcessor : IProcessor
       headingSpec = new StackTask() {
         Element = new THSpecOrEndTrElement(),
         UponFinalMatch = ContextPassThrough,
-        UponMatch = Fault
+        UponMatch = PrepareNextHeadingRow
       };
     stack.Push(headingSpec);
     return context;
