@@ -53,6 +53,8 @@ public struct DocProcessor : IProcessor
           countHandled++;
           if (line != null)
           {
+            var lineParts = LineParts(line);
+
             string topStack = _ParseStack.Peek().Element.GetType().Name;
             bool isMatch;
 
@@ -64,21 +66,23 @@ public struct DocProcessor : IProcessor
               output.WriteLine( $"Mtch: Context:{contextName} Next: {topStack}, {line}");
             }
 
-            do
+            if (IsFinalMatch(line))
             {
-              if (IsFinalMatch(line))
-              {
-                isMatch = true;
-                topStack = _ParseStack.Peek().Element.GetType().Name;
+              isMatch = true;
+              topStack = _ParseStack.Peek().Element.GetType().Name;
 
-                _CurrentContext = FinalProcess(line, output, _CurrentContext);
+              _CurrentContext = FinalProcess(line, output, _CurrentContext);
 
-                output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
-              }
-              else
-                isMatch = false;
+              output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
             }
-            while( isMatch);
+            else
+              isMatch = false;
+
+            if (isMatch)
+              Console.WriteLine($"LN: {line}");
+            // else
+            //   output.WriteLine( $"miss: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
+
           }
         } while( line != null);
         Console.WriteLine($"Number lines processed: {countHandled}");
@@ -93,6 +97,29 @@ public struct DocProcessor : IProcessor
             // while( isMatch);
 
         throw new ArgumentException("Parameter output is NULL");
+  }
+
+  private static readonly Regex LineSep = new Regex(pattern: @"\<");
+  private string[] LineParts(string line)
+  {
+    MatchCollection parts = LineSep.Matches(line);
+    List<string> segments = new List<string>();
+    for(int partIndex = 0; partIndex < parts.Count; partIndex++)
+    {
+      int index1, index2, length;
+
+      index1 = parts[partIndex].Index;
+      index2 = partIndex < (parts.Count - 1)
+        ? parts[partIndex + 1].Index
+        : line.Length;
+      length = index2 - index1;
+
+      string sub = line.Substring(index1, length);
+      Console.Write($"-{sub}-");
+      segments.Add(sub);
+    }
+    Console.WriteLine($"  Num: {segments.Count}");
+    return segments.ToArray();
   }
 
   private bool IsMatch(string line)
@@ -274,27 +301,6 @@ public struct DocProcessor : IProcessor
     };
     return kind;
   }
-
-  private bool IsTableStart(string line)
-  {
-    bool result = false;
-
-    var match = Regex.Match(line, @".*\<table.*");
-    result = (match != null && match.Length > 0);
-
-    return result;
-  }
-
-  private bool IsTableEnd(string line)
-  {
-    bool result = false;
-
-    var match = Regex.Match(line, @".*\<\/table.*");
-    result = (match != null && match.Length > 0);
-
-    return result;
-  }
-
 
   const string
     ACTIONS = "Actions",

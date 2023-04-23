@@ -53,6 +53,13 @@ public struct THSpecOrEndTrElement : IElement
       result = completeHeader;
     }
 
+    string[] parts = EndTrPattern.Split(line);
+    if (parts != null && parts.Length > 0)
+    {
+      var msg = parts.Aggregate( (txt,pt) => $"{txt}, {pt}" );
+      Console.WriteLine($"Parts: {msg}");
+    }
+
     return result;
   }
 
