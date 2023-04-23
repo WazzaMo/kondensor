@@ -53,11 +53,15 @@ public struct DocProcessor : IProcessor
           countHandled++;
           if (line != null)
           {
+            string topStack = _ParseStack.Peek().Element.GetType().Name;
             bool isMatch;
+
             if (IsMatch(line))
             {
               isMatch = true;
               _CurrentContext = Process(line, output, _CurrentContext);
+              string contextName = _CurrentContext.GetType().Name;
+              output.WriteLine( $"Mtch: Context:{contextName} Next: {topStack}, {line}");
             }
 
             do
@@ -65,25 +69,29 @@ public struct DocProcessor : IProcessor
               if (IsFinalMatch(line))
               {
                 isMatch = true;
+                topStack = _ParseStack.Peek().Element.GetType().Name;
+
                 _CurrentContext = FinalProcess(line, output, _CurrentContext);
+
+                output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
               }
               else
                 isMatch = false;
             }
             while( isMatch);
-
-            string contextName = _CurrentContext.GetType().Name;
-            string topStack = _ParseStack.Peek().Element.GetType().Name;
-            if (topStack != nameof(TableStartElement))
-              output.WriteLine( $"Ln: Context:{contextName} Next: {topStack}");
           }
         } while( line != null);
+        Console.WriteLine($"Number lines processed: {countHandled}");
       }
     }
     else
       if (input == null)
         throw new ArgumentException("Parameter input is NULL");
-      else if (output == null)
+      else if (output == null)            //   else
+            //     isMatch = false;
+            // }
+            // while( isMatch);
+
         throw new ArgumentException("Parameter output is NULL");
   }
 
@@ -97,7 +105,7 @@ public struct DocProcessor : IProcessor
   {
     StackTask task = _ParseStack.Peek();
     IContext context = task.Element.Processed(line, output, _CurrentContext);
-    Console.WriteLine($"Element: {task.Element.GetType().Name} for: {line}");
+    // Console.WriteLine($"Element: {task.Element.GetType().Name} for: {line}");
     context = task.UponMatch(_ParseStack, context);
     return context;
   }
@@ -154,7 +162,7 @@ public struct DocProcessor : IProcessor
       },
       headingEndTr = new StackTask() {
         Element = new THSpecOrEndTrElement(),
-        UponMatch = PrepareNextHeadingRow,
+        UponMatch = ContextPassThrough,
         UponFinalMatch = ContextPassThrough
       };
       stack.Push(headingEndTr);
@@ -175,7 +183,7 @@ public struct DocProcessor : IProcessor
       },
       headingEndTr = new StackTask() {
         Element = new THSpecOrEndTrElement(),
-        UponMatch = PrepareNextHeadingRow,
+        UponMatch = ContextPassThrough,
         UponFinalMatch = ContextPassThrough
       };
       stack.Push(headingEndTr);
@@ -197,6 +205,17 @@ public struct DocProcessor : IProcessor
 
   private static IContext ContextPassThrough(Stack<StackTask> stack, IContext context)
   {
+    if (context is TableHeaderContext headerCtx)
+    {
+      var kind = Enum.Format(typeof(TablePurpose),headerCtx.Kind, "G");
+      int numHeadings = headerCtx.Headings.Count;
+      string headings = headerCtx.Headings.Aggregate("", (x, lst) => $"{lst},{x}");
+      Console.WriteLine($"TableHeader: {kind}, {headings}");
+    }
+    else
+    {
+      Console.WriteLine(context.GetType().Name + " is current context.");
+    }
     return context;
   }
 

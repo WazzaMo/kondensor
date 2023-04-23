@@ -58,6 +58,9 @@ public struct THSpecOrEndTrElement : IElement
 
   private static TablePurpose GetKindFrom(List<string> headings)
   {
+    if (headings.Count < 1)
+      return TablePurpose.Unknown;
+    
     TablePurpose kind = headings[0] switch {
       ACTIONS => TablePurpose.Actions,
       RESOURCE_TYPES => TablePurpose.ResourceTypes,
