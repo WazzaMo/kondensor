@@ -14,7 +14,7 @@ public struct THSpecOrEndTrElement : IElement
     CONDITION_KEYS = "Condition keys";
   
 
-  private readonly static Regex SpecPattern = new Regex(pattern: @"\<th\>([\w\s\(\*\)]+)\<\/th\>");
+  private readonly static Regex SpecPattern = new Regex(pattern: @"\<th\>([\w\s\(\*\)]+)$");
   private readonly static Regex EndTrPattern = new Regex(pattern: @"<\/tr\>");
 
   public bool IsMatch(string line)
@@ -51,13 +51,6 @@ public struct THSpecOrEndTrElement : IElement
     {
       completeHeader.Kind = GetKindFrom(completeHeader.Headings);
       result = completeHeader;
-    }
-
-    string[] parts = EndTrPattern.Split(line);
-    if (parts != null && parts.Length > 0)
-    {
-      var msg = parts.Aggregate( (txt,pt) => $"{txt}, {pt}" );
-      Console.WriteLine($"Parts: {msg}");
     }
 
     return result;

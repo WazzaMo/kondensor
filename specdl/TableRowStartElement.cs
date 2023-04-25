@@ -21,9 +21,8 @@ public struct TableRowStartElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    bool isMatch = IsFinalMatch(line);
     IContext result;
-    result = isMatch ? new TableHeaderContext() : new NoneContext();
+    result = context;
     return result;
   }
 }

@@ -30,15 +30,20 @@ public struct DocProcessor : IProcessor
   private Stack<StackTask> _ParseStack;
   private IContext _CurrentContext;
 
+  private Queue<string> _Tokens;
+
+  private int _LinesProcessed;
+
   public DocProcessor()
   {
     _ParseStack = new Stack<StackTask>();
     _CurrentContext = InitStackTaskForTable(_ParseStack, new NoneContext());
+    _Tokens = new Queue<string>();
+    _LinesProcessed = 0;
   }
 
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
   {
-    countHandled = 0;
     bool IsEof = false;
 
     if (input != null && output != null) 
@@ -49,18 +54,15 @@ public struct DocProcessor : IProcessor
       {
         do
         {
-          line = input.ReadLine();
-          countHandled++;
+          line = GetToken(input);
           if (line != null)
           {
-            var lineParts = LineParts(line);
-
             string topStack = _ParseStack.Peek().Element.GetType().Name;
-            bool isMatch;
+            // bool isMatch;
 
             if (IsMatch(line))
             {
-              isMatch = true;
+              // isMatch = true;
               _CurrentContext = Process(line, output, _CurrentContext);
               string contextName = _CurrentContext.GetType().Name;
               output.WriteLine( $"Mtch: Context:{contextName} Next: {topStack}, {line}");
@@ -68,27 +70,28 @@ public struct DocProcessor : IProcessor
 
             if (IsFinalMatch(line))
             {
-              isMatch = true;
+              // isMatch = true;
               topStack = _ParseStack.Peek().Element.GetType().Name;
 
               _CurrentContext = FinalProcess(line, output, _CurrentContext);
 
               output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
             }
-            else
-              isMatch = false;
-
-            if (isMatch)
-              Console.WriteLine($"LN: {line}");
             // else
-            //   output.WriteLine( $"miss: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
+            //   isMatch = false;
+
+            // if (!isMatch)
+              // Console.WriteLine($"LN: {line}");
+            // else
+              // output.WriteLine( $"miss: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
 
           }
         } while( line != null);
-        Console.WriteLine($"Number lines processed: {countHandled}");
+        Console.WriteLine($"Number lines processed: {_LinesProcessed}");
       }
     }
     else
+    {
       if (input == null)
         throw new ArgumentException("Parameter input is NULL");
       else if (output == null)            //   else
@@ -97,13 +100,47 @@ public struct DocProcessor : IProcessor
             // while( isMatch);
 
         throw new ArgumentException("Parameter output is NULL");
+    }
+    countHandled = _LinesProcessed;
   }
 
+  /// <summary>
+  /// Get next token to process.
+  /// </summary>
+  /// <param name="input">Input to read line from.</param>
+  /// <returns>NULL if end of input file stream or a string.</returns>
+  private string? GetToken(TextReader input)
+  {
+    string? result;
+
+    if (_Tokens.Count == 0)
+    {
+      string? line = input.ReadLine();
+      if (line != null)
+      {
+        _LinesProcessed++;
+        TokeniseLineParts(line);
+        result = DequeueTokenOrEmpty();
+      }
+      else
+        result = null;
+    }
+    else
+      result = DequeueTokenOrEmpty();
+    
+    return result;
+  }
+
+  private string DequeueTokenOrEmpty()
+    => _Tokens.Count > 0
+        ? _Tokens.Dequeue()
+        : "";
+
   private static readonly Regex LineSep = new Regex(pattern: @"\<");
-  private string[] LineParts(string line)
+  private void TokeniseLineParts(string line)
   {
     MatchCollection parts = LineSep.Matches(line);
-    List<string> segments = new List<string>();
+
     for(int partIndex = 0; partIndex < parts.Count; partIndex++)
     {
       int index1, index2, length;
@@ -115,11 +152,8 @@ public struct DocProcessor : IProcessor
       length = index2 - index1;
 
       string sub = line.Substring(index1, length);
-      Console.Write($"-{sub}-");
-      segments.Add(sub);
+      _Tokens.Enqueue(sub);
     }
-    Console.WriteLine($"  Num: {segments.Count}");
-    return segments.ToArray();
   }
 
   private bool IsMatch(string line)
@@ -220,14 +254,7 @@ public struct DocProcessor : IProcessor
 
   private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
   {
-    StackTask
-      headingSpec = new StackTask() {
-        Element = new THSpecOrEndTrElement(),
-        UponFinalMatch = ContextPassThrough,
-        UponMatch = PrepareNextHeadingRow
-      };
-    stack.Push(headingSpec);
-    return context;
+    return new TableHeaderContext();
   }
 
   private static IContext ContextPassThrough(Stack<StackTask> stack, IContext context)
