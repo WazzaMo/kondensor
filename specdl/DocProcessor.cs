@@ -58,11 +58,9 @@ public struct DocProcessor : IProcessor
           if (line != null)
           {
             string topStack = _ParseStack.Peek().Element.GetType().Name;
-            // bool isMatch;
 
             if (IsMatch(line))
             {
-              // isMatch = true;
               _CurrentContext = Process(line, output, _CurrentContext);
               string contextName = _CurrentContext.GetType().Name;
               output.WriteLine( $"Mtch: Context:{contextName} Next: {topStack}, {line}");
@@ -70,21 +68,12 @@ public struct DocProcessor : IProcessor
 
             if (IsFinalMatch(line))
             {
-              // isMatch = true;
               topStack = _ParseStack.Peek().Element.GetType().Name;
 
               _CurrentContext = FinalProcess(line, output, _CurrentContext);
 
               output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
             }
-            // else
-            //   isMatch = false;
-
-            // if (!isMatch)
-              // Console.WriteLine($"LN: {line}");
-            // else
-              // output.WriteLine( $"miss: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
-
           }
         } while( line != null);
         Console.WriteLine($"Number lines processed: {_LinesProcessed}");
@@ -94,11 +83,7 @@ public struct DocProcessor : IProcessor
     {
       if (input == null)
         throw new ArgumentException("Parameter input is NULL");
-      else if (output == null)            //   else
-            //     isMatch = false;
-            // }
-            // while( isMatch);
-
+      else if (output == null)
         throw new ArgumentException("Parameter output is NULL");
     }
     countHandled = _LinesProcessed;
@@ -184,93 +169,58 @@ public struct DocProcessor : IProcessor
     StackTask handleTableEnd = new StackTask() {
       Element = new TableEndElement(),
       UponFinalMatch = InitStackTaskForTable,
-      UponMatch = Fault
+      UponMatch = DocGeneralProcessor.Fault
     };
     StackTask handleTableStart = new StackTask() {
       Element = new TableStartElement(),
-      UponFinalMatch = ConfigParseForHeading,
-      UponMatch = Fault
+      UponFinalMatch = ConfigParseForTHead,
+      UponMatch = DocGeneralProcessor.Fault
     };
     stack.Push(handleTableEnd);
     stack.Push(handleTableStart);
     return new NoneContext();
   }
 
-  private static IContext ConfigParseForHeading(Stack<StackTask> stack, IContext current)
+  private static IContext ConfigParseForTHead(Stack<StackTask> stack, IContext current)
   {
     StackTask headingEnd = new StackTask() {
       Element = new TableHeadEndElement(),
       UponFinalMatch = PrepareForDataRow,
-      UponMatch = Fault
+      UponMatch = DocGeneralProcessor.Fault
     };
     StackTask headingStart = new StackTask() {
       Element = new TableHeadStartElement(),
-      UponFinalMatch = ConfigForHeadingRow,
-      UponMatch = Fault
+      UponFinalMatch = ConfigForHeadingTRow,
+      UponMatch = DocGeneralProcessor.Fault
     };
     stack.Push(headingEnd);
     stack.Push(headingStart);
     return new NoneContext();
   }
 
-  private static IContext ConfigForHeadingRow(Stack<StackTask> stack, IContext context)
+  private static IContext ConfigForHeadingTRow(Stack<StackTask> stack, IContext context)
   {
     StackTask
       headingTr = new StackTask() {
         Element = new TableRowStartElement(),
         UponFinalMatch = ConfigForHeadingSpec,
-        UponMatch = Fault
+        UponMatch = DocGeneralProcessor.Fault
       },
       headingEndTr = new StackTask() {
         Element = new THSpecOrEndTrElement(),
-        UponMatch = ContextPassThrough,
-        UponFinalMatch = ContextPassThrough
+        UponMatch = DocGeneralProcessor.ContextPassThrough,
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough
       };
       stack.Push(headingEndTr);
       stack.Push(headingTr);
       return new NoneContext();
   }
 
-  private static IContext Fault(Stack<StackTask> stack, IContext context)
-    => throw new Exception(message: "No valid match task.");
 
-  private static IContext PrepareNextHeadingRow(Stack<StackTask> stack, IContext context)
-  {
-    StackTask
-      headingTr = new StackTask() {
-        Element = new TableRowStartElement(),
-        UponFinalMatch = ConfigForHeadingSpec,
-        UponMatch = Fault
-      },
-      headingEndTr = new StackTask() {
-        Element = new THSpecOrEndTrElement(),
-        UponMatch = ContextPassThrough,
-        UponFinalMatch = ContextPassThrough
-      };
-      stack.Push(headingEndTr);
-      stack.Push(headingTr);
-      return context;
-  }
 
   private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
   {
     return new TableHeaderContext();
-  }
-
-  private static IContext ContextPassThrough(Stack<StackTask> stack, IContext context)
-  {
-    if (context is TableHeaderContext headerCtx)
-    {
-      var kind = Enum.Format(typeof(TablePurpose),headerCtx.Kind, "G");
-      int numHeadings = headerCtx.Headings.Count;
-      string headings = headerCtx.Headings.Aggregate("", (x, lst) => $"{lst},{x}");
-      Console.WriteLine($"TableHeader: {kind}, {headings}");
-    }
-    else
-    {
-      Console.WriteLine(context.GetType().Name + " is current context.");
-    }
-    return context;
   }
 
   /// <summary>
@@ -307,11 +257,11 @@ public struct DocProcessor : IProcessor
     StackTask
       dataRow = new StackTask() {
         Element = new TableRowStartElement(),
-        UponMatch = ContextPassThrough // replace
+        UponMatch = DocGeneralProcessor.ContextPassThrough // replace
       },
       dataRowEnd = new StackTask() {
-        Element = new TableRowEndElement(),
-        UponMatch = ContextPassThrough // replace
+        Element = new TableDataOrRowEndElement(),
+        UponMatch = DocGeneralProcessor.ContextPassThrough // replace
       };
     stack.Push(dataRowEnd);
     stack.Push(dataRow);
