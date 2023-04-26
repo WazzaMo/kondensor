@@ -26,12 +26,12 @@ public static class DocActionsProcessor
   //    <td></td>
   //</tr>
 
-  internal static IContext SetContextForDataRows(Stack<StackTask> stack, IContext context)
+  internal static IContext ActionDataRows(Stack<StackTask> stack, IContext context)
   {
     StackTask
       rowStart = new StackTask() {
         Element = new TableRowStartElement(),
-        UponFinalMatch = DocActionsProcessor.SetContextForData,
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
       rowOrEnd = new StackTask() {
@@ -46,41 +46,26 @@ public static class DocActionsProcessor
       return actionContext;
   }
 
-  internal static IContext SetContextForData(Stack<StackTask> stack, IContext context)
-  {
-    StackTask
-      headingTr = new StackTask() {
-        Element = new TableRowStartElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-        UponMatch = ActionColumn
-      },
-      headingEndTr = new StackTask() {
-        Element = new TableDataOrRowEndElement(),
-        UponMatch = DocGeneralProcessor.ContextPassThrough,
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough
-      };
-      stack.Push(headingEndTr);
-      stack.Push(headingTr);
-
-      IContext result = new ActionsTableContext();
-
-      return context;
-  }
-
   internal static IContext ActionColumn(Stack<StackTask> stack, IContext context)
   {
     IContext result = context;
     if (context is ActionsTableContext actions)
     {
-      Action<ActionsTableContext,string> task = SetAction;
-      actions.UpdateStringTask = Option.Some(task);
+      StackTask
+        actionId = new StackTask() {
+          Element = new AnchorWithIdElement(),
+          UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+          UponMatch = DocGeneralProcessor.Fault
+        },
+        actionDocAndName = new StackTask() {
+          Element = new AnchorWithDocHrefElement(),
+          UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+          UponMatch = DocGeneralProcessor.Fault
+        };
+      stack.Push(actionDocAndName);
+      stack.Push(actionId);
     }
     return result;
-  }
-
-  private static void SetAction(ActionsTableContext context, string value)
-  {
-    context.Set
   }
 
 }

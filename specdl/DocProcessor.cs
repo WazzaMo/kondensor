@@ -241,7 +241,7 @@ public struct DocProcessor : IProcessor
       }
 
       newContext = header.Kind switch {
-        TablePurpose.Actions => new ActionsTableContext(),
+        TablePurpose.Actions => DocActionsProcessor.ActionDataRows(stack, context),
         _ => new NoneContext()
       };
     }

@@ -6,7 +6,7 @@
 
 using System.Text.RegularExpressions;
 
-public struct AnchorWithIdElement : IElement
+public struct AnchorWithKeyHrefElement : IElement
 {
   //        <a id="awsaccountmanagement-CloseAccount"></a>
   private static readonly Regex _AId = new Regex(pattern: @"\<a\w+id=""([\-\w\s]*)"".*$");

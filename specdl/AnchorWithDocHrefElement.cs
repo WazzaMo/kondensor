@@ -6,10 +6,10 @@
 
 using System.Text.RegularExpressions;
 
-public struct AnchorWithIdElement : IElement
+public struct AnchorWithDocHrefElement : IElement
 {
-  //        <a id="awsaccountmanagement-CloseAccount"></a>
-  private static readonly Regex _AId = new Regex(pattern: @"\<a\w+id=""([\-\w\s]*)"".*$");
+  //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
+  private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\w+href=""([\-\w\s]*)""\>([\-\w\s]*)$");
 
   public bool IsFinalMatch(string line)
   {
@@ -21,11 +21,16 @@ public struct AnchorWithIdElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
+    const int
+      HREF_TEXT = 1,
+      VALUE_TEXT = 2;
+
     IContext result;
     if (Matches(out var match, line) && context is ActionsTableContext actions)
     {
-      string id = match.Groups[1].Value;
-      actions.SetActionId(id);
+      string docUrl = match.Groups[HREF_TEXT].Value;
+      string ActionName = match.Groups[VALUE_TEXT].Value;
+      actions.SetDocLinkAndName(docUrl, ActionName);
       result = actions;
     }
     else
@@ -35,7 +40,7 @@ public struct AnchorWithIdElement : IElement
 
   private bool Matches(out Match match, string line)
   {
-    match = _AId.Match(line);
+    match = _AHrefName.Match(line);
     return match != null && match.Length > 0;
   }
 }

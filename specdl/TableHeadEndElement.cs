@@ -21,7 +21,6 @@ public struct TableHeadEndElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    bool result = IsFinalMatch(line);
-    return new NoneContext();
+    return context;
   }
 }

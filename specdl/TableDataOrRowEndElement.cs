@@ -8,8 +8,8 @@ using System.Text.RegularExpressions;
 
 public struct TableDataOrRowEndElement : IElement
 {
-  private readonly static Regex TdataPattern = new Regex(pattern: @"\<td>([\w\s\(\*\)]+)");
-  private readonly static Regex EndTrPattern = new Regex(pattern: @"\<\/tr>");
+  private readonly static Regex TdataPattern = new Regex(pattern: @"\<td\>([\w\s\(\*\)]+)");
+  private readonly static Regex EndTrPattern = new Regex(pattern: @"\<\/tr\>");
 
   public bool IsMatch(string line)
   {
