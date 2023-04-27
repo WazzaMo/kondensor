@@ -19,7 +19,6 @@ public struct ActionsTableContext : IContext
   public ActionAccessLevel CurrentAccessLevel;
   private List<ActionResourceType> ResourceTypes;
 
-  public Option<Action<ActionsTableContext,string>> UpdateStringTask;
   public Option<Action<ActionsTableContext,TextWriter>> OutputTask;
 
   public Option<string> ConditionKeyId;
@@ -46,14 +45,7 @@ public struct ActionsTableContext : IContext
     WipResourceTypeName = Option.None<string>();
     WipSpecificConditionKeyIds = Option.None<string>();
     WipDependentActionIds = Option.None<string>();
-    UpdateStringTask = Option.None<Action<ActionsTableContext,string>>();
     OutputTask = Option.None<Action<ActionsTableContext,TextWriter>>();
-  }
-
-  public void Update(string text)
-  {
-    ActionsTableContext context = this;
-    UpdateStringTask.MatchSome( task => task(context, text) );
   }
 
   public void SetActionId(string id)
