@@ -35,7 +35,9 @@ public static class DocActionsProcessor
         UponMatch = DocGeneralProcessor.Fault
       },
       actionId = new StackTask() {
-        //
+        Element = new AnchorWithDocHrefElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = DocGeneralProcessor.ContextPassThrough
       },
       actionDesc = new StackTask() {
         Element = new TableDataActionDescriptionElement(),

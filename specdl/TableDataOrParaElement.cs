@@ -6,7 +6,7 @@
 
 using System.Text.RegularExpressions;
 
-public struct TableDataOrAnchorEndElement : IElement
+public struct TableDataOrParaElement : IElement
 {
   private readonly static Regex TdataPattern = new Regex(pattern: @"\<td\>([\w\s\(\*\)]+)");
   private readonly static Regex EndTrPattern = new Regex(pattern: @"\<\/tr\>");
