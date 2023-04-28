@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 public struct AnchorWithDocHrefElement : IElement
 {
   //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
-  private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\w+href=""([\-\w\s]*)""\>([\-\w\s]*)$");
+  private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\w+href=""(http:[\/\-\w\s]*)""\>([\-\w\s]*)$");
   private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>");
 
   private Option<string> _DocLink;
@@ -40,6 +40,7 @@ public struct AnchorWithDocHrefElement : IElement
     {
       string docUrl = match.Groups[HREF_TEXT].Value;
       string ActionName = match.Groups[VALUE_TEXT].Value;
+      Console.WriteLine($"HREF {docUrl} Name {ActionName}");
       _DocLink = Option.Some(docUrl);
       _Name = Option.Some(ActionName);
     }

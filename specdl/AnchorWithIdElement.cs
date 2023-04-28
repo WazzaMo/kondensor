@@ -4,6 +4,8 @@
  *  Distributed under the Kondensor License.
  */
 
+using Optional;
+
 using System.Text.RegularExpressions;
 
 public struct AnchorWithIdElement : IElement
@@ -11,20 +13,40 @@ public struct AnchorWithIdElement : IElement
   //        <a id="awsaccountmanagement-CloseAccount"></a>
   private static readonly Regex _AId = new Regex(pattern: @"\<a\w+id=""([\-\w\s]*)"".*$");
 
+  private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>");
+
+  private Option<string> _Id;
+
+  public AnchorWithIdElement()
+  {
+    _Id = Option.None<string>();
+  }
+
   public bool IsFinalMatch(string line)
   {
-    return Matches(out var match, line);
+    var match = _AEnd.Match(line);
+    return match != null && match.Length > 0;
   }
 
   public bool IsMatch(string line)
-    => false;
+  {
+    bool isOk = Matches(out Match match, line);
+    if (isOk)
+    {
+      string id = match.Groups[1].Value;
+      _Id = Option.Some(id);
+    }
+    return isOk;
+  }
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
     IContext result;
-    if (Matches(out var match, line) && context is ActionsTableContext actions)
+    var match = _AEnd.Match(line);
+    if (IsFinalMatch(line) && context is ActionsTableContext actions)
     {
-      string id = match.Groups[1].Value;
+      string id = "UNKNOWN";
+      _Id.MatchSome( i => id = i);
       actions.SetActionId(id);
       result = actions;
     }
