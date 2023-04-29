@@ -34,6 +34,11 @@ public static class DocActionsProcessor
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
+      tdStart = new StackTask() {
+        Element = new TableDataElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = DocGeneralProcessor.Fault
+      },
       actionId = new StackTask() {
         Element = new AnchorWithIdElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
@@ -43,6 +48,11 @@ public static class DocActionsProcessor
         Element = new AnchorWithDocHrefElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.ContextPassThrough
+      },
+      tdEnd = new StackTask() {
+        Element = new TableDataEndElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = DocGeneralProcessor.Fault
       },
       actionDesc = new StackTask() {
         Element = new TableDataActionDescriptionElement(),
@@ -63,8 +73,10 @@ public static class DocActionsProcessor
       stack.Push(rowOrEnd);
       stack.Push(actionAccess);
       stack.Push(actionDesc);
+      stack.Push(tdEnd);
       stack.Push(actionNameDoc);
       stack.Push(actionId);
+      stack.Push(tdStart);
       stack.Push(rowStart);
       IContext actionContext = new ActionsTableContext();
       return actionContext;

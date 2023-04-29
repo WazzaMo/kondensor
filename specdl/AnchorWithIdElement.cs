@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 public struct AnchorWithIdElement : IElement
 {
   //        <a id="awsaccountmanagement-CloseAccount"></a>
-  private static readonly Regex _AId = new Regex(pattern: @"\<a\w+id=""([\-\w\s]*)"".*$");
+  private static readonly Regex _AId = new Regex(pattern: @"\<a id=\""([\-\w\s]+)\""\>$");
 
   private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>");
 
@@ -23,10 +23,7 @@ public struct AnchorWithIdElement : IElement
   }
 
   public bool IsFinalMatch(string line)
-  {
-    var match = _AEnd.Match(line);
-    return match != null && match.Length > 0;
-  }
+    => FinalMatch(line, out var match);
 
   public bool IsMatch(string line)
   {
@@ -42,22 +39,33 @@ public struct AnchorWithIdElement : IElement
   public IContext Processed(string line, TextWriter output, IContext context)
   {
     IContext result;
-    var match = _AEnd.Match(line);
-    if (IsFinalMatch(line) && context is ActionsTableContext actions)
+
+    if (FinalMatch(line, out Match match))
     {
-      string id = "UNKNOWN";
-      _Id.MatchSome( i => id = i);
-      actions.SetActionId(id);
-      result = actions;
+      if ( context is ActionsTableContext actions)
+      {
+        string id = "UNKNOWN";
+        _Id.MatchSome( i => id = i);
+        actions.SetActionId(id);
+        result = actions;
+      }
+      else
+        throw new ArgumentException($"Bug: Context expected to be {nameof(ActionsTableContext)}");
     }
     else
-      throw new ArgumentException($"Bug: Context expected to be {nameof(ActionsTableContext)}");
+      result = context;
     return result;
   }
 
   private bool Matches(out Match match, string line)
   {
     match = _AId.Match(line);
+    return match != null && match.Length > 0;
+  }
+
+  private bool FinalMatch(string line, out Match match)
+  {
+    match = _AEnd.Match(line);
     return match != null && match.Length > 0;
   }
 }

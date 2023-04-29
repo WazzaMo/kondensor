@@ -12,7 +12,7 @@ public struct AnchorWithDocHrefElement : IElement
 {
   //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
   private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\shref=""([*:-_./*\w\s\./\-^\""]+).\>([\-\w\s]*)$");
-  private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>");
+  private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>.*$");
 
   private Option<string> _DocLink;
   private Option<string> _Name;
@@ -24,10 +24,7 @@ public struct AnchorWithDocHrefElement : IElement
   }
 
   public bool IsFinalMatch(string line)
-  {
-    var match = _AEnd.Match(line);
-    return match != null && match.Length > 0;
-  }
+    => FinalMatch(line, out var match);
 
   public bool IsMatch(string line)
   {
@@ -51,18 +48,29 @@ public struct AnchorWithDocHrefElement : IElement
   {
 
     IContext result;
-    if (_DocLink.HasValue && _Name.HasValue && context is ActionsTableContext actions)
+
+    if ( ! (context is ActionsTableContext) )
+      throw new ArgumentException($"Bug: Context expected to be {nameof(ActionsTableContext)} and values were expected");
+
+    if (FinalMatch(line, out Match match) && _DocLink.HasValue && _Name.HasValue && context is ActionsTableContext actions )
     {
       string docUrl = "UNKNOWN";
       string ActionName = "NONAME";
 
-      _DocLink.MatchSome(a => docUrl = a);
-      _Name.MatchSome(n => ActionName = n);
+      _DocLink.Match(
+        some: a => docUrl = a,
+        none: () => throw new Exception("Documentation link missing in line: " + line)
+      );
+      _Name.Match(
+        some: n => ActionName = n,
+        none: () => throw new Exception("Action name missing in line: " + line)
+      );
       actions.SetDocLinkAndName(docUrl, ActionName);
+      Console.WriteLine($"Action name: {ActionName} -> {docUrl}");
       result = actions;
     }
     else
-      throw new ArgumentException($"Bug: Context expected to be {nameof(ActionsTableContext)} and values were expected");
+      result = context;
       
     return result;
   }
@@ -70,6 +78,12 @@ public struct AnchorWithDocHrefElement : IElement
   private bool Matches(out Match match, string line)
   {
     match = _AHrefName.Match(line);
+    return match != null && match.Length > 0;
+  }
+
+  private bool FinalMatch(string line, out Match match)
+  {
+    match = _AEnd.Match(line);
     return match != null && match.Length > 0;
   }
 }
