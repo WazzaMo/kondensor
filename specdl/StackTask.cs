@@ -10,8 +10,18 @@ using System.Collections.Generic;
 /// A matching task on a parsing stack with a job to perform
 /// upon a match.
 /// </summary>
-public record struct StackTask (
-  IElement Element,
-  Func<Stack<StackTask>, IContext, IContext> UponMatch,
-  Func<Stack<StackTask>, IContext, IContext> UponFinalMatch
-);
+public struct StackTask
+{
+  private static readonly IElement __EMPTY_ELEMENT = new ParaElement();
+
+  public IElement Element;
+  public Func<Stack<StackTask>, IContext, IContext> UponMatch;
+  public Func<Stack<StackTask>, IContext, IContext> UponFinalMatch;
+
+  public StackTask()
+  {
+    Element = __EMPTY_ELEMENT;
+    UponMatch = DocGeneralProcessor.Fault;
+    UponFinalMatch = DocGeneralProcessor.ContextPassThrough;
+  }
+}

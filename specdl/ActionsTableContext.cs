@@ -24,7 +24,7 @@ public struct ActionsTableContext : IContext
   public Option<string> ConditionKeyId;
   public Option<string> DependentActionId;
   private Option<bool> WipIsAllResourceTypes;
-  private Option<string> WipAssociatedDefinitionId;
+  private Option<string> WipResourceTypeDefinitionId;
   private Option<string> WipResourceTypeName;
   private Option<string> WipSpecificConditionKeyIds;
   private Option<string> WipDependentActionIds;
@@ -41,7 +41,7 @@ public struct ActionsTableContext : IContext
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();
     WipIsAllResourceTypes = Option.None<bool>();
-    WipAssociatedDefinitionId = Option.None<string>();
+    WipResourceTypeDefinitionId = Option.None<string>();
     WipResourceTypeName = Option.None<string>();
     WipSpecificConditionKeyIds = Option.None<string>();
     WipDependentActionIds = Option.None<string>();
@@ -55,6 +55,11 @@ public struct ActionsTableContext : IContext
   {
     CurrentActionDocLink = Option.Some(docLink);
     CurrentActionName = Option.Some(name);
+  }
+
+  public void SetResourceTypeId(string refId)
+  {
+    WipResourceTypeDefinitionId = Option.Some(refId);
   }
 
   public void SetDescription(string description)
@@ -80,7 +85,7 @@ public struct ActionsTableContext : IContext
   private void ResetWipResourceType()
   {
     WipIsAllResourceTypes = Option.None<bool>();
-    WipAssociatedDefinitionId = Option.None<string>();
+    WipResourceTypeDefinitionId = Option.None<string>();
     WipResourceTypeName = Option.None<string>();
     WipSpecificConditionKeyIds = Option.None<string>();
     WipDependentActionIds = Option.None<string>();

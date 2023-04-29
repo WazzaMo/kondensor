@@ -55,14 +55,31 @@ public static class DocActionsProcessor
         UponMatch = DocGeneralProcessor.Fault
       },
       actionDesc = new StackTask() {
-        Element = new TableDataActionDescriptionElement(),
+        Element = new TableDataActionDescriptionAndAccessLevelElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
       actionAccess = new StackTask() {
-        Element = new TableDataActionDescriptionElement(),
+        Element = new TableDataActionDescriptionAndAccessLevelElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
+      },
+      tdResourceRef = new StackTask() {
+        Element = new TableDataElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = DocGeneralProcessor.Fault
+      },
+      paraResRef = new StackTask() {
+        Element = new ParaElement()
+      },
+      anchorResRef = new StackTask() {
+        Element = new AnchorEntryHrefElement()
+      },
+      paraEndResRef = new StackTask() {
+        Element = new ParaEndElement()
+      },
+      tdEndResourceRef = new StackTask() {
+        Element = new TableDataEndElement()
       },
       rowOrEnd = new StackTask() {
         Element = new TableDataOrRowEndElement(),
@@ -71,6 +88,11 @@ public static class DocActionsProcessor
         //
       };
       stack.Push(rowOrEnd);
+      stack.Push(tdEndResourceRef);
+      stack.Push(paraEndResRef);
+      stack.Push(anchorResRef);
+      stack.Push(paraResRef);
+      stack.Push(tdResourceRef);
       stack.Push(actionAccess);
       stack.Push(actionDesc);
       stack.Push(tdEnd);
