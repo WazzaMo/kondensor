@@ -19,10 +19,48 @@ using Optional;
 /// Specific conditionkey ids - list of condition keys 
 /// Dependent actions - list of actions that are needed to enable this action, say on the same policy.
 /// </summary>
-public record struct ActionResourceType(
-  bool IsAllResourceTypes,
-  Option<string> AssociatedDefinitionId,
-  Option<string> ResourceTypeName,
-  List<string> SpecificConditionKeyIds,
-  List<string> DependentActionIds
-);
+public struct ActionResourceType
+{
+  private bool _IsAllResourceTypes;
+  private Option<string> _ResourceTypeDefinitionId;
+  private Option<string> _ResourceTypeName;
+  private List<string> _SpecificConditionKeyIds;
+  private List<string> _DependentActionIds;
+
+  public string ResourceTypeDefId {
+    get {
+      string value = "";
+      _ResourceTypeDefinitionId.MatchSome(id => value = id);
+      return value;
+    }
+  }
+
+  public string ResourceTypeName {
+    get {
+      string value = "";
+      _ResourceTypeName.MatchSome(n => value = n);
+      return value;
+    }
+  }
+
+  public void SetTypeIdAndName(string id, string name)
+  {
+    _ResourceTypeDefinitionId = Option.Some(id);
+    _ResourceTypeName = Option.Some(name);
+  }
+
+  public void AddConditionKeyId(string id)
+    => _SpecificConditionKeyIds.Add(id);
+
+  public void AddDependentActionId(string dep)
+    => _DependentActionIds.Add(dep);
+
+  public ActionResourceType()
+  {
+    _IsAllResourceTypes = false;
+    _ResourceTypeDefinitionId = Option.None<string>();
+    _ResourceTypeName = Option.None<string>();
+    _SpecificConditionKeyIds = new List<string>();
+    _DependentActionIds = new List<string>();
+  }
+}

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 public struct AnchorWithKeyHrefElement : IElement
 {
-  //        <a id="awsaccountmanagement-CloseAccount"></a>
+  //     <a href="#awsaccountmanagement-account">account</a>
   private static readonly Regex _AId = new Regex(pattern: @"\<a\w+id=""([\-\w\s]*)"".*$");
 
   public bool IsFinalMatch(string line)

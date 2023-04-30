@@ -13,5 +13,6 @@ public enum ActionAccessLevel
   Unknown, 
   Read,
   List,
+  ArrayOfString,
   Write
 }

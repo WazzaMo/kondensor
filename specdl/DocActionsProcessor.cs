@@ -28,6 +28,20 @@ public static class DocActionsProcessor
 
   internal static IContext ActionDataRows(Stack<StackTask> stack, IContext context)
   {
+    StackTask rowOrEnd = new StackTask() {
+        Element = new TableRowOrTableEndElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = ActionRow // prepare for another row
+        //
+      };
+      stack.Push(rowOrEnd);
+      
+      IContext actionContext = new ActionsTableContext();
+      return ActionRow(stack, actionContext);
+  }
+
+  internal static IContext ActionRow(Stack<StackTask> stack, IContext context)
+  {
     StackTask
       rowStart = new StackTask() {
         Element = new TableRowStartElement(),
@@ -73,21 +87,15 @@ public static class DocActionsProcessor
         Element = new ParaElement()
       },
       anchorResRef = new StackTask() {
-        Element = new AnchorEntryHrefElement()
+        Element = new AnchorEntryHrefElement(),
+        UponMatch = DocGeneralProcessor.ContextPassThrough
       },
       paraEndResRef = new StackTask() {
         Element = new ParaEndElement()
       },
       tdEndResourceRef = new StackTask() {
         Element = new TableDataEndElement()
-      },
-      rowOrEnd = new StackTask() {
-        Element = new TableDataOrRowEndElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-        UponMatch = DocGeneralProcessor.ContextPassThrough
-        //
       };
-      stack.Push(rowOrEnd);
       stack.Push(tdEndResourceRef);
       stack.Push(paraEndResRef);
       stack.Push(anchorResRef);
@@ -100,30 +108,16 @@ public static class DocActionsProcessor
       stack.Push(actionId);
       stack.Push(tdStart);
       stack.Push(rowStart);
-      IContext actionContext = new ActionsTableContext();
-      return actionContext;
-  }
 
-  internal static IContext ActionColumn(Stack<StackTask> stack, IContext context)
-  {
-    IContext result = context;
-    if (context is ActionsTableContext actions)
-    {
-      StackTask
-        actionId = new StackTask() {
-          Element = new AnchorWithIdElement(),
-          UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-          UponMatch = DocGeneralProcessor.Fault
-        },
-        actionDocAndName = new StackTask() {
-          Element = new AnchorWithDocHrefElement(),
-          UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-          UponMatch = DocGeneralProcessor.Fault
-        };
-      stack.Push(actionDocAndName);
-      stack.Push(actionId);
-    }
-    return result;
+      IContext actionContext;
+      if (context is ActionsTableContext actions)
+      {
+        actions.ResetForNextAction();
+        actionContext = actions;
+      }
+      else
+        actionContext = new ActionsTableContext();
+      return actionContext;
   }
 
 }

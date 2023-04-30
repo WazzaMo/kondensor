@@ -24,10 +24,10 @@ public struct ActionsTableContext : IContext
   public Option<string> ConditionKeyId;
   public Option<string> DependentActionId;
   private Option<bool> WipIsAllResourceTypes;
-  private Option<string> WipResourceTypeDefinitionId;
-  private Option<string> WipResourceTypeName;
-  private Option<string> WipSpecificConditionKeyIds;
-  private Option<string> WipDependentActionIds;
+  // // private Option<string> WipResourceTypeDefinitionId;
+  // // private Option<string> WipResourceTypeName;
+  // private Option<string> WipSpecificConditionKeyIds;
+  // private Option<string> WipDependentActionIds;
 
   public ActionsTableContext()
   {
@@ -41,10 +41,10 @@ public struct ActionsTableContext : IContext
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();
     WipIsAllResourceTypes = Option.None<bool>();
-    WipResourceTypeDefinitionId = Option.None<string>();
-    WipResourceTypeName = Option.None<string>();
-    WipSpecificConditionKeyIds = Option.None<string>();
-    WipDependentActionIds = Option.None<string>();
+    // WipResourceTypeDefinitionId = Option.None<string>();
+    // WipResourceTypeName = Option.None<string>();
+    // WipSpecificConditionKeyIds = Option.None<string>();
+    // WipDependentActionIds = Option.None<string>();
     OutputTask = Option.None<Action<ActionsTableContext,TextWriter>>();
   }
 
@@ -57,10 +57,8 @@ public struct ActionsTableContext : IContext
     CurrentActionName = Option.Some(name);
   }
 
-  public void SetResourceTypeId(string refId)
-  {
-    WipResourceTypeDefinitionId = Option.Some(refId);
-  }
+  public void AddResourceType(ActionResourceType resourceType)
+    => ResourceTypes.Add(resourceType);
 
   public void SetDescription(string description)
     => CurrentDescription = Option.Some(description);
@@ -68,12 +66,25 @@ public struct ActionsTableContext : IContext
   public void SetCurrentAccessLevel(ActionAccessLevel level)
     => CurrentAccessLevel = level;
 
-  private void ResetForNextAction()
+  public void CollectActionTypeAndReset()
+  {
+    ActionType action = new ActionType();
+    CurrentActionId.MatchSome(id => action.ActionId = id);
+    CurrentActionDocLink.MatchSome(url => action.AwsApiDocumentLink = url);
+    CurrentDescription.MatchSome( desc => action.Description = desc);
+    action.AccessLevelToResourceTypeMappings = new Dictionary<ActionAccessLevel, List<ActionResourceType>>();
+
+    Actions.Add(action);
+  }
+
+  public void ResetForNextAction()
   {
     CurrentActionId = Option.None<string>();
     CurrentActionDocLink = Option.None<string>();
     CurrentActionName = Option.None<string>();
     CurrentDescription = Option.None<string>();
+    CurrentDescription = Option.None<string>();
+    CurrentAccessLevel = ActionAccessLevel.Unknown;
   }
 
   private void ResetForNextDataRow()
@@ -85,9 +96,9 @@ public struct ActionsTableContext : IContext
   private void ResetWipResourceType()
   {
     WipIsAllResourceTypes = Option.None<bool>();
-    WipResourceTypeDefinitionId = Option.None<string>();
-    WipResourceTypeName = Option.None<string>();
-    WipSpecificConditionKeyIds = Option.None<string>();
-    WipDependentActionIds = Option.None<string>();
+    // WipResourceTypeDefinitionId = Option.None<string>();
+    // WipResourceTypeName = Option.None<string>();
+    // WipSpecificConditionKeyIds = Option.None<string>();
+    // WipDependentActionIds = Option.None<string>();
   }
 }

@@ -44,7 +44,7 @@
                     <tr>
                         <td rowspan="3">
                             <a id="awsaccountmanagement-DeleteAlternateContact"></a>
-                            <a href="https://docs.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html">DeleteAlternateContact</a>
+                            <a href="https://docsResourceTypeDefinitionId.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html">DeleteAlternateContact</a>
                         </td>
                         <td rowspan="3">Grants permission to delete the alternate contacts for an account</td>
                         <td rowspan="3">Write</td>

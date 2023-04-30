@@ -10,15 +10,17 @@ using System.Text.RegularExpressions;
 
 public struct AnchorEntryHrefElement : IElement
 {
-  //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
-  private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\shref=""([*:-_./*\w\s\./\-^\""]+).\>$");
-  private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>.*$");
+  //    <a href="#awsaccountmanagement-account">account
+  private static readonly Regex _AHrefName = new Regex(pattern: @"\<a\s+href=\""(\#[\-\s\w]+)\""\>([\w]+)");
+  private static readonly Regex _AEnd = new Regex(pattern: @"\<\/a\>");
 
   private Option<string> _EntityRef;
+  private Option<string> _EntityName;
 
   public AnchorEntryHrefElement()
   {
     _EntityRef = Option.None<string>();
+    _EntityName = Option.None<string>();
   }
 
   public bool IsFinalMatch(string line)
@@ -26,14 +28,16 @@ public struct AnchorEntryHrefElement : IElement
 
   public bool IsMatch(string line)
   {
-    const int HREF_TEXT = 1;
+    const int HREF_TEXT = 1, REF_NAME = 2;
 
     bool isMatch = Matches(out var match, line);
     if (isMatch)
     {
       string refId = match.Groups[HREF_TEXT].Value;
-      Console.WriteLine($"HREF to entity {refId}");
+      string name = match.Groups[REF_NAME].Value;
+      Console.WriteLine($"Ref to entity {refId} of name {name}");
       _EntityRef = Option.Some(refId);
+      _EntityName = Option.Some(name);
     }
     return isMatch;
   }
@@ -48,14 +52,21 @@ public struct AnchorEntryHrefElement : IElement
 
     if (FinalMatch(line, out Match match) && _EntityRef.HasValue && context is ActionsTableContext actions )
     {
-      string refId = "UNKNOWN";
+      string
+        refId = "UNKNOWN",
+        name = "UNKNOWN-NAME";
 
       _EntityRef.Match(
         some: a => refId = a,
         none: () => throw new Exception("Documentation link missing in line: " + line)
       );
-      actions.SetResourceTypeId(refId);
-      Console.WriteLine($"Action ref to resource type: {refId}");
+      _EntityName.MatchSome(
+        some: n => name = n
+      );
+      ActionResourceType resourceType = new ActionResourceType();
+      resourceType.SetTypeIdAndName(refId, name);
+      actions.AddResourceType(resourceType);
+      Console.WriteLine($"Action ref to resource type: {refId} with name {name}");
       result = actions;
     }
     else

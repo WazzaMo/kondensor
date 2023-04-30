@@ -39,7 +39,8 @@ public struct TableDataActionDescriptionAndAccessLevelElement : IElement
   private const string
     WRITE = "Write",
     READ = "Read",
-    LIST = "List";
+    LIST = "List",
+    ARRAY_OF_STRING = "ArrayOfString";
 
   private ActionsTableContext UpdateWithText(ActionsTableContext actions, string value)
   {
@@ -51,6 +52,7 @@ public struct TableDataActionDescriptionAndAccessLevelElement : IElement
           WRITE => ActionAccessLevel.Write,
           READ => ActionAccessLevel.Read,
           LIST => ActionAccessLevel.List,
+          ARRAY_OF_STRING => ActionAccessLevel.ArrayOfString,
           _ => ActionAccessLevel.Unknown
         };
         if (actions.CurrentAccessLevel == ActionAccessLevel.Unknown)
