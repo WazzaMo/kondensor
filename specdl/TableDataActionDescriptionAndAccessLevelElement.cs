@@ -40,26 +40,31 @@ public struct TableDataActionDescriptionAndAccessLevelElement : IElement
     WRITE = "Write",
     READ = "Read",
     LIST = "List",
-    ARRAY_OF_STRING = "ArrayOfString";
+    ARRAY_OF_STRING = "ArrayOfString",
+    TAGGING = "Tagging";
 
   private ActionsTableContext UpdateWithText(ActionsTableContext actions, string value)
   {
-    if (actions.CurrentDescription.HasValue)
+    if (actions.HasDescription())
     {
       if (actions.CurrentAccessLevel == ActionAccessLevel.Unknown)
       {
-        actions.CurrentAccessLevel = value switch {
+        ActionAccessLevel accessLevel = value switch {
           WRITE => ActionAccessLevel.Write,
           READ => ActionAccessLevel.Read,
           LIST => ActionAccessLevel.List,
           ARRAY_OF_STRING => ActionAccessLevel.ArrayOfString,
+          TAGGING => ActionAccessLevel.Tagging,
           _ => ActionAccessLevel.Unknown
         };
-        if (actions.CurrentAccessLevel == ActionAccessLevel.Unknown)
+
+        if (accessLevel == ActionAccessLevel.Unknown)
         {
           Console.WriteLine($"Could not interpret access level {value}");
           throw new Exception("Bug: td value interpreted as access level but cannot be resolved: " + value);
         }
+
+        actions.SetCurrentAccessLevel(accessLevel);
       }
       else
       {

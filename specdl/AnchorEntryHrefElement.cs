@@ -63,9 +63,8 @@ public struct AnchorEntryHrefElement : IElement
       _EntityName.MatchSome(
         some: n => name = n
       );
-      ActionResourceType resourceType = new ActionResourceType();
-      resourceType.SetTypeIdAndName(refId, name);
-      actions.AddResourceType(resourceType);
+      actions.SetResourceRefAndName(refId, name);
+      
       Console.WriteLine($"Action ref to resource type: {refId} with name {name}");
       result = actions;
     }

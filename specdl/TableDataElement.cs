@@ -18,8 +18,8 @@ public struct TableDataElement : IElement
     if (match.Groups.Count>1)
     {
       var groups = match.Groups;
-      string span = groups[0].Value;
-      string size = groups[1].Value;
+      string span = groups[1].Value;
+      string size = groups[2].Value;
       Console.WriteLine($"TD: {span} and {size}");
     }
     return match != null && match.Length > 0;

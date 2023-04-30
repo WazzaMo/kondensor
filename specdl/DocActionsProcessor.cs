@@ -112,7 +112,7 @@ public static class DocActionsProcessor
       IContext actionContext;
       if (context is ActionsTableContext actions)
       {
-        actions.ResetForNextAction();
+        actions.CollectActionTypeAndReset();
         actionContext = actions;
       }
       else

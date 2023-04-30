@@ -14,5 +14,6 @@ public enum ActionAccessLevel
   Read,
   List,
   ArrayOfString,
+  Tagging,
   Write
 }

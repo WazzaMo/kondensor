@@ -21,10 +21,12 @@ public struct AnchorWithKeyHrefElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
+    const int ID_INDEX = 1;
+
     IContext result;
     if (Matches(out var match, line) && context is ActionsTableContext actions)
     {
-      string id = match.Groups[1].Value;
+      string id = match.Groups[ID_INDEX].Value;
       actions.SetActionId(id);
       result = actions;
     }

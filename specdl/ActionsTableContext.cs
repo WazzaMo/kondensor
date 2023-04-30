@@ -10,13 +10,19 @@ using System.Collections.Generic;
 
 public struct ActionsTableContext : IContext
 {
+  private const int
+    UNSET_NUM = -1,
+    DEFAULT_ACTION_COUNT = 1;
+
   private List<ActionType> Actions;
 
-  public Option<string> CurrentActionId;
-  public Option<string> CurrentActionDocLink;
-  public Option<string> CurrentActionName;
-  public Option<string> CurrentDescription;
-  public ActionAccessLevel CurrentAccessLevel;
+  private ActionType _CurrentAction;
+  private int _ActionRows;
+  private int _ResourceTypeRows;
+
+  private ActionResourceType _CurrentResourceType;
+
+  private ActionAccessLevel _CurrentAccessLevel;
   private List<ActionResourceType> ResourceTypes;
 
   public Option<Action<ActionsTableContext,TextWriter>> OutputTask;
@@ -32,63 +38,58 @@ public struct ActionsTableContext : IContext
   public ActionsTableContext()
   {
     Actions = new List<ActionType>();
-    CurrentActionId = Option.None<string>();
-    CurrentActionDocLink = Option.None<string>();
-    CurrentActionName = Option.None<string>();
-    CurrentDescription = Option.None<string>();
-    CurrentAccessLevel = ActionAccessLevel.Unknown;
+    _CurrentAction = new ActionType();
+    _ActionRows = DEFAULT_ACTION_COUNT;
+    _ResourceTypeRows = UNSET_NUM;
+
+    _CurrentResourceType = new ActionResourceType();
+    _CurrentAccessLevel = ActionAccessLevel.Unknown;
     ResourceTypes = new List<ActionResourceType>();
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();
     WipIsAllResourceTypes = Option.None<bool>();
-    // WipResourceTypeDefinitionId = Option.None<string>();
-    // WipResourceTypeName = Option.None<string>();
-    // WipSpecificConditionKeyIds = Option.None<string>();
-    // WipDependentActionIds = Option.None<string>();
     OutputTask = Option.None<Action<ActionsTableContext,TextWriter>>();
   }
 
   public void SetActionId(string id)
-    => CurrentActionId = Option.Some(id);
+    => _CurrentAction.SetActionId(id);
 
   public void SetDocLinkAndName(string docLink, string name)
   {
-    CurrentActionDocLink = Option.Some(docLink);
-    CurrentActionName = Option.Some(name);
+    _CurrentAction.SetActionId(docLink);
+    _CurrentAction.SetActionName(name);
   }
 
-  public void AddResourceType(ActionResourceType resourceType)
-    => ResourceTypes.Add(resourceType);
+  public void SetResourceRefAndName(string idRef, string name)
+    => _CurrentResourceType.SetTypeIdAndName(idRef, name);
 
   public void SetDescription(string description)
-    => CurrentDescription = Option.Some(description);
+    => _CurrentAction.SetDescription(description);
+
+  public bool HasDescription() => _CurrentAction.IsDescriptionSet;
 
   public void SetCurrentAccessLevel(ActionAccessLevel level)
-    => CurrentAccessLevel = level;
+    => _CurrentAccessLevel = level;
+  
+  public ActionAccessLevel CurrentAccessLevel => _CurrentAccessLevel;
 
   public void CollectActionTypeAndReset()
   {
-    ActionType action = new ActionType();
-    CurrentActionId.MatchSome(id => action.ActionId = id);
-    CurrentActionDocLink.MatchSome(url => action.AwsApiDocumentLink = url);
-    CurrentDescription.MatchSome( desc => action.Description = desc);
-    action.AccessLevelToResourceTypeMappings = new Dictionary<ActionAccessLevel, List<ActionResourceType>>();
-
-    Actions.Add(action);
+    Actions.Add(_CurrentAction);
+    _CurrentAction = new ActionType();
   }
 
-  public void ResetForNextAction()
+  public void CollectResourceTypeAndReset()
   {
-    CurrentActionId = Option.None<string>();
-    CurrentActionDocLink = Option.None<string>();
-    CurrentActionName = Option.None<string>();
-    CurrentDescription = Option.None<string>();
-    CurrentDescription = Option.None<string>();
-    CurrentAccessLevel = ActionAccessLevel.Unknown;
+    _CurrentAction.MapAccessToResourceType(_CurrentAccessLevel, _CurrentResourceType);
+    _CurrentResourceType = new ActionResourceType();
+    ResetForNextAccessLevel();
   }
 
-  private void ResetForNextDataRow()
+  private void ResetForNextAccessLevel()
   {
+    ResourceTypes = new List<ActionResourceType>();
+    _CurrentAccessLevel = ActionAccessLevel.Unknown;
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();
   }
@@ -96,9 +97,5 @@ public struct ActionsTableContext : IContext
   private void ResetWipResourceType()
   {
     WipIsAllResourceTypes = Option.None<bool>();
-    // WipResourceTypeDefinitionId = Option.None<string>();
-    // WipResourceTypeName = Option.None<string>();
-    // WipSpecificConditionKeyIds = Option.None<string>();
-    // WipDependentActionIds = Option.None<string>();
   }
 }
