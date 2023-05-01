@@ -43,10 +43,13 @@ public struct ActionResourceType
     }
   }
 
+  public bool IsAllResourceTypes => _IsAllResourceTypes;
+
   public void SetTypeIdAndName(string id, string name)
   {
     _ResourceTypeDefinitionId = Option.Some(id);
     _ResourceTypeName = Option.Some(name);
+    _IsAllResourceTypes = false;
   }
 
   public void AddConditionKeyId(string id)
@@ -57,7 +60,7 @@ public struct ActionResourceType
 
   public ActionResourceType()
   {
-    _IsAllResourceTypes = false;
+    _IsAllResourceTypes = true;
     _ResourceTypeDefinitionId = Option.None<string>();
     _ResourceTypeName = Option.None<string>();
     _SpecificConditionKeyIds = new List<string>();
