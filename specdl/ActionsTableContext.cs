@@ -22,8 +22,6 @@ public struct ActionsTableContext : IContext
   private ActionResourceType _CurrentResourceType;
 
   private ActionAccessLevel _CurrentAccessLevel;
-  private List<ActionResourceType> ResourceTypes;
-
 
   public Option<string> ConditionKeyId;
   public Option<string> DependentActionId;
@@ -37,7 +35,6 @@ public struct ActionsTableContext : IContext
 
     _CurrentResourceType = new ActionResourceType();
     _CurrentAccessLevel = ActionAccessLevel.Unknown;
-    ResourceTypes = new List<ActionResourceType>();
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();
     WipIsAllResourceTypes = Option.None<bool>();
@@ -96,10 +93,15 @@ public struct ActionsTableContext : IContext
     }
   }
 
+  public void NextActionDefinition()
+  {
+    _CurrentAction = new ActionType();
+    ResetForNextAccessLevel();
+  }
+
   public void CollectActionTypeAndReset()
   {
     _Actions.Add(_CurrentAction);
-    _CurrentAction = new ActionType();
   }
 
   public void CollectResourceTypeAndReset()
@@ -113,7 +115,6 @@ public struct ActionsTableContext : IContext
 
   private void ResetForNextAccessLevel()
   {
-    ResourceTypes = new List<ActionResourceType>();
     _CurrentAccessLevel = ActionAccessLevel.Unknown;
     ConditionKeyId = Option.None<string>();
     DependentActionId = Option.None<string>();

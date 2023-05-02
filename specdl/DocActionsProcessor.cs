@@ -45,7 +45,7 @@ public static class DocActionsProcessor
     StackTask
       rowStart = new StackTask() {
         Element = new TableRowStartElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponFinalMatch = NewAction,
         UponMatch = DocGeneralProcessor.Fault
       },
       tdStart = new StackTask() {
@@ -112,12 +112,22 @@ public static class DocActionsProcessor
       IContext actionContext;
       if (context is ActionsTableContext actions)
       {
+        actions.CollectResourceTypeAndReset();
         actions.CollectActionTypeAndReset();
         actionContext = actions;
       }
       else
         actionContext = new ActionsTableContext();
       return actionContext;
+  }
+
+  internal static IContext NewAction(Stack<StackTask> stack, IContext context)
+  {
+    if (context is ActionsTableContext actionContext)
+    {
+      actionContext.NextActionDefinition();
+    }
+    return context;
   }
 
 }
