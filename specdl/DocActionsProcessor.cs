@@ -123,6 +123,7 @@ public static class DocActionsProcessor
 
   internal static IContext NewAction(Stack<StackTask> stack, IContext context)
   {
+    Console.WriteLine(value: $"---NOTE {nameof(NewAction)}: starting new row and context is {context.GetType().Name}");
     if (context is ActionsTableContext actionContext)
     {
       actionContext.NextActionDefinition();

@@ -151,7 +151,6 @@ public struct DocProcessor : IProcessor
   {
     StackTask task = _ParseStack.Peek();
     IContext context = task.Element.Processed(line, output, _CurrentContext);
-    // Console.WriteLine($"Element: {task.Element.GetType().Name} for: {line}");
     context = task.UponMatch(_ParseStack, context);
     return context;
   }

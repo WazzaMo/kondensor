@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 public struct TableRowStartElement : IElement
 {
-  private readonly static Regex Table = new Regex(pattern: @"\<tr.*");
+  private readonly static Regex Table = new Regex(pattern: @"\<tr\>");
 
   public bool IsMatch(string line)
     => false;
