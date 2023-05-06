@@ -44,40 +44,36 @@ public struct DocProcessor : IProcessor
 
   public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
   {
-    bool IsEof = false;
-
     if (input != null && output != null) 
     {
-      string? line;
+      string? token;
 
-      if (!IsEof)
+      do
       {
-        do
+        token = GetToken(input);
+        if (token != null)
         {
-          line = GetToken(input);
-          if (line != null)
+          string topStack = _ParseStack.Peek().Element.GetType().Name;
+          Console.WriteLine($"ParseNext: {topStack} for {token}");
+
+          if (IsMatch(token))
           {
-            string topStack = _ParseStack.Peek().Element.GetType().Name;
-
-            if (IsMatch(line))
-            {
-              _CurrentContext = Process(line, output, _CurrentContext);
-              string contextName = _CurrentContext.GetType().Name;
-              output.WriteLine( $"Mtch: Context:{contextName} Next: {topStack}, {line}");
-            }
-
-            if (IsFinalMatch(line))
-            {
-              topStack = _ParseStack.Peek().Element.GetType().Name;
-
-              _CurrentContext = FinalProcess(line, output, _CurrentContext);
-
-              output.WriteLine( $"Final: Context:{_CurrentContext.GetType().Name} Next: {topStack}, {line}");
-            }
+            _CurrentContext = Process(token, output, _CurrentContext);
+            string contextName = _CurrentContext.GetType().Name;
           }
-        } while( line != null);
-        Console.WriteLine($"Number lines processed: {_LinesProcessed}");
-      }
+          else if (IsFinalMatch(token))
+          {
+            _CurrentContext = FinalProcess(token, output, _CurrentContext);
+          }
+          else
+          {
+            topStack = _ParseStack.Peek().Element.GetType().Name;
+            // No match
+            Console.WriteLine(value: $"MISSED {token} by no match of {topStack}");
+          }
+        }
+      } while( token != null);
+      Console.WriteLine($"Number lines processed: {_LinesProcessed}");
     }
     else
     {
@@ -101,6 +97,12 @@ public struct DocProcessor : IProcessor
     if (_Tokens.Count == 0)
     {
       string? line = input.ReadLine();
+      int found = line != null ? line.IndexOf("<tr>") : -1;
+      if (found > 0)
+      {
+        string topStack = _ParseStack.Peek().Element.GetType().Name;
+        Console.WriteLine($"TR: {topStack} -> " + line);
+      }
       if (line != null)
       {
         _LinesProcessed++;
@@ -173,7 +175,7 @@ public struct DocProcessor : IProcessor
     StackTask handleTableStart = new StackTask() {
       Element = new TableStartElement(),
       UponFinalMatch = ConfigParseForTHead,
-      UponMatch = DocGeneralProcessor.Fault
+      UponMatch = DocGeneralProcessor.ContextPassThrough
     };
     stack.Push(handleTableEnd);
     stack.Push(handleTableStart);
@@ -200,22 +202,32 @@ public struct DocProcessor : IProcessor
   private static IContext ConfigForHeadingTRow(Stack<StackTask> stack, IContext context)
   {
     StackTask
-      headingTr = new StackTask() {
+      rowStart = new StackTask() {
         Element = new TableRowStartElement(),
         UponFinalMatch = ConfigForHeadingSpec,
         UponMatch = DocGeneralProcessor.Fault
       },
-      headingEndTr = new StackTask() {
+      thOrRowEnd = new StackTask() {
         Element = new THSpecOrEndTrElement(),
-        UponMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = EndHeadingSpec,
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough
       };
-      stack.Push(headingEndTr);
-      stack.Push(headingTr);
+      stack.Push(thOrRowEnd);
+      stack.Push(rowStart);
       return new NoneContext();
   }
 
-
+  private static IContext EndHeadingSpec(Stack<StackTask> stack, IContext context)
+  {
+    StackTask
+      thEnd = new StackTask() {
+        Element = new THEndElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = DocGeneralProcessor.Fault
+      };
+    stack.Push(thEnd);
+    return context;
+  }
 
   private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
   {

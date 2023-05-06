@@ -35,7 +35,6 @@ public struct AnchorEntryHrefElement : IElement
     {
       string refId = match.Groups[HREF_TEXT].Value;
       string name = match.Groups[REF_NAME].Value;
-      Console.WriteLine($"Ref to entity {refId} of name {name}");
       _EntityRef = Option.Some(refId);
       _EntityName = Option.Some(name);
     }
@@ -65,7 +64,6 @@ public struct AnchorEntryHrefElement : IElement
       );
       actions.SetResourceRefAndName(refId, name);
       
-      Console.WriteLine($"Action ref to resource type: {refId} with name {name}");
       result = actions;
     }
     else

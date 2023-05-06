@@ -37,7 +37,6 @@ public struct AnchorWithDocHrefElement : IElement
     {
       string docUrl = match.Groups[HREF_TEXT].Value;
       string ActionName = match.Groups[VALUE_TEXT].Value;
-      Console.WriteLine($"HREF {docUrl} Name {ActionName}");
       _DocLink = Option.Some(docUrl);
       _Name = Option.Some(ActionName);
     }
@@ -66,7 +65,6 @@ public struct AnchorWithDocHrefElement : IElement
         none: () => throw new Exception("Action name missing in line: " + line)
       );
       actions.SetDocLinkAndName(docUrl, ActionName);
-      Console.WriteLine($"Action name: {ActionName} -> {docUrl}");
       result = actions;
     }
     else

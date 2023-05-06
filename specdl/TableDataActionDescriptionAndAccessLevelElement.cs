@@ -4,30 +4,48 @@
  *  Distributed under the Kondensor License.
  */
 
+using Optional;
 using System.Text.RegularExpressions;
 
 public struct TableDataActionDescriptionAndAccessLevelElement : IElement
 {
   private readonly static Regex TdataPattern = new Regex(pattern: @"\<td\>([\w\s\(\*\)]+)");
+  private readonly static Regex TEndTd = new Regex(pattern: @"\<\/td\>");
+
+  private Option<string> _Text;
+
+  public TableDataActionDescriptionAndAccessLevelElement()
+  {
+    _Text = Option.None<string>();
+  }
 
   public bool IsMatch(string line)
-    => false;
+  {
+    var match = TdataPattern.Match(line);
+    bool isMatch = false;
+    if (match != null && match.Length > 0)
+    {
+      isMatch = true;
+      string value = match.Groups[1].Value;
+      _Text = Option.Some(value);
+    }
+    return isMatch;
+  }
 
   public bool IsFinalMatch(string line)
   {
-    var match = TdataPattern.Match(line);
+    var match = TEndTd.Match(line);
     return match != null && match.Length > 0;
   }
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
     IContext result;
-    Match match;
 
-    match = TdataPattern.Match(line);
-    if (match != null && match.Length > 0 && context is ActionsTableContext actions)
+    if (_Text.HasValue && context is ActionsTableContext actions)
     {
-      string value = match.Groups[1].Value;
+      string value = "UNKNOWN";
+      _Text.MatchSome( t => value = t);
       result = UpdateWithText(actions, value);
     }
     else

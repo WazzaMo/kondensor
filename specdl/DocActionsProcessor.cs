@@ -30,72 +30,92 @@ public static class DocActionsProcessor
   {
     StackTask rowOrEnd = new StackTask() {
         Element = new TableRowOrTableEndElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponFinalMatch = EndActionTable,
         UponMatch = ActionRow // prepare for another row
         //
       };
       stack.Push(rowOrEnd);
       
-      IContext actionContext = new ActionsTableContext();
-      return ActionRow(stack, actionContext);
+      IContext actionContext;
+      if (context is ActionsTableContext actions)
+      {
+        actionContext = actions;
+      }
+      else
+      {
+        actionContext = new ActionsTableContext();
+      }
+      return actionContext; //ActionRow(stack, actionContext);
+  }
+
+  internal static IContext EndActionTable(Stack<StackTask> stack, IContext context)
+  {
+    if (context is ActionsTableContext actions)
+    {
+      Console.WriteLine("END Actions Table!");
+    }
+    return context;
   }
 
   internal static IContext ActionRow(Stack<StackTask> stack, IContext context)
   {
     StackTask
-      rowStart = new StackTask() {
-        Element = new TableRowStartElement(),
-        UponFinalMatch = NewAction,
-        UponMatch = DocGeneralProcessor.Fault
+      rowEnd = new StackTask() { // </tr>
+        Element = new TableRowEndElement(),
+        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponMatch = NewAction
       },
-      tdStart = new StackTask() {
+      tdStart = new StackTask() { // <td ...>
         Element = new TableDataElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
-      actionId = new StackTask() {
+      actionId = new StackTask() { // <a id ...>
         Element = new AnchorWithIdElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.ContextPassThrough
       },
-      actionNameDoc = new StackTask() {
+      actionNameDoc = new StackTask() { // <a href=...>name match </a> final
         Element = new AnchorWithDocHrefElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.ContextPassThrough
       },
-      tdEnd = new StackTask() {
+      tdEnd = new StackTask() { // </td>
         Element = new TableDataEndElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
-      actionDesc = new StackTask() {
+      actionDesc = new StackTask() { // <td>Describ 
         Element = new TableDataActionDescriptionAndAccessLevelElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-        UponMatch = DocGeneralProcessor.Fault
+        UponMatch = DocGeneralProcessor.ContextPassThrough
       },
-      actionAccess = new StackTask() {
+      actionAccess = new StackTask() { // <td>Write
         Element = new TableDataActionDescriptionAndAccessLevelElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-        UponMatch = DocGeneralProcessor.Fault
+        UponMatch = DocGeneralProcessor.ContextPassThrough
       },
-      tdResourceRef = new StackTask() {
+      tdResourceRef = new StackTask() { // <td (optional rowspan)>
         Element = new TableDataElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.Fault
       },
-      paraResRef = new StackTask() {
+      paraResRef = new StackTask() { // <p>
         Element = new ParaElement()
       },
-      anchorResRef = new StackTask() {
+      anchorResRef = new StackTask() { // <a href=...>name</a>
         Element = new AnchorEntryHrefElement(),
         UponMatch = DocGeneralProcessor.ContextPassThrough
       },
-      paraEndResRef = new StackTask() {
+      paraEndResRef = new StackTask() { // </p>
         Element = new ParaEndElement()
       },
-      tdEndResourceRef = new StackTask() {
-        Element = new TableDataEndElement()
+      tdEndResourceRef = new StackTask() { // <td (optional rowspan)>
+        Element = new TableDataEndElement(),
+        UponFinalMatch = ActionDataRows
       };
+
+      stack.Push(rowEnd);
       stack.Push(tdEndResourceRef);
       stack.Push(paraEndResRef);
       stack.Push(anchorResRef);
@@ -107,7 +127,6 @@ public static class DocActionsProcessor
       stack.Push(actionNameDoc);
       stack.Push(actionId);
       stack.Push(tdStart);
-      stack.Push(rowStart);
 
       IContext actionContext;
       if (context is ActionsTableContext actions)

@@ -7,7 +7,7 @@
 using System.Text.RegularExpressions;
 
 /// <summary>
-/// Match means new row. FinalMatch mean end table.
+/// Match means new row. FinalMatch means end table.
 /// </summary>
 public struct TableRowOrTableEndElement : IElement
 {

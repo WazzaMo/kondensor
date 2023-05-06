@@ -6,12 +6,13 @@
 
 using System.Text.RegularExpressions;
 
-public struct TableStartElement : IElement
+public struct TableRowEndElement : IElement
 {
-  private readonly static Regex Table = new Regex(pattern: @".*\<table.*");
+  private readonly static Regex Table = new Regex(pattern: @"\<\/tr\>");
+
   public bool IsMatch(string line)
-    => ! IsFinalMatch(line);
-  
+    => false;
+
   public bool IsFinalMatch(string line)
   {
     var match = Table.Match(line);
@@ -20,7 +21,8 @@ public struct TableStartElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
-    // bool result = IsFinalMatch(line);
-    return new NoneContext();
+    IContext result;
+    result = context;
+    return result;
   }
 }

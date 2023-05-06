@@ -32,7 +32,6 @@ public struct TableDataElement : IElement
       var groups = match.Groups;
       string attribute = groups[1].Value;
       string size = groups[2].Value;
-      Console.WriteLine(value: $"TD: {attribute} and {size}");
 
       if (attribute.Length > 0)
       {

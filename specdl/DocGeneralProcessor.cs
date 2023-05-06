@@ -12,17 +12,6 @@ public static class DocGeneralProcessor
 
   internal static IContext ContextPassThrough(Stack<StackTask> stack, IContext context)
   {
-    if (context is TableHeaderContext headerCtx)
-    {
-      var kind = Enum.Format(typeof(TablePurpose),headerCtx.Kind, "G");
-      int numHeadings = headerCtx.Headings.Count;
-      string headings = headerCtx.Headings.Aggregate("", (x, lst) => $"{lst},{x}");
-      Console.WriteLine($"TableHeader: {kind}, {headings}");
-    }
-    else
-    {
-      Console.WriteLine(context.GetType().Name + " is current context.");
-    }
     return context;
   }
 
