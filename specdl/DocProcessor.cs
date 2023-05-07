@@ -54,7 +54,7 @@ public struct DocProcessor : IProcessor
         if (token != null)
         {
           string topStack = _ParseStack.Peek().Element.GetType().Name;
-          Console.WriteLine($"ParseNext: {topStack} for {token}");
+          // Console.WriteLine($"ParseNext: {topStack} for {token}");
 
           if (IsMatch(token))
           {
@@ -173,7 +173,7 @@ public struct DocProcessor : IProcessor
       UponMatch = DocGeneralProcessor.Fault
     };
     StackTask handleTableStart = new StackTask() {
-      Element = new TableStartElement(),
+      Element = new SkipOrOtherElement( new TableStartElement() ),
       UponFinalMatch = ConfigParseForTHead,
       UponMatch = DocGeneralProcessor.ContextPassThrough
     };

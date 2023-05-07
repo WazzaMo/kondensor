@@ -62,7 +62,7 @@ public static class DocActionsProcessor
     StackTask
       rowEnd = new StackTask() { // </tr>
         Element = new TableRowEndElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
+        UponFinalMatch = EndDataRow,
         UponMatch = NewAction
       },
       tdStart = new StackTask() { // <td ...>
@@ -86,12 +86,12 @@ public static class DocActionsProcessor
         UponMatch = DocGeneralProcessor.Fault
       },
       actionDesc = new StackTask() { // <td>Describ 
-        Element = new TableDataActionDescriptionAndAccessLevelElement(),
+        Element = new TableDataActionDescriptionElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.ContextPassThrough
       },
       actionAccess = new StackTask() { // <td>Write
-        Element = new TableDataActionDescriptionAndAccessLevelElement(),
+        Element = new TableDataActionAccessLevelElement(),
         UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
         UponMatch = DocGeneralProcessor.ContextPassThrough
       },
@@ -130,14 +130,22 @@ public static class DocActionsProcessor
 
       IContext actionContext;
       if (context is ActionsTableContext actions)
-      {
-        actions.CollectResourceTypeAndReset();
-        actions.CollectActionTypeAndReset();
         actionContext = actions;
-      }
       else
         actionContext = new ActionsTableContext();
       return actionContext;
+  }
+
+  internal static IContext EndDataRow(Stack<StackTask> stack, IContext context)
+  {
+    IContext result = context;
+    if (context is ActionsTableContext actions)
+    {
+        actions.CollectResourceTypeAndReset();
+        actions.CollectActionTypeAndReset();
+        result = actions;
+    }
+    return result;
   }
 
   internal static IContext NewAction(Stack<StackTask> stack, IContext context)

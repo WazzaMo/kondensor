@@ -10,7 +10,8 @@
 /// </summary>
 public enum ActionAccessLevel
 {
-  Unknown, 
+  Unknown,
+  NotSpecified,
   Read,
   List,
   ArrayOfString,

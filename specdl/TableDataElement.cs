@@ -50,10 +50,12 @@ public struct TableDataElement : IElement
 
   public IContext Processed(string line, TextWriter output, IContext context)
   {
+    IContext result = context;
     if (context is ActionsTableContext actions)
     {
       _NumberOfRows.MatchSome(numString => actions.SetResourceTypeExpectedNumRows(numString));
+      result = actions;
     }
-    return context;
+    return result;
   }
 }
