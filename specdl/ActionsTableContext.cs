@@ -47,7 +47,7 @@ public struct ActionsTableContext : IContext
 
   public void SetDocLinkAndName(string docLink, string name)
   {
-    _CurrentAction.SetActionId(docLink);
+    _CurrentAction.SetApiDocLink(docLink);
     _CurrentAction.SetActionName(name);
   }
 

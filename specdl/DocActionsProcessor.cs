@@ -9,22 +9,9 @@ using Optional;
 
 public static class DocActionsProcessor
 {
-    // Handle data section
+  // Handle data section
   //
   //<tr>
-  //    <td>
-  //        <a id="awsaccountmanagement-CloseAccount"></a>
-  //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
-  //    <td>Grants permission to close an account</td>
-  //    <td>Write</td>
-  //    <td>
-  //        <p>
-  //            <a href="#awsaccountmanagement-account">account</a>
-  //        </p>
-  //    </td>
-  //    <td></td>
-  //    <td></td>
-  //</tr>
 
   internal static IContext ActionDataRows(Stack<StackTask> stack, IContext context)
   {
@@ -57,6 +44,19 @@ public static class DocActionsProcessor
     return context;
   }
 
+  //    <td>
+  //        <a id="awsaccountmanagement-CloseAccount"></a>
+  //        <a href="https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html">CloseAccount</a> [permission only]</td>
+  //    <td>Grants permission to close an account</td>
+  //    <td>Write</td>
+  //    <td>
+  //        <p>
+  //            <a href="#awsaccountmanagement-account">account</a>
+  //        </p>
+  //    </td>
+  //    <td></td>
+  //    <td></td>
+  //</tr>
   internal static IContext ActionRow(Stack<StackTask> stack, IContext context)
   {
     StackTask
