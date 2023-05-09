@@ -19,3 +19,5 @@ bld/
 
 ## Test output
 *.yaml
+*.txt
+
