@@ -9,13 +9,13 @@ using Optional;
 
 namespace test.specdl;
 
-public class ReplayWrapPipeTest //: IClassFixture<PipeFixture>
+public class ReplayWrapPipeTest
 {
   private PipeFixture _Fixture;
 
-  public ReplayWrapPipeTest() //PipeFixture fixture)
+  public ReplayWrapPipeTest()
   {
-    _Fixture = new PipeFixture(); //fixture;
+    _Fixture = new PipeFixture();
   }
 
   const string
