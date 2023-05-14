@@ -59,6 +59,8 @@ public static class DocActionsProcessor
   //</tr>
   internal static IContext ActionRow(Stack<StackTask> stack, IContext context)
   {
+    // Make this more flexible on td values...
+    
     StackTask
       rowEnd = new StackTask() { // </tr>
         Element = new TableRowEndElement(),
