@@ -1,3 +1,8 @@
+/*
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
+ *  Written by Warwick Molloy.
+ *  Distributed under the Kondensor License.
+ */
 
 using System.IO;
 
@@ -74,7 +79,8 @@ public static class PipeValues
         <p>The <b>Condition keys</b> column of the Actions table includes keys that you      can specify in a policy statement's <code class=""code"">Condition</code> element. For more information on      the condition keys that are associated with resources for the service, see the        <b>Condition keys</b> column of the Resource types table.</p>
 
         <p>For details about the columns in the following table, see <a href=""reference_policies_actions-resources-contextkeys.html#actions_table"" rel=""noopener noreferrer"" target=""_blank"">Actions table</a>.</p>
-        <div class=""table-container""><div class=""table-contents disable-scroll""><table id=""w43aab5b9c19c11c11""><thead>
+        <div class=""table-container"">
+        <div class=""table-contents disable-scroll""><table id=""w43aab5b9c19c11c11""><thead>
                     <tr>
                         <th>Actions</th>
                         <th>Description</th>

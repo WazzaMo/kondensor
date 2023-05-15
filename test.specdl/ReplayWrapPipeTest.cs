@@ -1,3 +1,10 @@
+/*
+ *  (c) Copyright 2022, 2023 Kondensor Contributors
+ *  Written by Warwick Molloy.
+ *  Distributed under the Kondensor License.
+ */
+
+
 using Xunit;
 
 using Parser;
@@ -7,7 +14,7 @@ using System.IO;
 
 using Optional;
 
-namespace test.specdl;
+namespace test;
 
 public class ReplayWrapPipeTest
 {

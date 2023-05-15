@@ -15,15 +15,47 @@ namespace Parser
   {
     private ReplayWrapPipe _Pipe;
     private LinkedList<Matching> _MatchHistory;
-    private int _CountMatched;
-    private int _RollbackPoint;
+    private int[] __CountMatched;
+    private int[] __RollbackPoint;
+
+    private int _CountMatched {
+      get => __CountMatched[0];
+      set => __CountMatched[0] = value;
+    }
+    private int _RollbackPoint {
+      get => __RollbackPoint[0];
+      set => __RollbackPoint[0] = value;
+    }
 
     internal ParseAction(ReplayWrapPipe pipe)
     {
       _Pipe = pipe;
-      _CountMatched = 0;
-      _RollbackPoint = pipe.GetCheckPoint();
+      __CountMatched = new int[1]{0};
+      __RollbackPoint = new int[1]{pipe.GetCheckPoint()};
       _MatchHistory = new LinkedList<Matching>();
+    }
+
+    public ParseAction SkipUntil(Matcher rule)
+    {
+      int testCheckPoint = _Pipe.GetCheckPoint();
+      bool canRead = true;
+      string token;
+      Matching status = Utils.NoMatch();
+      
+      while( canRead && !status.IsMatch)
+      {
+        testCheckPoint = _Pipe.GetCheckPoint();
+        canRead = _Pipe.ReadToken(out token);
+        if (canRead)
+        {
+          status = rule.Invoke(token);
+        }
+      }
+      if (status.IsMatch)
+      {
+        _Pipe.ReturnToCheckPoint(testCheckPoint);
+      }
+      return this;
     }
 
     public ParseAction Expect(Matcher nextRule)
@@ -34,10 +66,13 @@ namespace Parser
         var matching = nextRule.Invoke(token);
         if (matching.IsMatch)
         {
-          matching.MatcherName = nextRule.Method.Name.Some();
+          if (! matching.MatcherName.HasValue)
+          {
+            matching.MatcherName = nextRule.Method.Name.Some();
+          }
           _CountMatched++;
+          _MatchHistory.AddLast(matching);
         }
-        _MatchHistory.AddLast(matching);
       }
       return this;
     }
@@ -80,7 +115,8 @@ namespace Parser
 
     private void ResetMatchHistory()
     {
-        _MatchHistory = new LinkedList<Matching>();
+      _MatchHistory.Clear();
+        // _MatchHistory = new LinkedList<Matching>();
     }
   }
 

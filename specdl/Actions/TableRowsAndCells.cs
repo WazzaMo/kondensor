@@ -19,7 +19,7 @@ namespace Actions
   /// </summary>
   public static class TableRowsAndCells
   {
-    private static readonly Regex
+    public static readonly Regex
       __TR = new Regex(pattern: @"\<tr\>"),
       __TD = new Regex(pattern: @"\<td\>"),
       __TdEnd = new Regex(pattern: @"\<\/td\>"),
