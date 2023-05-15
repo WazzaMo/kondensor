@@ -7,13 +7,15 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Actions;
+namespace HtmlParse;
 
 public static class HtmlTablePatterns
 {
   public static readonly Regex
     TABLE = new Regex(pattern: @"\<table.*\>"),
     END_TABLE = new Regex(pattern: @"\<\/table\>"),
+    THEAD = new Regex(pattern: @"\<thead\>"),
+    END_THEAD = new Regex(pattern: @"\<\/thead\>"),
     TR = new Regex(pattern: @"\<tr\>"),
     TD = new Regex(pattern: @"\<td\>"),
     TD_ATTRIB = new Regex(pattern: @"\<td\s?(\w+)=?\""(\d+)\""?\>"),

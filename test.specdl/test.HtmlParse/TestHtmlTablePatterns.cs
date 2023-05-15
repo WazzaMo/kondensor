@@ -4,12 +4,12 @@
  *  Distributed under the Kondensor License.
  */
 
-using Actions;
+using HtmlParse;
 using Xunit;
 
 using System.Text.RegularExpressions;
 
-namespace test.Actions;
+namespace test.HtmlParse;
 
 public class TestHtmlTablePatterns
 {
@@ -34,6 +34,20 @@ public class TestHtmlTablePatterns
   }
 
   [Fact]
+  public void match_thead()
+  {
+    Match match = HtmlTablePatterns.THEAD.Match(input: "<thead>");
+    CheckMatches(count: 1, match);
+  }
+
+  [Fact]
+  public void match_end_thead()
+  {
+    Match match = HtmlTablePatterns.END_THEAD.Match(input: "</thead>");
+    CheckMatches(count: 1, match);
+  }
+
+  [Fact]
   public void match_tr_variations()
   {
     Match match;
@@ -53,7 +67,6 @@ public class TestHtmlTablePatterns
 
     match = HtmlTablePatterns.TD_ATTRIB.Match(input: "<td rowspan=\"4\">");
     CheckMatches(count: 3, match);
-
   }
 
   [Fact]
