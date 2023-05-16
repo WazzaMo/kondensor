@@ -35,7 +35,7 @@ public class ParsingTest
     {
       result = new Matching() {
         MatcherName = nameof(_Table).Some(),
-        IsMatch = true,
+        MatchResult = MatchKind.SingularMatch,
         Parts = Utils.GetParts(match)
       };
     }

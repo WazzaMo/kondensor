@@ -8,9 +8,12 @@
 using System.Collections.Generic;
 using Optional;
 
-namespace Parser;
+namespace Actions;
 
-
-public delegate Matching Matcher(string token );
-
-
+/// <summary>
+/// Placeholder for action table processing logic.
+/// </summary>
+public static class ActionTable
+{
+  //
+}
