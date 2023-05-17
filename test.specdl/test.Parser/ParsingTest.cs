@@ -5,6 +5,8 @@
  */
 
 using Parser;
+using HtmlParse;
+
 using Optional;
 using Xunit;
 
@@ -79,7 +81,7 @@ public class ParsingTest
   [Fact]
   public void CreateMatcherFromRegex()
   {
-    Matcher table = Utils.MatchRule(__TableReg, "Table");
+    Matcher table = Utils.SingularMatchRule(__TableReg, "Table");
     Parsing.Group(_Pipe)
       .SkipUntil(table)
       .Expect(table)
@@ -94,4 +96,36 @@ public class ParsingTest
       });
   }
 
+  [Fact]
+  public void ParseAction_rewindsPipeOnElseForOtherMatch()
+  {
+    bool isExpectedHandlerUsed = false;
+
+    Matcher
+      _table = Utils.SingularMatchRule(HtmlTablePatterns.TABLE, name: "table"),
+      _endTable = Utils.SingularMatchRule(HtmlTablePatterns.END_TABLE, name: "end-table"),
+      _tr = Utils.SingularMatchRule(HtmlTablePatterns.TR, "tr-only"),
+      _trAll = Utils.ShortLongMatchRules(HtmlTablePatterns.TR, HtmlTablePatterns.TR_ATTRIB, "tr-all"),
+      _endtr = Utils.SingularMatchRule(HtmlTablePatterns.END_TR, name: "end-tr"),
+      _thead = Utils.SingularMatchRule(HtmlTablePatterns.THEAD, "thead"),
+      _endThead = Utils.SingularMatchRule(HtmlTablePatterns.END_THEAD, "end-thead");
+    
+    Parsing.Group(_Pipe)
+      .SkipUntil(_table)
+      .Expect(_table)
+      .Expect(_tr)
+      .Then( (list, writer) => {
+        Assert.True(false, userMessage: "No match - then block should be skipped");
+      })
+      .Else()
+        .SkipUntil(_table)
+        .Expect(_table)
+        .Expect(_thead)
+        .Expect(_tr)
+        .Then((list, writer) => {
+          Assert.Equal(expected: 3, list.Count);
+          isExpectedHandlerUsed = true;
+        });
+    Assert.True(isExpectedHandlerUsed, "Expected handler must have been called.");
+  }
 }

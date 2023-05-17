@@ -70,7 +70,7 @@ namespace Parser
     public void WriteFragmentLine(string fragment)
       => _BasePipe.WriteFragmentLine(fragment);
 
-    public int GetCheckPoint() => _TokenHistory.Count;
+    public int GetCheckPoint() => ReadIndex;
 
     public void ReturnToCheckPoint(int checkPoint)
     {

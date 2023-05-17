@@ -64,6 +64,8 @@ namespace Parser
       if (hasToken)
       {
         var matching = nextRule.Invoke(token);
+        _MatchHistory.AddLast(matching);
+        
         if (matching.IsMatch)
         {
           if (! matching.MatcherName.HasValue)
@@ -71,7 +73,6 @@ namespace Parser
             matching.MatcherName = nextRule.Method.Name.Some();
           }
           _CountMatched++;
-          _MatchHistory.AddLast(matching);
         }
       }
       return this;
@@ -116,7 +117,7 @@ namespace Parser
     private void ResetMatchHistory()
     {
       _MatchHistory.Clear();
-        // _MatchHistory = new LinkedList<Matching>();
+      _CountMatched = 0;
     }
   }
 

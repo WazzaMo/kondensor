@@ -18,13 +18,28 @@ namespace test.Parser;
 
 public class ShortLongParsing
 {
-  private HtmlPipe _Html;
-  private ReplayWrapPipe _Pipe;
 
   public ShortLongParsing()
+  {}
+
+  [Fact]
+  public void SimpleMatcher_givesDetailedResult_onMismatch()
   {
-    _Html = new HtmlPipe(PipeValues.HTML, Console.Out);
-    _Pipe = new ReplayWrapPipe(_Html);
+    Matcher subject = Utils.SingularMatchRule(HtmlTablePatterns.TR, name:"tr");
+    Matching result = subject.Invoke("something-else");
+
+    Assert.Equal(MatchKind.Mismatch, result.MatchResult);
+    result.MatcherName.MatchSome( name => Assert.Equal(expected: "tr", name) );
+  }
+
+  [Fact]
+  public void SimpleMatcher_givesDetailedResult_onMatch()
+  {
+    Matcher subject = Utils.SingularMatchRule(HtmlTablePatterns.TR, name:"tr");
+    Matching result = subject.Invoke("<tr>");
+
+    Assert.Equal(MatchKind.SingularMatch, result.MatchResult);
+    result.MatcherName.MatchSome( name => Assert.Equal(expected: "tr", name) );
   }
 
   [Fact]

@@ -55,7 +55,7 @@ namespace Parser
     /// <param name="rule">Regex rule based on simple pattern.</param>
     /// <param name="name">Name of matcher to create.</param>
     /// <returns>Viable matcher to use in parsing.</returns>
-    public static Matcher MatchRule(Regex rule, string name)
+    public static Matcher SingularMatchRule(Regex rule, string name)
     {
       Matcher matcher = (string token) => {
         Matching result = Utils.NoMatch();
@@ -67,6 +67,13 @@ namespace Parser
             MatcherName = Option.Some(name),
             MatchResult = MatchKind.SingularMatch,
             Parts = Utils.GetParts(match)
+          };
+        }
+        else
+        {
+          result = new Matching() {
+            MatchResult = MatchKind.Mismatch,
+            MatcherName = name.Some()
           };
         }
         return result;
