@@ -76,6 +76,28 @@ public class TestHtmlPatterns
   }
 
   [Fact]
+  public void TH_matchWithDescription()
+  {
+    const string
+      html = "<th>Resource types (*required)",
+      desc = "Resource types (*required)";
+    
+    Match match = HtmlPatterns.TH_VALUE.Match(html);
+    Assert.Equal(html.Length, match.Length);
+    Assert.Equal(html, match.Groups[0].Value);
+    Assert.Equal(desc, match.Groups[1].Value);
+  }
+
+  [Fact]
+  public void END_TH_match()
+  {
+    const string html = "</th>";
+    Match match = HtmlPatterns.END_TH.Match(html);
+    Assert.Equal(html.Length, match.Length);
+    Assert.Equal(html, match.Value);
+  }
+
+  [Fact]
   public void TD_match()
   {
     Match match;

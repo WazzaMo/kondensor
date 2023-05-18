@@ -17,6 +17,8 @@ public static class HtmlPatterns
     END_TABLE = new Regex(pattern: @"\<\/table\>"),
     THEAD = new Regex(pattern: @"\<thead\>"),
     END_THEAD = new Regex(pattern: @"\<\/thead\>"),
+    TH_VALUE = new Regex(pattern: @"\<th\>([\w\s\(\*\)]+)"),
+    END_TH = new Regex(pattern: @"\<\/th\>"),
     TD = new Regex(pattern: @"\<td\>"),
     TD_ATTRIB_VALUE = new Regex(pattern: @"\<td\s?(\w+)=?\""(\d+)\""?\>([\w\s\(\*\)]*)"),
     END_TD = new Regex(pattern: @"\<\/td\>"),
