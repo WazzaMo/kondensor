@@ -26,7 +26,7 @@ public static class HtmlPatterns
     TR_ATTRIB = new Regex(pattern: @"\<tr\s?(\w+)=?\""(\d+)\""?\>"),
     END_TR = new Regex(pattern: @"\<\/tr\>"),
     A_ID = new Regex(pattern: @"\<a id=\""([\-\w\s]+)\""\>$"),
-    A_HREF = new Regex(pattern: @"\<a\shref=""([*:-_./*\w\s\./\-^\""]+).\>([\-\w\s]*)$"),
+    A_HREF = new Regex(pattern: @"\<a href=""([*:\-_./#*\w\s]+)""\>(.*)"),
     END_A = new Regex(pattern: @"\<\/a\>"),
     PARA = new Regex(pattern: @"\<p\>"),
     END_PARA = new Regex(pattern: @"\<\/p\>")

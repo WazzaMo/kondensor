@@ -190,7 +190,12 @@ public class TestHtmlPatterns
     const string
       htmlDesc = "<a href=\"https://docsResourceTypeDefinitionId.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html\">DeleteAlternateContact",
       desc = "DeleteAlternateContact",
-      href = "https://docsResourceTypeDefinitionId.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html";
+      href = "https://docsResourceTypeDefinitionId.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html",
+      
+      htmlDesc2 = "<a href=\"https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys\">account:AccountResourceOrgTags/${TagKey}",
+      href2 = "https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys",
+      desc2 = "account:AccountResourceOrgTags/${TagKey}";
+
     Match match;
 
     match = HtmlPatterns.A_HREF.Match(htmlDesc);
@@ -198,6 +203,11 @@ public class TestHtmlPatterns
     Assert.Equal(htmlDesc, match.Groups[0].Value);
     Assert.Equal(href, match.Groups[1].Value);
     Assert.Equal(desc, match.Groups[2].Value);
+
+    match = HtmlPatterns.A_HREF.Match(htmlDesc2);
+    Assert.Equal(htmlDesc2.Length, match.Length);
+    Assert.Equal(href2, match.Groups[1].Value);
+    Assert.Equal(desc2, match.Groups[2].Value);
   }
 
   [Fact]
