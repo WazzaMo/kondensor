@@ -25,7 +25,7 @@ public class ShortLongParsing
   [Fact]
   public void SimpleMatcher_givesDetailedResult_onMismatch()
   {
-    Matcher subject = Utils.SingularMatchRule(HtmlTablePatterns.TR, name:"tr");
+    Matcher subject = Utils.SingularMatchRule(HtmlPatterns.TR, name:"tr");
     Matching result = subject.Invoke("something-else");
 
     Assert.Equal(MatchKind.Mismatch, result.MatchResult);
@@ -35,7 +35,7 @@ public class ShortLongParsing
   [Fact]
   public void SimpleMatcher_givesDetailedResult_onMatch()
   {
-    Matcher subject = Utils.SingularMatchRule(HtmlTablePatterns.TR, name:"tr");
+    Matcher subject = Utils.SingularMatchRule(HtmlPatterns.TR, name:"tr");
     Matching result = subject.Invoke("<tr>");
 
     Assert.Equal(MatchKind.SingularMatch, result.MatchResult);
@@ -47,8 +47,8 @@ public class ShortLongParsing
   {
     Matching result;
     Regex
-      trRule = HtmlTablePatterns.TR,
-      trAttribsRule = HtmlTablePatterns.TR_ATTRIB;
+      trRule = HtmlPatterns.TR,
+      trAttribsRule = HtmlPatterns.TR_ATTRIB;
 
     Matcher tr = Utils.ShortLongMatchRules(trRule, trAttribsRule, name: "tr");
 
@@ -76,8 +76,8 @@ public class ShortLongParsing
   {
     Matching result;
     Regex
-      tdRule = HtmlTablePatterns.TD,
-      tdAttribsRule = HtmlTablePatterns.TD_ATTRIB;
+      tdRule = HtmlPatterns.TD,
+      tdAttribsRule = HtmlPatterns.TD_ATTRIB_VALUE;
 
     Matcher tr = Utils.ShortLongMatchRules(tdRule, tdAttribsRule, name: "td");
 

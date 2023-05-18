@@ -102,13 +102,13 @@ public class ParsingTest
     bool isExpectedHandlerUsed = false;
 
     Matcher
-      _table = Utils.SingularMatchRule(HtmlTablePatterns.TABLE, name: "table"),
-      _endTable = Utils.SingularMatchRule(HtmlTablePatterns.END_TABLE, name: "end-table"),
-      _tr = Utils.SingularMatchRule(HtmlTablePatterns.TR, "tr-only"),
-      _trAll = Utils.ShortLongMatchRules(HtmlTablePatterns.TR, HtmlTablePatterns.TR_ATTRIB, "tr-all"),
-      _endtr = Utils.SingularMatchRule(HtmlTablePatterns.END_TR, name: "end-tr"),
-      _thead = Utils.SingularMatchRule(HtmlTablePatterns.THEAD, "thead"),
-      _endThead = Utils.SingularMatchRule(HtmlTablePatterns.END_THEAD, "end-thead");
+      _table = Utils.SingularMatchRule(HtmlPatterns.TABLE, name: "table"),
+      _endTable = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end-table"),
+      _tr = Utils.SingularMatchRule(HtmlPatterns.TR, "tr-only"),
+      _trAll = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, "tr-all"),
+      _endtr = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end-tr"),
+      _thead = Utils.SingularMatchRule(HtmlPatterns.THEAD, "thead"),
+      _endThead = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, "end-thead");
     
     Parsing.Group(_Pipe)
       .SkipUntil(_table)
