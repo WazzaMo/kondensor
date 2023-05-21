@@ -18,7 +18,7 @@ namespace Parser
     public static Matching NoMatch()
       => new Matching() {
         MatchResult = MatchKind.NoMatchAttempted,
-        MatcherName = Option.None<string>(),
+        MatcherName = Matching.UNDEFINED_NAME,
         Parts = Option.None<LinkedList<string>>()
       };
     
@@ -64,7 +64,7 @@ namespace Parser
         if (match != null && match.Length > 0)
         {
           result = new Matching() {
-            MatcherName = Option.Some(name),
+            MatcherName = name,
             MatchResult = MatchKind.SingularMatch,
             Parts = Utils.GetParts(match)
           };
@@ -73,7 +73,7 @@ namespace Parser
         {
           result = new Matching() {
             MatchResult = MatchKind.Mismatch,
-            MatcherName = name.Some()
+            MatcherName = name
           };
         }
         return result;
@@ -98,7 +98,7 @@ namespace Parser
         if (match.Length > 0)
         {
           result = new Matching() {
-            MatcherName = Option.Some(name),
+            MatcherName = name,
             MatchResult = MatchKind.ShortMatch
           };
         }
@@ -107,7 +107,7 @@ namespace Parser
           if (match.Length > 0)
           {
             result = new Matching() {
-              MatcherName = Option.Some(name),
+              MatcherName = name,
               MatchResult = MatchKind.LongMatch,
               Parts = GetParts(match)
             };

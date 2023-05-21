@@ -31,7 +31,7 @@ using Optional;
         name = Utils.GetMatcherName(matcher);
         result = matcher.Invoke(token);
         isMatch = result.IsMatch;
-        result.MatcherName = Option.Some(name);
+        result.MatcherName = name;
       }
       return result;
     }

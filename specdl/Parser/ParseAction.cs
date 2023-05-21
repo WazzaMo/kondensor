@@ -68,9 +68,9 @@ namespace Parser
         
         if (matching.IsMatch)
         {
-          if (! matching.MatcherName.HasValue)
+          if (! matching.HasName)
           {
-            matching.MatcherName = nextRule.Method.Name.Some();
+            matching.MatcherName = nextRule.Method.Name;
           }
           _CountMatched++;
         }

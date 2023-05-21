@@ -80,7 +80,7 @@ public class TestProduction
         isMatched = true;
         found =
           from element in list
-          where element.MatcherName.ValueOr("UNKNOWN") == "th"
+          where element.MatcherName == "th"
             && element.Parts.Exists(l => l.Count == 1)
           select element;
         for(int index = 0; index < found.Count(); index++)

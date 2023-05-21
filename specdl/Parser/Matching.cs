@@ -15,17 +15,22 @@ namespace Parser;
 /// </summary>
 public struct Matching 
 {
+  public const string UNDEFINED_NAME = "UNDEFINED_MATCHER_NAME";
+
   public bool IsMatch
     => MatchResult != MatchKind.NoMatchAttempted && MatchResult != MatchKind.Mismatch;
+  
+  public bool HasName
+    => MatcherName != Matching.UNDEFINED_NAME;
 
   public MatchKind MatchResult;
   public Option<LinkedList<string>> Parts;
-  public Option<string> MatcherName;
+  public string MatcherName;
 
   public Matching()
   {
     MatchResult = MatchKind.NoMatchAttempted;
     Parts = Option.None<LinkedList<string>>();
-    MatcherName = Option.None<string>();
+    MatcherName = UNDEFINED_NAME;
   }
 }

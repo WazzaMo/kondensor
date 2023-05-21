@@ -36,7 +36,7 @@ public class ParsingTest
     if (match != null && match.Length > 0)
     {
       result = new Matching() {
-        MatcherName = nameof(_Table).Some(),
+        MatcherName = nameof(_Table),
         MatchResult = MatchKind.SingularMatch,
         Parts = Utils.GetParts(match)
       };
@@ -90,7 +90,7 @@ public class ParsingTest
         {
           Matching matching = list.First.Value;
           Assert.True(matching.IsMatch);
-          matching.MatcherName.MatchSome( nm => Assert.Equal("Table", nm) );
+          Assert.Equal("Table", matching.MatcherName);
         }
       });
   }

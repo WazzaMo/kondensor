@@ -29,7 +29,7 @@ public class ShortLongParsing
     Matching result = subject.Invoke("something-else");
 
     Assert.Equal(MatchKind.Mismatch, result.MatchResult);
-    result.MatcherName.MatchSome( name => Assert.Equal(expected: "tr", name) );
+    Assert.Equal(expected: "tr", result.MatcherName);
   }
 
   [Fact]
@@ -39,7 +39,7 @@ public class ShortLongParsing
     Matching result = subject.Invoke("<tr>");
 
     Assert.Equal(MatchKind.SingularMatch, result.MatchResult);
-    result.MatcherName.MatchSome( name => Assert.Equal(expected: "tr", name) );
+    Assert.Equal(expected: "tr", result.MatcherName );
   }
 
   [Fact]
@@ -86,13 +86,13 @@ public class ShortLongParsing
     Assert.True(result.IsMatch);
     Assert.Equal(MatchKind.ShortMatch, result.MatchResult);
     Assert.False(result.Parts.HasValue);
-    Assert.True(result.MatcherName.HasValue);
-    result.MatcherName.MatchSome(name => Assert.Equal(expected:"td", name));
+    Assert.True(result.HasName);
+    Assert.Equal(expected:"td", result.MatcherName);
 
     result = tr.Invoke(token: "<td rowspan=\"99\">");
     Assert.True(result.IsMatch);
-    Assert.True(result.MatcherName.HasValue);
-    result.MatcherName.MatchSome(name => Assert.Equal(expected:"td", name));
+    Assert.True(result.HasName);
+    Assert.Equal(expected:"td", result.MatcherName);
     Assert.Equal(MatchKind.LongMatch, result.MatchResult);
     Assert.True(result.Parts.HasValue);
     result.Parts.MatchSome( list => {
