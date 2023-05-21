@@ -28,6 +28,7 @@ public class ParsingTest
     __EndTRow = new Regex(pattern: @"\<\/tr\>"),
     __TdNoAttribPattern = new Regex(pattern: @"\<td\>([\w\s\(\*\)]*)"),
     __TdRowspanPattern = new Regex(pattern: @"\<td\>([\w\s\(\*\)]+)");
+  
   private static Matching _Table(string token)
   {
     Matching result = Utils.NoMatch();
@@ -101,7 +102,7 @@ public class ParsingTest
     bool isExpectedHandlerUsed = false;
 
     Matcher
-      _table = Utils.SingularMatchRule(HtmlPatterns.TABLE, name: "table"),
+      _table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, name: "table"),
       _endTable = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end-table"),
       _tr = Utils.SingularMatchRule(HtmlPatterns.TR, "tr-only"),
       _trAll = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, "tr-all"),

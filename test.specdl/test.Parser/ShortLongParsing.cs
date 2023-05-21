@@ -16,10 +16,10 @@ using System.Text.RegularExpressions;
 
 namespace test.Parser;
 
-public class ShortLongParsing
+public class TestShortLongParsing
 {
 
-  public ShortLongParsing()
+  public TestShortLongParsing()
   {}
 
   [Fact]
@@ -103,4 +103,76 @@ public class ShortLongParsing
       Assert.Equal(expected: "99", itr.Current);
     });
   }
+
+  [Fact]
+  public void Annotation_appearsInSingularMatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher table = Utils.SingularMatchRule(HtmlPatterns.TABLE, "table", annotation: EXPECTED_ANNOTATION);
+
+    result = table.Invoke("<table>");
+    Assert.True(result.IsMatch);
+    Assert.Equal(MatchKind.SingularMatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
+
+  [Fact]
+  public void Annotation_appearsInSingularMisMatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher tr = Utils.SingularMatchRule(HtmlPatterns.TR, "tr", annotation: EXPECTED_ANNOTATION);
+
+    result = tr.Invoke(token: "rodent");
+    Assert.False(result.IsMatch);
+    Assert.Equal(MatchKind.Mismatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: "tr", result.MatcherName);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
+
+  [Fact]
+  public void Annotation_appearsInShortMatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, "table", annotation: EXPECTED_ANNOTATION);
+
+    result = table.Invoke("<table>");
+    Assert.True(result.IsMatch);
+    Assert.Equal(MatchKind.ShortMatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
+
+  [Fact]
+  public void Annotation_appearsInShortMatch_mismatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, "table", annotation: EXPECTED_ANNOTATION);
+
+    result = table.Invoke(token: "no matching");
+    Assert.False(result.IsMatch);
+    Assert.Equal(MatchKind.Mismatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
+
+  [Fact]
+  public void Annotation_appearsInLongMatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, "table", annotation: EXPECTED_ANNOTATION);
+
+    result = table.Invoke("<table id=\"floppybunny\">");
+    Assert.True(result.IsMatch);
+    Assert.Equal(MatchKind.LongMatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
+
 }

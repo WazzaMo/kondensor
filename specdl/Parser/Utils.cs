@@ -54,8 +54,9 @@ namespace Parser
     /// </summary>
     /// <param name="rule">Regex rule based on simple pattern.</param>
     /// <param name="name">Name of matcher to create.</param>
+    /// <param name="annotation">Optional annotation string for results searching</param>
     /// <returns>Viable matcher to use in parsing.</returns>
-    public static Matcher SingularMatchRule(Regex rule, string name)
+    public static Matcher SingularMatchRule(Regex rule, string name, string? annotation = null)
     {
       Matcher matcher = (string token) => {
         Matching result = Utils.NoMatch();
@@ -76,6 +77,10 @@ namespace Parser
             MatcherName = name
           };
         }
+        if (annotation != null)
+        {
+          result.Annotation = annotation;
+        }
         return result;
       };
       return matcher;
@@ -87,8 +92,9 @@ namespace Parser
     /// <param name="shortRule">Basic regex rule for tag</param>
     /// <param name="longRule">Complex rule that gets attributes and other parts</param>
     /// <param name="name">Name of mather to create.</param>
+    /// <param name="annotation">Optional annotation string for results searching</param>
     /// <returns>Matcher that can handle simple and complex tags with parts</returns>
-    public static Matcher ShortLongMatchRules(Regex shortRule, Regex longRule, string name)
+    public static Matcher ShortLongMatchRules(Regex shortRule, Regex longRule, string name, string? annotation = null)
     {
       Matcher matcher = (string token) => {
         Matching result = Utils.NoMatch();
@@ -112,6 +118,17 @@ namespace Parser
               Parts = GetParts(match)
             };
           }
+          else
+          {
+            result = new Matching() {
+              MatcherName = name,
+              MatchResult = MatchKind.Mismatch
+            };
+          }
+        }
+        if (annotation != null)
+        {
+          result.Annotation = annotation;
         }
         return result;
       };

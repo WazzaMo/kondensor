@@ -12,7 +12,7 @@ namespace HtmlParse;
 public static class HtmlPatterns
 {
   public static readonly Regex
-    TABLE = new Regex(pattern: @"\<table.*\>"),
+    TABLE = new Regex(pattern: @"\<table\>"),
     TABLE_ATTRIB = new Regex(pattern: @"\<table (\w+)=\W(\w+)\W\>"),
     END_TABLE = new Regex(pattern: @"\<\/table\>"),
     THEAD = new Regex(pattern: @"\<thead\>"),
