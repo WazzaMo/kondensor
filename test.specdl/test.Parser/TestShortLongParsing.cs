@@ -88,12 +88,14 @@ public class TestShortLongParsing
     Assert.False(result.Parts.HasValue);
     Assert.True(result.HasName);
     Assert.Equal(expected:"td", result.MatcherName);
+    Assert.False(result.HasAnnotation); // no annotation set
 
     result = tr.Invoke(token: "<td rowspan=\"99\">");
     Assert.True(result.IsMatch);
     Assert.True(result.HasName);
     Assert.Equal(expected:"td", result.MatcherName);
     Assert.Equal(MatchKind.LongMatch, result.MatchResult);
+    Assert.False(result.HasAnnotation); // no annotation set
     Assert.True(result.Parts.HasValue);
     result.Parts.MatchSome( list => {
       var itr = list.GetEnumerator();
@@ -175,4 +177,17 @@ public class TestShortLongParsing
     Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
   }
 
+  [Fact]
+  public void Annotation_appearsInLongMatch_mismatch()
+  {
+    const string EXPECTED_ANNOTATION = "__test";
+    Matching result;
+    Matcher table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, "table", annotation: EXPECTED_ANNOTATION);
+
+    result = table.Invoke(token: "bad token");
+    Assert.False(result.IsMatch);
+    Assert.Equal(MatchKind.Mismatch, result.MatchResult);
+    Assert.True(result.HasAnnotation);
+    Assert.Equal(expected: EXPECTED_ANNOTATION, result.Annotation);
+  }
 }
