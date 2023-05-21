@@ -29,7 +29,6 @@ public class TestHtmlPatterns
     const string html = "<table id=\"w43aab5b9c19c11c11\">", attrib = "id";
     Match match = HtmlPatterns.TABLE_ATTRIB.Match(html);
 
-    Console.WriteLine($"Text: '{html}'");
     Assert.True(match.Length > 0);
     Assert.Equal(expected: 3, match.Groups.Count);
     Assert.Equal(html, match.Groups[0].Value);

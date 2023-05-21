@@ -78,6 +78,9 @@ namespace Parser
       return this;
     }
 
+    public ParseAction Expect(Production production)
+      => production(this);
+
     /// <summary>
     /// All expects were matched and need processing, advancing the rollback point.
     /// </summary>

@@ -63,7 +63,6 @@ public class ParsingTest
         if (m != null)
         {
           Matching mm = m.Value;
-          writer.WriteFragmentLine($"Matched by: {mm.MatcherName}, ");
           mm.Parts.MatchSome( list => {
             var i = list.First;
             for(int index = 0; i != null && index < list.Count; index++)
