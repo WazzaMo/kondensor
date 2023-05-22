@@ -58,13 +58,12 @@ namespace Parser
       return this;
     }
 
-    public ParseAction Expect(Matcher nextRule)
+    public ParseAction Expect(Matcher nextRule, string? annotation = null)
     {
       bool hasToken = _Pipe.ReadToken(out string token);
       if (hasToken)
       {
         var matching = nextRule.Invoke(token);
-        _MatchHistory.AddLast(matching);
         
         if (matching.IsMatch)
         {
@@ -72,8 +71,14 @@ namespace Parser
           {
             matching.MatcherName = nextRule.Method.Name;
           }
+          if (annotation != null)
+          {
+            matching.Annotation = annotation;
+          }
           _CountMatched++;
         }
+        // Capture match history with modifications to the matching
+        _MatchHistory.AddLast(matching);
       }
       return this;
     }

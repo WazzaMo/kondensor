@@ -11,12 +11,13 @@ using Optional;
 using Xunit;
 
 using System;
-
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace test.Parser;
 
-public class ParsingTest
+public class TestParsing
 {
   private HtmlPipe _HtmlPipe;
   private ReplayWrapPipe _Pipe;
@@ -45,7 +46,7 @@ public class ParsingTest
     return result;
   }
 
-  public ParsingTest()
+  public TestParsing()
   {
     _HtmlPipe = new HtmlPipe(PipeValues.HTML, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
@@ -127,5 +128,42 @@ public class ParsingTest
           isExpectedHandlerUsed = true;
         });
     Assert.True(isExpectedHandlerUsed, "Expected handler must have been called.");
+  }
+
+  readonly Matcher
+    TABLE = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB,name: "table"),
+    END_TABLE = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table"),
+    TR = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "tr"),
+    END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
+    TH = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th"),
+    END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th");
+
+  [Fact]
+  public void ParseAction_SkipUntil_canBeCalledManyTimesToSkipAhead()
+  {
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE);
+    
+    var parser2 = parser.Expect(TABLE, annotation: "p2:table");
+
+    var parser3 = parser2
+      .SkipUntil(TR)
+      .Expect(TR, annotation: "p3:tr");
+    
+    parser3.Then( (list, writer) => {
+      var annotated =
+        from node in list
+        where node.HasAnnotation
+        select node;
+      for(int index = 0; index < annotated.Count(); index++)
+      {
+        Annotations.Add(annotated.ElementAt(index).Annotation);
+      }
+    });
+
+    Assert.True(Annotations.Count > 0);
+    Assert.Equal(expected: "p2:table", Annotations[0]);
+    Assert.Equal(expected: "p3:tr", Annotations[1]);
   }
 }
