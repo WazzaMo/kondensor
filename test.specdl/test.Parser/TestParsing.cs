@@ -166,4 +166,37 @@ public class TestParsing
     Assert.Equal(expected: "p2:table", Annotations[0]);
     Assert.Equal(expected: "p3:tr", Annotations[1]);
   }
+
+  [Fact]
+  public void ParseAction_SkipUntil_scansAllThreeTablesAndAnotherSkipRunsToEnd()
+  {
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .Expect(TABLE, annotation:"table:1")
+      .SkipUntil(TABLE);
+
+      Assert.False(_Pipe.IsInFlowEnded);
+      parser.Expect(TABLE, annotation:"table:2")
+      .SkipUntil(TABLE)
+      .Expect(TABLE, annotation: "table:3")
+      .SkipUntil(TABLE)
+      .Then((list,writer)=>{
+        var found =
+          from node in list
+          where node.HasAnnotation
+          select node;
+        for(int index = 0; index < found.Count(); index++)
+        {
+          Annotations.Add(found.ElementAt(index).Annotation);
+        }
+      });
+    Assert.True(_Pipe.IsInFlowEnded);
+    Assert.Equal(expected: 3, Annotations.Count);
+    Assert.Collection(Annotations,
+      t1 => Assert.Equal(expected:"table:1", t1),
+      t2 => Assert.Equal(expected:"table:2", t2),
+      t3 => Assert.Equal(expected:"table:3", t3)
+    );
+  }
 }

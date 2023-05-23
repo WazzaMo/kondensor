@@ -50,7 +50,10 @@ namespace Parser
       bool isOk;
       if (_InputQueue.Count == 0)
       {
-        isOk = GetTokenFromInput(out token);
+        do
+        {
+          isOk = GetTokenFromInput(out token);
+        } while( isOk && ! _EofInput && token.Length == 0);
       }
       else 
       {

@@ -11,6 +11,8 @@ namespace test;
 
 public static class PipeValues
 {
+    /// <summary>Subset of HTML</summary>
+    /// 
     public static StringReader HTML => new StringReader(
 @"<html xmlns=""http://www.w3.org/1999/xhtml"" lang=""en-US""><head>
         <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />
@@ -415,6 +417,74 @@ public static class PipeValues
                         </td>
                         <td></td>
                         <td></td>
+                    </tr>
+                </table></div></div>
+                <div class=""table-container""><div class=""table-contents disable-scroll""><table id=""w43aab5b9c19c13b5""><thead>
+                    <tr>
+                        <th>Resource types</th>
+                        <th>ARN</th>
+                        <th>Condition keys</th>
+                    </tr>
+                </thead>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-account""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-resources"">account</a>
+                        </td>
+                        <td>
+                            <code class=""code"">arn:$<span>{</span>Partition}:account::$<span>{</span>Account}:account</code>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-accountInOrganization""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-resources"">accountInOrganization</a>
+                        </td>
+                        <td>
+                            <code class=""code"">arn:$<span>{</span>Partition}:account::$<span>{</span>ManagementAccountId}:account/o-$<span>{</span>OrganizationId}/$<span>{</span>MemberAccountId}</code>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table></div></div>
+                <div class=""table-container""><div class=""table-contents disable-scroll""><table id=""w43aab5b9c19c15b7""><thead>
+                    <tr>
+                        <th>Condition keys</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-account_AccountResourceOrgPaths""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys"">account:AccountResourceOrgPaths</a>
+                        </td>
+                        <td>Filters access by the resource path for an account in an organization</td>
+                        <td>ArrayOfString</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-account_AccountResourceOrgTags___TagKey_""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys"">account:AccountResourceOrgTags/${TagKey}</a>
+                        </td>
+                        <td>Filters access by resource tags for an account in an organization</td>
+                        <td>ArrayOfString</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-account_AlternateContactTypes""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys"">account:AlternateContactTypes</a>
+                        </td>
+                        <td>Filters access by alternate contact types</td>
+                        <td>ArrayOfString</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a id=""awsaccountmanagement-account_TargetRegion""></a>
+                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_iam_service-with-iam.html#security_iam_service-with-iam-id-based-policies-conditionkeys"">account:TargetRegion</a>
+                        </td>
+                        <td>Filters access by a list of Regions. Enables or disables all the Regions specified here</td>
+                        <td>String</td>
                     </tr>
                 </table></div></div>
      

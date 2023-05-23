@@ -169,18 +169,24 @@ public class TestProduction
     Assert.Equal(expected: 2, headings.Count);
   }
 
-  // [Fact]
+  [Fact]
   public void ResourceProduction_matchHeadingsWithAnnotation()
   {
     bool isMatched = false;
     List<string> headings = new List<string>();
 
-    Parsing.Group(_Pipe)
+    var parser = Parsing.Group(_Pipe)
       .SkipUntil(_Table) // actions table
       .SkipUntil(_endTable) // end actions table
       .SkipUntil(_Table) // resource table
+      ;
+
+    Assert.False(_Pipe.IsInFlowEnded);
+
+    parser
       .Expect(_Table)
         .Expect(_ResourceTable)
+        .SkipUntil(_endTable)
       .Expect(_endTable)
       .Then( (list, writer) => {
         isMatched = true;
@@ -195,5 +201,10 @@ public class TestProduction
       });
     Assert.True(isMatched);
     Assert.Equal(expected: 3, headings.Count);
+    Assert.Collection(headings,
+      h1 => Assert.Equal(expected: "Resource types", h1),
+      h2 => Assert.Equal(expected: "ARN", h2),
+      h3 => Assert.Equal(expected:"Condition keys",h3)
+    );
   }
 }
