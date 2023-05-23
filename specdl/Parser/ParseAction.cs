@@ -83,6 +83,56 @@ namespace Parser
       return this;
     }
 
+    public ParseAction ExpectProductionUntil(Production production, Matcher endRule, string? endAnnodation = null)
+    {
+      bool isAllMatched = _CountMatched == _MatchHistory.Count;
+      bool isProdMatch, isEndMatch;
+      do {
+        CheckEndRuleAndProduction(production, endRule, endAnnodation, out isAllMatched, out isProdMatch, out isEndMatch);
+      } while (isAllMatched && isProdMatch && ! isEndMatch);
+      return this;
+    }
+
+    private void CheckEndRuleAndProduction(
+      Production production,
+      Matcher endRule,
+      string? annotation,
+      out bool isAllMatched,
+      out bool isProdMatch,
+      out bool isEndMatch)
+    {
+      int checkpoint = _Pipe.GetCheckPoint();
+      bool hasToken = _Pipe.ReadToken(out string token);
+      if (hasToken)
+      {
+        var matching = endRule.Invoke(token);
+        if (matching.IsMatch)
+        {
+          if (annotation != null)
+          {
+            matching.Annotation = annotation;
+          }
+          isEndMatch = true;
+          isProdMatch = false;
+          _CountMatched++;
+          _MatchHistory.AddLast(matching);
+        }
+        else
+        {
+          _Pipe.ReturnToCheckPoint(checkpoint);
+          Expect(production);
+          isProdMatch = _CountMatched == _MatchHistory.Count;
+          isEndMatch = false;
+        }
+      }
+      else
+      {
+        isProdMatch = false;
+        isEndMatch = false;
+      }
+      isAllMatched = _CountMatched == _MatchHistory.Count;
+    }
+
     public ParseAction Expect(Production production)
       => production(this);
 

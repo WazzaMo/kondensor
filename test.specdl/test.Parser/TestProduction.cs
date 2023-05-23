@@ -24,10 +24,15 @@ public class TestProduction
   private Production _ActionTable;
   private Production _ResourceTable;
   private Production _ConditionKeyTable;
+  private Production _ActionData;
+
   private Matcher _Table, _endTable, 
     _Thead, _endThead,
     _Tr, _endTr,
-    _Th, _endTh;
+    _Th, _endTh,
+    _Td, _endTd,
+    _A_id, _A_href, _endA,
+    _P, _endP;
 
   const string
     ANO_ACT_ACTIONS = "action",
@@ -55,9 +60,17 @@ public class TestProduction
     _endTr = Utils.SingularMatchRule(HtmlPatterns.END_TR, "end:tr");
     _Th = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th");
     _endTh = Utils.SingularMatchRule(HtmlPatterns.END_TH, "end:th");
+    _Td = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "td");
+    _endTd = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td");
+    _A_id = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "a:id");
+    _A_href = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "a:href");
+    _endA = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:a");
+    _P = Utils.SingularMatchRule(HtmlPatterns.PARA, name: "p");
+    _endP = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p");
     _ActionTable = ActionTable;
     _ResourceTable = ResourceTable;
     _ConditionKeyTable = ConditionKeyTable;
+    _ActionData = ActionData;
   }
 
   private ParseAction ActionTable(ParseAction parser)
@@ -80,6 +93,30 @@ public class TestProduction
         .Expect(_endTr)
       .Expect(_endThead);
   }
+
+// <tr>
+//     <td rowspan=""2"">
+//         <a id=""awsaccountmanagement-GetContactInformation""></a>
+//         <a href=""https://docs.aws.amazon.com/accounts/latest/reference/API_GetContactInformation.html"">GetContactInformation</a>
+//     </td>
+//     <td rowspan=""2"">Grants permission to retrieve the primary contact information for an account</td>
+//     <td rowspan=""2"">Read</td>
+//     <td>
+//         <p>
+//             <a href=""#awsaccountmanagement-account"">account</a>
+//         </p>
+//     </td>
+//     <td></td>
+//     <td></td>
+// </tr>
+  private ParseAction ActionData(ParseAction parser)
+    => parser
+        .Expect(_Tr)
+          .Expect(_Td)
+          .Expect(_endTd)
+          .Expect(_Td)
+          .Expect(_endTd)
+        .Expect(_endTr);
 
   private ParseAction ResourceTable(ParseAction parser)
   {
@@ -249,5 +286,7 @@ public class TestProduction
       h3 => Assert.Equal(expected: "Type",h3)
     );
   }
+
+  // ExpectProductionUntil
 
 }
