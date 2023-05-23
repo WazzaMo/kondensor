@@ -131,13 +131,14 @@ public class TestProduction
         }
       });
     Assert.True(isMatched);
-    Assert.Equal(6, headings.Count);
-    Assert.Equal("Actions", headings[0]);
-    Assert.Equal(expected: "Description", headings[1]);
-    Assert.Equal(expected: "Access level", headings[2]);
-    Assert.Equal(expected: "Resource types (*required)", headings[3]);
-    Assert.Equal(expected: "Condition keys", headings[4]);
-    Assert.Equal(expected: "Dependent actions", headings[5]);
+    Assert.Collection(headings,
+      h1 => Assert.Equal(expected: "Actions", h1),
+      h2 => Assert.Equal(expected: "Description", h2),
+      h3 => Assert.Equal(expected: "Access level", h3),
+      h4 => Assert.Equal(expected: "Resource types (*required)", h4),
+      h5 => Assert.Equal(expected: "Condition keys", h5),
+      h6 => Assert.Equal(expected: "Dependent actions", h6)
+    );
   }
 
   [Fact]
