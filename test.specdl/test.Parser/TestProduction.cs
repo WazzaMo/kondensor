@@ -208,4 +208,46 @@ public class TestProduction
       h3 => Assert.Equal(expected:"Condition keys",h3)
     );
   }
+
+    [Fact]
+  public void ConditionKeyProduction_matchHeadingsWithAnnotation()
+  {
+    bool isMatched = false;
+    List<string> headings = new List<string>();
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(_Table) // actions table
+      .SkipUntil(_endTable) // end actions table
+      .SkipUntil(_Table) // resource table
+      .SkipUntil(_endTable) // end resource table
+      .SkipUntil(_Table) // condition key table
+      ;
+
+    Assert.False(_Pipe.IsInFlowEnded);
+
+    parser
+      .Expect(_Table)
+        .Expect(_ConditionKeyTable)
+        .SkipUntil(_endTable)
+      .Expect(_endTable)
+      .Then( (list, writer) => {
+        isMatched = true;
+        var found =
+          from element in list
+          where element.HasAnnotation && element.Parts.Exists(p => p.Count == 1)
+          select element;
+        for(int index = 0; index < found.Count(); index++)
+        {
+          found.ElementAt(index).Parts.MatchSome( p => headings.Add(p.Aggregate( (a,b) => a + b)) );
+        }
+      });
+    Assert.True(isMatched);
+    Assert.Equal(expected: 3, headings.Count);
+    Assert.Collection(headings,
+      h1 => Assert.Equal(expected: "Condition keys", h1),
+      h2 => Assert.Equal(expected: "Description", h2),
+      h3 => Assert.Equal(expected: "Type",h3)
+    );
+  }
+
 }
