@@ -169,7 +169,7 @@ public class TestProduction
       .Expect(_ActionTable)
       .SkipUntil(_endTable)
       .Expect(_endTable)
-      .Then( (list, writer) =>{
+      .AllMatchThen( (list, writer) =>{
         isMatched = true;
         found =
           from element in list
@@ -205,7 +205,7 @@ public class TestProduction
       .Expect(_ActionTable)
       .SkipUntil(_endTable)
       .Expect(_endTable)
-      .Then( (list, writer) =>{
+      .AllMatchThen( (list, writer) =>{
         isMatched = true;
         found =
           from element in list
@@ -240,7 +240,7 @@ public class TestProduction
         .Expect(_ResourceTable)
         .SkipUntil(_endTable)
       .Expect(_endTable)
-      .Then( (list, writer) => {
+      .AllMatchThen( (list, writer) => {
         isMatched = true;
         var found =
           from element in list
@@ -281,7 +281,7 @@ public class TestProduction
         .Expect(_ConditionKeyTable)
         .SkipUntil(_endTable)
       .Expect(_endTable)
-      .Then( (list, writer) => {
+      .AllMatchThen( (list, writer) => {
         isMatched = true;
         var found =
           from element in list
@@ -313,7 +313,7 @@ public class TestProduction
       .Expect(_Table, annotation: "action:table-start")
       .Expect(_ActionTable)
       .ExpectProductionUntil(_ActionData, _endTable, endAnnodation: "end:actionTable")
-      .Then( (list, writer) => {
+      .AllMatchThen( (list, writer) => {
         var nodes =
           from matchNode in list
           where matchNode.HasAnnotation && matchNode.Annotation.StartsWith(value:"td:")

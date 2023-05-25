@@ -109,7 +109,7 @@ public struct ParseAction
   /// </summary>
   /// <param name="handler">Handler to be called if all expects matched</param>
   /// <returns>Same fluid object.</returns>
-  public ParseAction Then(Action<LinkedList<Matching>, IPipeWriter> handler )
+  public ParseAction AllMatchThen(Action<LinkedList<Matching>, IPipeWriter> handler )
   {
     if (_CountMatched == _MatchHistory.Count)
     {
@@ -122,11 +122,29 @@ public struct ParseAction
   }
 
   /// <summary>
+  /// Expect the same production to parse and match N times over.
+  /// </summary>
+  /// <param name="numExpected">Number of matches expected</param>
+  /// <param name="production">Production that should match</param>
+  /// <returns>parser for fluid api</returns>
+  public ParseAction ExpectProductionNTimes(int numExpected, Production production)
+  {
+    int runCount;
+    bool isProductionMatch = true;
+
+    for(runCount = 0; isProductionMatch && runCount < numExpected; runCount++)
+    {
+      CheckProduction(production, out isProductionMatch);
+    }
+    return this;
+  }
+
+  /// <summary>
   /// Rollback to try a different set of expects and optionally report errors.
   /// </summary>
   /// <param name="errHandler">Optional error handler</param>
   /// <returns>Same fluid object</returns>
-  public ParseAction Else(Action<LinkedList<Matching>, IPipeWriter>? errHandler = null)
+  public ParseAction MismatchesThen(Action<LinkedList<Matching>, IPipeWriter>? errHandler = null)
   {
     if (_CountMatched < _MatchHistory.Count)
     {
@@ -161,7 +179,8 @@ public struct ParseAction
     string? annotation,
     out bool isAllMatched,
     out bool isProdMatch,
-    out bool isEndMatch)
+    out bool isEndMatch
+  )
   {
     int checkpoint = _Pipe.GetCheckPoint();
     bool hasToken = _Pipe.ReadToken(out string token);
@@ -194,4 +213,14 @@ public struct ParseAction
     }
     isAllMatched = _CountMatched == _MatchHistory.Count;
   }
+
+  private void CheckProduction(
+    Production production,
+    out bool isProdMatch
+  )
+  {
+    Expect(production);
+    isProdMatch = _CountMatched == _MatchHistory.Count;
+  }
+
 }

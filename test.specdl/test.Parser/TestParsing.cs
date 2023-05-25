@@ -58,7 +58,7 @@ public class TestParsing
     Parsing.Group(_Pipe)
       .SkipUntil(_Table)
       .Expect(_Table)
-      .Then((matchingList,writer) => {
+      .AllMatchThen((matchingList,writer) => {
         Assert.Single(matchingList);
 
         var m = matchingList.First;
@@ -86,7 +86,7 @@ public class TestParsing
     Parsing.Group(_Pipe)
       .SkipUntil(table)
       .Expect(table)
-      .Then((list, writer) => {
+      .AllMatchThen((list, writer) => {
         Assert.Single(list);
         if (list.First != null)
         {
@@ -115,15 +115,15 @@ public class TestParsing
       .SkipUntil(_table)
       .Expect(_table)
       .Expect(_tr)
-      .Then( (list, writer) => {
+      .AllMatchThen( (list, writer) => {
         Assert.True(false, userMessage: "No match - then block should be skipped");
       })
-      .Else()
+      .MismatchesThen()
         .SkipUntil(_table)
         .Expect(_table)
         .Expect(_thead)
         .Expect(_tr)
-        .Then((list, writer) => {
+        .AllMatchThen((list, writer) => {
           Assert.Equal(expected: 3, list.Count);
           isExpectedHandlerUsed = true;
         });
@@ -151,7 +151,7 @@ public class TestParsing
       .SkipUntil(TR)
       .Expect(TR, annotation: "p3:tr");
     
-    parser3.Then( (list, writer) => {
+    parser3.AllMatchThen( (list, writer) => {
       var annotated =
         from node in list
         where node.HasAnnotation
@@ -181,7 +181,7 @@ public class TestParsing
       .SkipUntil(TABLE)
       .Expect(TABLE, annotation: "table:3")
       .SkipUntil(TABLE)
-      .Then((list,writer)=>{
+      .AllMatchThen((list,writer)=>{
         var found =
           from node in list
           where node.HasAnnotation
@@ -228,7 +228,7 @@ public class TestParsing
         return pp;
       });
 
-    parser.Then( (list, writer) => {
+    parser.AllMatchThen( (list, writer) => {
       var annotations =
         from node in list
         where node.HasAnnotation
@@ -274,7 +274,7 @@ public class TestParsing
         ;
       });
 
-    parser.Then( (list, writer) => {
+    parser.AllMatchThen( (list, writer) => {
       var annotations =
         from node in list
         where node.HasAnnotation
@@ -289,6 +289,49 @@ public class TestParsing
       a3 => Assert.Equal(expected: "th:action:end", a3),
       a4 => Assert.Equal(expected: "th:description", a4),
       a5 => Assert.Equal(expected: "th:description:end", a5)
+    );
+  }
+
+    [Fact]
+  public void ParseAction_ExpectProductionNTimes_matches()
+  {
+    Production Heading = (ParseAction parser) => {
+      return parser
+        .Expect(TH, annotation: "heading")
+        .Expect(END_TH, annotation: "end-th")
+        ;
+    };
+
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .Expect(TABLE)
+      .SkipUntil(TR)
+      .Expect(TR, annotation: "tr:headings")
+      .ExpectProductionNTimes(numExpected: 6, Heading)
+      .Expect(END_TR);
+    
+    parser.AllMatchThen( (list, writer) => {
+      var annotations =
+        from node in list
+        where node.HasAnnotation
+        select node;
+      annotations.ForEach((m,i) => Annotations.Add(m.Annotation));
+    });
+    Assert.Collection( Annotations,
+      a1 => Assert.Equal(expected: "tr:headings", a1),
+      a2 => Assert.Equal(expected: "heading", a2), // 1
+      a3 => Assert.Equal(expected: "end-th", a3),
+      a4 => Assert.Equal(expected: "heading", a4), // 2
+      a5 => Assert.Equal(expected: "end-th", a5),
+      a6 => Assert.Equal(expected: "heading", a6), // 3
+      a7 => Assert.Equal(expected: "end-th", a7),
+      a8 => Assert.Equal(expected: "heading", a8), // 4
+      a9 => Assert.Equal(expected: "end-th", a9),
+      a10 => Assert.Equal(expected: "heading", a10), // 5
+      a11 => Assert.Equal(expected: "end-th", a11),
+      a12 => Assert.Equal(expected: "heading", a12), // 6
+      a13 => Assert.Equal(expected: "end-th", a13)
     );
   }
 }
