@@ -199,4 +199,96 @@ public class TestParsing
       t3 => Assert.Equal(expected:"table:3", t3)
     );
   }
+
+  [Fact]
+  public void ParseAction_If_falseCondition_continues_same()
+  {
+    bool isIfClauseDone = false;
+
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .Expect(TABLE)
+      .SkipUntil(TR)
+      .Expect(TR, annotation: "tr:headings")
+      .Expect(TH, annotation: "th:action")
+      .Expect(END_TH, annotation:"th:action:end")
+      .SkipUntil(END_TR)
+      .Expect(END_TR);
+    
+    parser.If(
+      list => {
+        var query =
+          from node in list
+          where node.HasAnnotation && node.Annotation == "th:description"
+          select node;
+        return query.Count() > 0;
+      }, pp => {
+        isIfClauseDone = true;
+        return pp;
+      });
+
+    parser.Then( (list, writer) => {
+      var annotations =
+        from node in list
+        where node.HasAnnotation
+        select node;
+      annotations.ForEach((m,i) => Annotations.Add(m.Annotation));
+    });
+    Assert.Collection( Annotations,
+      a1 => Assert.Equal(expected: "tr:headings", a1),
+      a2 => Assert.Equal(expected: "th:action", a2),
+      a3 => Assert.Equal(expected: "th:action:end", a3)
+    );
+
+    Assert.False(isIfClauseDone);
+  }
+
+  [Fact]
+  public void ParseAction_If_trueCondition_doesBranchedParsing()
+  {
+    bool isIfClauseDone = false;
+
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .Expect(TABLE)
+      .SkipUntil(TR)
+      .Expect(TR, annotation: "tr:headings")
+      .Expect(TH, annotation: "th:action")
+      .Expect(END_TH, annotation:"th:action:end")
+      ;
+    
+    parser.If(
+      list => {
+        var query =
+          from node in list
+          where node.HasAnnotation && node.Annotation == "th:action"
+          select node;
+        return query.Count() > 0;
+      }, pp => {
+        isIfClauseDone = true;
+        return pp
+          .Expect(TH, annotation: "th:description")
+          .Expect(END_TH, annotation: "th:description:end")
+        ;
+      });
+
+    parser.Then( (list, writer) => {
+      var annotations =
+        from node in list
+        where node.HasAnnotation
+        select node;
+      annotations.ForEach((m,i) => Annotations.Add(m.Annotation));
+    });
+
+    Assert.True(isIfClauseDone);
+    Assert.Collection( Annotations,
+      a1 => Assert.Equal(expected: "tr:headings", a1),
+      a2 => Assert.Equal(expected: "th:action", a2),
+      a3 => Assert.Equal(expected: "th:action:end", a3),
+      a4 => Assert.Equal(expected: "th:description", a4),
+      a5 => Assert.Equal(expected: "th:description:end", a5)
+    );
+  }
 }

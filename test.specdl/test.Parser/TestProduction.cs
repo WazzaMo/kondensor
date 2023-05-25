@@ -112,9 +112,23 @@ public class TestProduction
   private ParseAction ActionData(ParseAction parser)
     => parser
         .Expect(_Tr)
-          .Expect(_Td)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_ACCESS)
+            .SkipUntil(_endTd)
           .Expect(_endTd)
-          .Expect(_Td)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_DESC)
+            .SkipUntil(_endTd)
+          .Expect(_endTd)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_ACCESS)
+            .SkipUntil(_endTd)
+          .Expect(_endTd)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_RESOURCE)
+            .SkipUntil(_endTd)
+          .Expect(_endTd)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_CONDKEY)
+            .SkipUntil(_endTd)
+          .Expect(_endTd)
+          .Expect(_Td, annotation: "td:" + ANO_ACT_DEPENDENTS)
+            .SkipUntil(_endTd)
           .Expect(_endTd)
         .Expect(_endTr);
 
@@ -288,5 +302,27 @@ public class TestProduction
   }
 
   // ExpectProductionUntil
+  // [Fact]
+  public void ExpectProductionUntil_parsesProductionRepeatedlyStoppingOnSentinel()
+  {
+    bool isMatched = false;
+    List<string> Annotations = new List<string>();
+    
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(_Table)
+      .Expect(_Table, annotation: "action:table-start")
+      .Expect(_ActionTable)
+      .ExpectProductionUntil(_ActionData, _endTable, endAnnodation: "end:actionTable")
+      .Then( (list, writer) => {
+        var nodes =
+          from matchNode in list
+          where matchNode.HasAnnotation && matchNode.Annotation.StartsWith(value:"td:")
+          select matchNode;
 
+        isMatched = true;
+        nodes.ForEach( (node, i) => Annotations.Add($"#{i}:{node.Annotation}"));
+      });
+    Assert.True(isMatched);
+    Assert.Equal(expected: 6, Annotations.Count);
+  }
 }
