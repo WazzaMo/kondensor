@@ -17,7 +17,8 @@ public struct Matching
 {
   public const string
     UNDEFINED_NAME = "UNDEFINED_MATCHER_NAME",
-    UNDEFINED_ANNOTATION = "UNDEFINED_ANNOTATION";
+    UNDEFINED_ANNOTATION = "UNDEFINED_ANNOTATION",
+    UNDEFINED_MISMATCH = "NO_MISMATCH";
 
   public bool IsMatch
     => MatchResult != MatchKind.NoMatchAttempted && MatchResult != MatchKind.Mismatch;
@@ -32,6 +33,7 @@ public struct Matching
   public Option<LinkedList<string>> Parts;
   public string MatcherName;
   public string Annotation;
+  public string MismatchToken;
 
   public Matching()
   {
@@ -39,5 +41,6 @@ public struct Matching
     Parts = Option.None<LinkedList<string>>();
     MatcherName = UNDEFINED_NAME;
     Annotation = UNDEFINED_ANNOTATION;
+    MismatchToken = UNDEFINED_MISMATCH;
   }
 }

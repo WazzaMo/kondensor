@@ -7,6 +7,7 @@
 using Optional;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Parser;
 
@@ -76,11 +77,17 @@ public struct ParseAction
         }
         _CountMatched++;
       }
+      else
+      {
+        matching.MismatchToken = token;
+      }
       // Capture match history with modifications to the matching
       _MatchHistory.AddLast(matching);
     }
     return this;
   }
+
+  public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
   // If /then
   public ParseAction If(Func<LinkedList<Matching>, bool> condition, Func<ParseAction, ParseAction> then)
@@ -88,6 +95,19 @@ public struct ParseAction
     ParseAction parser = condition(_MatchHistory)
       ? then(this)
       : this;
+    return parser;
+  }
+
+  // If /then
+  public ParseAction IfElse(
+    Func<LinkedList<Matching>, bool> condition,
+    Func<ParseAction, ParseAction> ifThen,
+    Func<ParseAction, ParseAction> elseThen
+  )
+  {
+    ParseAction parser = condition(_MatchHistory)
+      ? ifThen(this)
+      : elseThen(this);
     return parser;
   }
 
