@@ -110,59 +110,59 @@ public static class PipeValues
                         <td rowspan=""3"">
                             <a id=""awsaccountmanagement-DeleteAlternateContact""></a>
                             <a href=""https://docs.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html"">DeleteAlternateContact</a>
-                        </td>
-                        <td rowspan=""3"">Grants permission to delete the alternate contacts for an account</td>
-                        <td rowspan=""3"">Write</td>
-                        <td>
-                            <p>
-                                <a href=""#awsaccountmanagement-account"">account</a>
-                            </p>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p>
-                                <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
-                            </p>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td>
-                            <p>
-                                <a href=""#awsaccountmanagement-account_AlternateContactTypes"">account:AlternateContactTypes</a>
-                            </p>
-                        </td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td rowspan=""3"">
-                            <a id=""awsaccountmanagement-DisableRegion""></a>
-                            <a href=""https://docs.aws.amazon.com/accounts/latest/reference/API_DisableRegion.html"">DisableRegion</a>
-                        </td>
-                        <td rowspan=""3"">Grants permission to disable use of a Region</td>
-                        <td rowspan=""3"">Write</td>
-                        <td>
-                            <p>
-                                <a href=""#awsaccountmanagement-account"">account</a>
-                            </p>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <p>
-                                <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
-                            </p>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                        240</td>
+                        241<td rowspan=""3"">Grants permission to delete the alternate contacts for an account</td>242
+                        243<td rowspan=""3"">Write</td>244
+                        245<td>
+                            246<p>
+                                247<a href=""#awsaccountmanagement-account"">account</a>248
+                            249</p>
+                        250</td>
+                        251<td></td>252
+                        253<td></td>254
+                    255</tr>
+                    256<tr>
+                        257<td>
+                            258<p>
+                                259<a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>260
+                            261</p>
+                        262</td>
+                        263<td></td>264
+                        265<td></td>266
+                    267</tr>
+                    268<tr>
+                        269<td></td>270
+                        271<td>
+                            272<p>
+                                273<a href=""#awsaccountmanagement-account_AlternateContactTypes"">account:AlternateContactTypes</a>274
+                            275</p>
+                        276</td>
+                        277<td></td>278
+                    279</tr>
+                    280<tr>
+                        281<td rowspan=""3"">
+                            282<a id=""awsaccountmanagement-DisableRegion""></a>283
+                            284<a href=""https://docs.aws.amazon.com/accounts/latest/reference/API_DisableRegion.html"">DisableRegion</a>285
+                        286</td>
+                        287<td rowspan=""3"">Grants permission to disable use of a Region</td>288
+                        289<td rowspan=""3"">Write</td>290
+                        291<td>
+                            292<p>
+                                293<a href=""#awsaccountmanagement-account"">account</a>294
+                            295</p>
+                        296</td>
+                        297<td></td>298
+                        299<td></td>300
+                    301</tr>
+                    302<tr>
+                        303<td>
+                            304<p>
+                                305<a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>306
+                            307</p>
+                        308</td>
+                        309<td></td>310
+                        311<td></td>312
+                    313</tr>
                     <tr>
                         <td></td>
                         <td>

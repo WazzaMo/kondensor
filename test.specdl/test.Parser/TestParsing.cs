@@ -48,6 +48,7 @@ public class TestParsing
 
   public TestParsing()
   {
+    Console.Out.Flush();
     _HtmlPipe = new HtmlPipe(PipeValues.HTML, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
   }
