@@ -129,9 +129,9 @@ public class TestProduction
           .IfElse( list => {
               var query =
               from node in list
-              where node.HasAnnotation && node.Annotation == ACCESS_TD && node.Parts.HasValue
+              where node.HasAnnotation && node.Annotation == ACCESS_TD
               select node;
-              // var xx = list.Where( (node, i) => node.HasAnnotation && node.Annotation == ACCESS_TD);
+
               if (query.Count() > 0)
               {
                 Matching result = query.Last();
@@ -144,7 +144,7 @@ public class TestProduction
             parser => {
               var rowSpan = 
                 from node in parser.QueryHistory()
-                where node.HasAnnotation && node.Annotation == ACCESS_TD && node.Parts.HasValue
+                where node.HasAnnotation && node.Annotation == ACCESS_TD// && node.Parts.HasValue
                 select node;
               string countTxt = "-1";
 
@@ -406,7 +406,8 @@ public class TestProduction
 
     mismatches.ForEach( (mm, i) => bad.Add(mm));
 
-    // Assert.True(isMatched);
+    Assert.True(isMatched);
+    Assert.Empty(bad);
     // Assert.Equal(expected: 6, Annotations.Count);
   }
 }
