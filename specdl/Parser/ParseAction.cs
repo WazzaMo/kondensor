@@ -111,6 +111,19 @@ public struct ParseAction
     return parser;
   }
 
+  public ParseAction If(
+    ParseCondition condition,
+    Func<int, bool> countMatchCondition,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen
+  )
+  {
+    IEnumerable<Matching> results = _MatchHistory.Where(node => condition(node));
+    ParseAction parser = countMatchCondition( results.Count() )
+      ? ifThen(this, results)
+      : this;
+    return parser;
+  }
+
   public ParseAction IfElse(
     ParseCondition condition,
     Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen,

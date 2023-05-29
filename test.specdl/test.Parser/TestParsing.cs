@@ -219,9 +219,9 @@ public class TestParsing
     
     parser.If(
     (Matching node) => node.HasAnnotation && node.Annotation == "th:description",
+    (int numMatches) => numMatches > 0,
     (parser, nodes) => {
-      if (nodes.Count() > 0)
-        isIfClauseDone = true;
+      isIfClauseDone = true;
       return parser;
     });
 
