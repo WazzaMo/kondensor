@@ -25,6 +25,7 @@ public class TestProduction
   private Production _ResourceTable;
   private Production _ConditionKeyTable;
   private Production _ActionData;
+  private int _ResCount;
 
   private Matcher _Table, _endTable, 
     _Thead, _endThead,
@@ -72,6 +73,7 @@ public class TestProduction
     _ResourceTable = ResourceTable;
     _ConditionKeyTable = ConditionKeyTable;
     _ActionData = ActionData;
+    _ResCount = 0;
   }
 
   private ParseAction ActionTable(ParseAction parser)
@@ -112,7 +114,8 @@ public class TestProduction
 // </tr>
 
   const int ROWSPAN = 0, ROWCOUNT = 1;
-  const string ACCESS_TD = "td:" + ANO_ACT_ACCESS;
+  const string ACCESS_TD = "td:" + ANO_ACT_ACCESS,
+    ACT_RESOURCE_TD = "REPEAT:td:"+ANO_ACT_RESOURCE;
 
   private ParseAction ActionData(ParseAction parser)
     => parser
@@ -126,61 +129,63 @@ public class TestProduction
           .Expect(_Td, annotation: ACCESS_TD)
             .SkipUntil(_endTd)
           .Expect(_endTd)
-          .IfElse( list => {
-              var query =
-              from node in list
-              where node.HasAnnotation && node.Annotation == ACCESS_TD
-              select node;
+          .IfElse(
+            (Matching test) => test.HasAnnotation && test.Annotation == ACCESS_TD,
+            (parser, nodes) => {
+              string countTxt = "-1";
+              Matching lastAccessRow = nodes.Last();
 
-              if (query.Count() > 0)
+              if (lastAccessRow.Parts.Exists( p => p.Count > 2 && p.ElementAt(ROWSPAN) == "rowspan"))
               {
-                Matching result = query.Last();
-                bool value = result.Parts.Exists( p => p.Count > 2 && p.ElementAt(ROWSPAN) == "rowspan");
-                return value;
+                lastAccessRow.Parts.MatchSome( ll => countTxt = ll.ElementAt(index: ROWCOUNT));
+                if (Int32.TryParse(countTxt, out int count) && count > 1)
+                {
+                  return AccessMemberStart(parser, count);
+                }
               }
               else
-                return false;
-            },
-            parser => {
-              var rowSpan = 
-                from node in parser.QueryHistory()
-                where node.HasAnnotation && node.Annotation == ACCESS_TD// && node.Parts.HasValue
-                select node;
-              string countTxt = "-1";
-
-              rowSpan.Last().Parts.MatchSome( ll => countTxt = ll.ElementAt(index: ROWCOUNT));
-              if (Int32.TryParse(countTxt, out int count) && count > 1)
               {
-                parser
-                  .Expect(_Td, annotation: "td:" + ANO_ACT_RESOURCE)
-                    .SkipUntil(_endTd)
-                  .Expect(_endTd)
-                  .Expect(_Td, annotation: "td:" + ANO_ACT_CONDKEY)
-                    .SkipUntil(_endTd)
-                  .Expect(_endTd)
-                  .Expect(_Td, annotation: "td:" + ANO_ACT_DEPENDENTS)
-                    .SkipUntil(_endTd)
-                  .Expect(_endTd)
-                .Expect(_endTr, annotation:"end 0th access member");
-                parser.ExpectProductionNTimes(count - 1, AccessMember);
+                ActionDataEnd(parser);
               }
-              else throw new Exception($"Unhandled case: {count} blocks");
               return parser;
             },
-            eParser => {
-              return eParser
-                .Expect(_Td, annotation: "td:" + ANO_ACT_RESOURCE)
-                  .SkipUntil(_endTd)
-                .Expect(_endTd, annotation:"main-end:td:" + ANO_ACT_RESOURCE)
-                .Expect(_Td, annotation: "td:" + ANO_ACT_CONDKEY)
-                  .SkipUntil(_endTd)
-                .Expect(_endTd)
-                .Expect(_Td, annotation: "td:" + ANO_ACT_DEPENDENTS)
-                  .SkipUntil(_endTd)
-                .Expect(_endTd)
-              .Expect(_endTr, annotation: "end:tr: end of AccessData");
-            }
+            (parser, nodes) => ActionDataEnd(parser)
           );
+
+  private ParseAction AccessMemberStart(ParseAction parser, int count)
+  {
+    parser
+        .Expect(_Td, annotation: ACT_RESOURCE_TD)
+          .SkipUntil(_endTd)
+        .Expect(_endTd)
+        .Expect(_Td, annotation: "td:" + ANO_ACT_CONDKEY)
+          .SkipUntil(_endTd)
+        .Expect(_endTd)
+        .Expect(_Td, annotation: "td:" + ANO_ACT_DEPENDENTS)
+          .SkipUntil(_endTd)
+        .Expect(_endTd)
+      .Expect(_endTr, annotation:"end 0th access member")
+      .ExpectProductionNTimes(count - 1, AccessMember);
+    _ResCount = parser.IsAllMatched ? (_ResCount + 1) : _ResCount;
+    return parser;
+  }
+
+  private ParseAction ActionDataEnd(ParseAction parser)
+  {
+    parser
+      .Expect(_Td, annotation: ACT_RESOURCE_TD)
+        .SkipUntil(_endTd)
+      .Expect(_endTd, annotation:"main-end:td:" + ANO_ACT_RESOURCE)
+      .Expect(_Td, annotation: "td:" + ANO_ACT_CONDKEY)
+        .SkipUntil(_endTd)
+      .Expect(_endTd)
+      .Expect(_Td, annotation: "td:" + ANO_ACT_DEPENDENTS)
+        .SkipUntil(_endTd)
+      .Expect(_endTd)
+      .Expect(_endTr, annotation: "end:tr: end of AccessData2");
+    _ResCount = parser.IsAllMatched ? (_ResCount + 1) : _ResCount;
+    return parser;
+  }
 
 // - repeated sub-block as data points in same access level
 // <td>
@@ -191,9 +196,10 @@ public class TestProduction
 // <td></td>
 // <td></td>
   private ParseAction AccessMember(ParseAction parser)
-    => parser
+  { 
+    parser
       .Expect(_Tr, annotation:"Start AccessMember")
-        .Expect(_Td, annotation: "td" + ANO_ACT_RESOURCE)
+        .Expect(_Td, annotation: ACT_RESOURCE_TD) //"td" + ANO_ACT_RESOURCE)
           .SkipUntil(_endTd)
         .Expect(_endTd, annotation:"AM-end:td" + ANO_ACT_RESOURCE)
         .Expect(_Td, annotation: "td" + ANO_ACT_CONDKEY)
@@ -203,6 +209,10 @@ public class TestProduction
           .SkipUntil(_endTd)
         .Expect(_endTd)
       .Expect(_endTr, annotation: "end nth access member");
+
+    _ResCount = parser.IsAllMatched ? (_ResCount + 1) : _ResCount;
+    return parser;
+  }
 
   private ParseAction ResourceTable(ParseAction parser)
   {
@@ -381,8 +391,6 @@ public class TestProduction
     List<string> Annotations = new List<string>();
     List<Matching> bad = new List<Matching>();
     
-    Console.Out.Flush();
-    Console.WriteLine(value: "\n##############################################\n--ExpectProductionUntil_parsesProductionRepeatedlyStoppingOnSentinel--");
 
     var parser = Parsing.Group(_Pipe)
       .SkipUntil(_Table)
@@ -392,7 +400,7 @@ public class TestProduction
       .AllMatchThen( (list, writer) => {
         var nodes =
           from matchNode in list
-          where matchNode.HasAnnotation && matchNode.Annotation.StartsWith(value:"td:")
+          where matchNode.HasAnnotation //&& matchNode.Annotation.StartsWith(value:"td:")
           select matchNode;
 
         isMatched = true;
@@ -408,6 +416,33 @@ public class TestProduction
 
     Assert.True(isMatched);
     Assert.Empty(bad);
+    var actionQuery =
+      from actNode in Annotations
+      where actNode.EndsWith(ACCESS_TD)
+      select actNode;
+    
+    Assert.Equal(expected: 13, actionQuery.Count());
     // Assert.Equal(expected: 6, Annotations.Count);
+    
+    var actDescQuery =
+      from descNode in Annotations
+      where descNode.EndsWith("td:" + ANO_ACT_DESC)
+      select descNode;
+    Assert.Equal(expected: 13, actDescQuery.Count());
+
+    var actAccessQuery =
+      from accessNode in Annotations
+      where accessNode.EndsWith("td:" + ANO_ACT_ACCESS)
+      select accessNode;
+    Assert.Equal(expected: 13, actAccessQuery.Count());
+
+    Console.WriteLine(value: $"Number of resource entries found: {_ResCount}");
+
+    var resourceQuery =
+      from node in Annotations
+      where node.EndsWith(ACT_RESOURCE_TD)
+      select node;
+    Console.WriteLine(value: $"Count repeated resource cells {resourceQuery.Count()}");
+    Assert.Equal(expected: _ResCount, resourceQuery.Count());
   }
 }

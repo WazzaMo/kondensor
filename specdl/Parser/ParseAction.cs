@@ -35,6 +35,12 @@ public struct ParseAction
     _MatchHistory = new LinkedList<Matching>();
   }
 
+  /// <summary>
+  /// Indicates if all tokens in the history were matched by rules.
+  /// </summary>
+  public bool IsAllMatched => 
+    _CountMatched == _MatchHistory.Count;
+
   public ParseAction SkipUntil(Matcher rule)
   {
     int originalCheckPoint = _Pipe.GetCheckPoint();
@@ -42,8 +48,6 @@ public struct ParseAction
     bool canRead = true;
     string token;
     Matching status = Utils.NoMatch();
-    
-    Console.WriteLine(value: $"\n===---SkipUntil START at {originalCheckPoint} -->>>");
     
     while( canRead && !status.IsMatch)
     {
@@ -56,9 +60,8 @@ public struct ParseAction
     }
     if (status.IsMatch)
     {
-      if (testCheckPoint < originalCheckPoint) throw new Exception(message:$"\n## Checkpoint {testCheckPoint} before start point of {originalCheckPoint}");
-      Console.WriteLine(value: $"\n--===SkipUntil RESTORE to {testCheckPoint} -- \n");
-
+      if (testCheckPoint < originalCheckPoint)
+        throw new Exception(message:$"\n## Checkpoint {testCheckPoint} before start point of {originalCheckPoint}");
       _Pipe.ReturnToCheckPoint(testCheckPoint);
     }
     return this;
@@ -88,11 +91,6 @@ public struct ParseAction
         matching.MismatchToken = token;
       }
 
-      string misMatchMark = matching.IsMatch ? "OK" : "##### NOK",
-        nm = matching.HasName ? matching.MatcherName : "??",
-        anno = matching.HasAnnotation ? matching.Annotation : "none";
-      
-      Console.WriteLine(value:$"tok [{token}] matched: {matching.MatchResult}  {misMatchMark} - rule: {nm}, anno: {anno}, checkpt: {_Pipe.GetCheckPoint()-1}");
       // Capture match history with modifications to the matching
       _MatchHistory.AddLast(matching);
     }
@@ -120,6 +118,19 @@ public struct ParseAction
     ParseAction parser = condition(_MatchHistory)
       ? ifThen(this)
       : elseThen(this);
+    return parser;
+  }
+
+  public ParseAction IfElse(
+    ParseCondition condition,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> elseThen
+  )
+  {
+    IEnumerable<Matching> results = _MatchHistory.Where(node => condition(node));
+    ParseAction parser = (results.Count() > 0)
+      ? ifThen(this, results)
+      : elseThen(this, results);
     return parser;
   }
 
@@ -232,7 +243,6 @@ public struct ParseAction
       }
       else
       {
-        Console.WriteLine(value: $"\n--===CheckEndRuleAndProduction RESTORE to {checkpoint} -- \n");
         _Pipe.ReturnToCheckPoint(checkpoint);
         Expect(production);
         isProdMatch = _CountMatched == _MatchHistory.Count;

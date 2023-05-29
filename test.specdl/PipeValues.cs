@@ -98,7 +98,7 @@ public static class PipeValues
                             <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">CloseAccount</a> [permission only]</td>
                         <td>Grants permission to close an account</td>
                         <td>Write</td>
-                        <td>
+                        <td>1
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -113,7 +113,7 @@ public static class PipeValues
                         240</td>
                         241<td rowspan=""3"">Grants permission to delete the alternate contacts for an account</td>242
                         243<td rowspan=""3"">Write</td>244
-                        245<td>
+                        245<td>2
                             246<p>
                                 247<a href=""#awsaccountmanagement-account"">account</a>248
                             249</p>
@@ -122,8 +122,8 @@ public static class PipeValues
                         253<td></td>254
                     255</tr>
                     256<tr>
-                        257<td>
-                            258<p>
+                        257<td>3
+                            258<p>3
                                 259<a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>260
                             261</p>
                         262</td>
@@ -131,7 +131,7 @@ public static class PipeValues
                         265<td></td>266
                     267</tr>
                     268<tr>
-                        269<td></td>270
+                        269<td>4</td>270
                         271<td>
                             272<p>
                                 273<a href=""#awsaccountmanagement-account_AlternateContactTypes"">account:AlternateContactTypes</a>274
@@ -146,7 +146,7 @@ public static class PipeValues
                         286</td>
                         287<td rowspan=""3"">Grants permission to disable use of a Region</td>288
                         289<td rowspan=""3"">Write</td>290
-                        291<td>
+                        291<td>5
                             292<p>
                                 293<a href=""#awsaccountmanagement-account"">account</a>294
                             295</p>
@@ -155,7 +155,7 @@ public static class PipeValues
                         299<td></td>300
                     301</tr>
                     302<tr>
-                        303<td>
+                        303<td>6
                             304<p>
                                 305<a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>306
                             307</p>
@@ -164,7 +164,7 @@ public static class PipeValues
                         311<td></td>312
                     313</tr>
                     314<tr>
-                        315<td></td>316
+                        315<td>7</td>316
                         317<td>
                             318<p>
                                 319<a href=""#awsaccountmanagement-account_TargetRegion"">account:TargetRegion</a>320
@@ -179,7 +179,7 @@ public static class PipeValues
                         332</td>
                         333<td rowspan=""3"">Grants permission to enable use of a Region</td>334
                         335<td rowspan=""3"">Write</td>336
-                        337<td>
+                        337<td>8
                             338<p>
                                 339<a href=""#awsaccountmanagement-account"">account</a>340
                             341</p>
@@ -188,7 +188,7 @@ public static class PipeValues
                         345<td></td>346
                     347</tr>
                     348<tr>
-                        349<td>
+                        349<td>9
                             350<p>
                                 351<a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>352
                             353</p>
@@ -197,7 +197,7 @@ public static class PipeValues
                         357<td></td>358
                     359</tr>
                     360<tr>
-                        361<td></td>362
+                        361<td>10</td>362
                         363<td>
                             364<p>
                                 365<a href=""#awsaccountmanagement-account_TargetRegion"">account:TargetRegion</a>366
@@ -211,7 +211,7 @@ public static class PipeValues
                             376<a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">GetAccountInformation</a>377 [permission only]</td>378
                         379<td>Grants permission to retrieve the account information for an account</td>380
                         381<td>Read</td>382
-                        383<td>
+                        383<td>11
                             384<p>
                                 385<a href=""#awsaccountmanagement-account"">account</a>386
                             387</p>
@@ -226,7 +226,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""3"">Grants permission to retrieve the alternate contacts for an account</td>
                         <td rowspan=""3"">Read</td>
-                        <td>
+                        <td>12
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -235,7 +235,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>13
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
@@ -244,7 +244,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td></td>
+                        <td>14</td>
                         <td>
                             <p>
                                 <a href=""#awsaccountmanagement-account_AlternateContactTypes"">account:AlternateContactTypes</a>
@@ -258,7 +258,7 @@ public static class PipeValues
                             <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">GetChallengeQuestions</a> [permission only]</td>
                         <td>Grants permission to retrieve the challenge questions for an account</td>
                         <td>Read</td>
-                        <td>
+                        <td>15
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -273,7 +273,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""2"">Grants permission to retrieve the primary contact information for an account</td>
                         <td rowspan=""2"">Read</td>
-                        <td>
+                        <td>16
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -282,7 +282,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>17
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
@@ -297,7 +297,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""3"">Grants permission to get the opt-in status of a Region</td>
                         <td rowspan=""3"">Read</td>
-                        <td>
+                        <td>18
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -306,7 +306,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>19
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
@@ -316,7 +316,7 @@ public static class PipeValues
                     </tr>
                     <tr>
                         <td></td>
-                        <td>
+                        <td>20
                             <p>
                                 <a href=""#awsaccountmanagement-account_TargetRegion"">account:TargetRegion</a>
                             </p>
@@ -330,7 +330,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""2"">Grants permission to list the available Regions</td>
                         <td rowspan=""2"">List</td>
-                        <td>
+                        <td>21
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -339,7 +339,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>22
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
@@ -354,7 +354,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""3"">Grants permission to modify the alternate contacts for an account</td>
                         <td rowspan=""3"">Write</td>
-                        <td>
+                        <td>23
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -363,7 +363,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>24
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
@@ -372,7 +372,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td></td>
+                        <td>25</td>
                         <td>
                             <p>
                                 <a href=""#awsaccountmanagement-account_AlternateContactTypes"">account:AlternateContactTypes</a>
@@ -386,7 +386,7 @@ public static class PipeValues
                             <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">PutChallengeQuestions</a> [permission only]</td>
                         <td>Grants permission to modify the challenge questions for an account</td>
                         <td>Write</td>
-                        <td>
+                        <td>26
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -401,7 +401,7 @@ public static class PipeValues
                         </td>
                         <td rowspan=""2"">Grants permission to update the primary contact information for an account</td>
                         <td rowspan=""2"">Write</td>
-                        <td>
+                        <td>27
                             <p>
                                 <a href=""#awsaccountmanagement-account"">account</a>
                             </p>
@@ -410,7 +410,7 @@ public static class PipeValues
                         <td></td>
                     </tr>
                     <tr>
-                        <td>
+                        <td>28
                             <p>
                                 <a href=""#awsaccountmanagement-accountInOrganization"">accountInOrganization</a>
                             </p>
