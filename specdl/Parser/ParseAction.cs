@@ -99,25 +99,15 @@ public struct ParseAction
 
   public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
-  // If /then
-  public ParseAction If(Func<LinkedList<Matching>, bool> condition, Func<ParseAction, ParseAction> then)
-  {
-    ParseAction parser = condition(_MatchHistory)
-      ? then(this)
-      : this;
-    return parser;
-  }
-
-  // If /then
-  public ParseAction IfElse(
-    Func<LinkedList<Matching>, bool> condition,
-    Func<ParseAction, ParseAction> ifThen,
-    Func<ParseAction, ParseAction> elseThen
+  public ParseAction If(
+    ParseCondition condition,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen
   )
   {
-    ParseAction parser = condition(_MatchHistory)
-      ? ifThen(this)
-      : elseThen(this);
+    IEnumerable<Matching> results = _MatchHistory.Where(node => condition(node));
+    ParseAction parser = (results.Count() > 0)
+      ? ifThen(this, results)
+      : this;
     return parser;
   }
 

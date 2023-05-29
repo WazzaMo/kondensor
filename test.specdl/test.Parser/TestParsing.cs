@@ -218,16 +218,12 @@ public class TestParsing
       .Expect(END_TR);
     
     parser.If(
-      list => {
-        var query =
-          from node in list
-          where node.HasAnnotation && node.Annotation == "th:description"
-          select node;
-        return query.Count() > 0;
-      }, pp => {
+    (Matching node) => node.HasAnnotation && node.Annotation == "th:description",
+    (parser, nodes) => {
+      if (nodes.Count() > 0)
         isIfClauseDone = true;
-        return pp;
-      });
+      return parser;
+    });
 
     parser.AllMatchThen( (list, writer) => {
       var annotations =
@@ -261,18 +257,16 @@ public class TestParsing
       ;
     
     parser.If(
-      list => {
-        var query =
-          from node in list
-          where node.HasAnnotation && node.Annotation == "th:action"
-          select node;
-        return query.Count() > 0;
-      }, pp => {
-        isIfClauseDone = true;
-        return pp
+      (Matching node) => node.HasAnnotation && node.Annotation == "th:action",
+      (parser, nodes) => {
+        if (nodes.Count() > 0)
+        {
+          isIfClauseDone = true;
+          parser
           .Expect(TH, annotation: "th:description")
-          .Expect(END_TH, annotation: "th:description:end")
-        ;
+          .Expect(END_TH, annotation: "th:description:end");
+        }
+        return parser;
       });
 
     parser.AllMatchThen( (list, writer) => {
