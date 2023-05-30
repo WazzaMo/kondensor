@@ -99,6 +99,12 @@ public struct ParseAction
 
   public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
+  /// <summary>
+  /// Conditional parsering If() where condition can describe a pattern of Matching possibilities.
+  /// </summary>
+  /// <param name="condition">boolean test on Matching fields, typically based on annotations.</param>
+  /// <param name="ifThen">Detailed analysis and extra parsing.</param>
+  /// <returns>Same parser for fluid api</returns>
   public ParseAction If(
     ParseCondition condition,
     Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen
@@ -111,6 +117,13 @@ public struct ParseAction
     return parser;
   }
 
+  /// <summary>
+  /// Conditional parsing based on Matching condition and number of matches.
+  /// </summary>
+  /// <param name="condition">Matching fields boolean expression, mostly for annotations</param>
+  /// <param name="countMatchCondition">Count based condition, such as x => x > 3</param>
+  /// <param name="ifThen">match results and parser for any further analysis and conditional parsing.</param>
+  /// <returns>Same parser for fluid api</returns>
   public ParseAction If(
     ParseCondition condition,
     Func<int, bool> countMatchCondition,
@@ -124,6 +137,13 @@ public struct ParseAction
     return parser;
   }
 
+  /// <summary>
+  /// Conditional parsing in the match and non-match branches where each branch may need to analyse match results first.
+  /// </summary>
+  /// <param name="condition">Matching field boolean match, usually for annotations.</param>
+  /// <param name="ifThen">Analysis and branched parsing where condition matched</param>
+  /// <param name="elseThen">Analysis for no matching records and branched parsing where condition failed to match.</param>
+  /// <returns>Same parser for fluid api</returns>
   public ParseAction IfElse(
     ParseCondition condition,
     Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen,
@@ -132,6 +152,28 @@ public struct ParseAction
   {
     IEnumerable<Matching> results = _MatchHistory.Where(node => condition(node));
     ParseAction parser = (results.Count() > 0)
+      ? ifThen(this, results)
+      : elseThen(this, results);
+    return parser;
+  }
+
+  /// <summary>
+  /// Conditional parsing with count of matches condition for match and non-match branches.
+  /// </summary>
+  /// <param name="condition">boolean Matching field condition</param>
+  /// <param name="countMatchCondition">count of matches needed, such as x => x > 2</param>
+  /// <param name="ifThen">Parsing branch for field and count match</param>
+  /// <param name="elseThen">Parsing branch where either fields or count did not match.</param>
+  /// <returns>Same parser for fluid api</returns>
+  public ParseAction IfElse(
+    ParseCondition condition,
+    Func<int, bool> countMatchCondition,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> ifThen,
+    Func<ParseAction, IEnumerable<Matching>, ParseAction> elseThen
+  )
+  {
+    IEnumerable<Matching> results = _MatchHistory.Where(node => condition(node));
+    ParseAction parser = countMatchCondition(results.Count())
       ? ifThen(this, results)
       : elseThen(this, results);
     return parser;
