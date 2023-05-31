@@ -129,27 +129,19 @@ public class TestProduction
           .Expect(_Td, annotation: ACCESS_TD)
             .SkipUntil(_endTd)
           .Expect(_endTd)
-          .IfElse(
-            (Matching test) => test.HasAnnotation && test.Annotation == ACCESS_TD,
-            (parser, nodes) => {
+          .IfElse( new MatchCondition(
+              m => m.HasAnnotation && m.Annotation == ACCESS_TD,
+              m => m.Parts.Exists(p => p.Count > 2 && p.ElementAt(ROWSPAN) == "rowspan" )
+            ),
+            (parser, match) => {
               string countTxt = "-1";
-              Matching lastAccessRow = nodes.Last();
-
-              if (lastAccessRow.Parts.Exists( p => p.Count > 2 && p.ElementAt(ROWSPAN) == "rowspan"))
-              {
-                lastAccessRow.Parts.MatchSome( ll => countTxt = ll.ElementAt(index: ROWCOUNT));
-                if (Int32.TryParse(countTxt, out int count) && count > 1)
-                {
-                  return AccessMemberStart(parser, count);
-                }
-              }
-              else
-              {
-                ActionDataEnd(parser);
-              }
+              int count;
+              match.Parts.MatchSome( parts => countTxt = parts.ElementAt(ROWCOUNT));
+              if (Int32.TryParse(countTxt, out count) && count > 1)
+                AccessMemberStart(parser, count);
               return parser;
             },
-            (parser, nodes) => ActionDataEnd(parser)
+            (parser) => ActionDataEnd(parser)
           );
 
   private ParseAction AccessMemberStart(ParseAction parser, int count)
