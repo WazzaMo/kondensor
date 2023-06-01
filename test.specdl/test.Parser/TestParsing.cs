@@ -287,7 +287,7 @@ public class TestParsing
     );
   }
 
-    [Fact]
+  [Fact]
   public void ParseAction_ExpectProductionNTimes_matches()
   {
     Production Heading = (ParseAction parser) => {
