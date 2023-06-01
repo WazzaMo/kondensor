@@ -97,6 +97,9 @@ public struct ParseAction
     return this;
   }
 
+  public ParseAction MayExpect(Matcher nextRule, string annotation)
+  {}
+
   public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
   /// <summary>

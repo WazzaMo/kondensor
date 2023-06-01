@@ -137,7 +137,14 @@ public class TestParsing
     TR = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "tr"),
     END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
     TH = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th"),
-    END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th");
+    END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th"),
+    TD = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "td"),
+    END_TD = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td"),
+    PARA = Utils.SingularMatchRule(HtmlPatterns.PARA, name: "p"),
+    END_PARA = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p"),
+    ANCHOR_HREF = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "ahref"),
+    ANCHOR_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "aid"),
+    END_ANCHOR = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:ahref");
 
   [Fact]
   public void ParseAction_SkipUntil_canBeCalledManyTimesToSkipAhead()
@@ -328,5 +335,67 @@ public class TestParsing
       a12 => Assert.Equal(expected: "heading", a12), // 6
       a13 => Assert.Equal(expected: "end-th", a13)
     );
+  }
+
+  [Fact]
+  public void ParseAction_IfElse_handlesOptionalParagraphs()
+  {
+    List<string> hrefList = new List<string>();
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TD)
+      .ExpectProductionNTimes(numExpected: 10, p => {
+        DataHref(p, hrefList);
+        return p;
+      })
+      ;
+      Console.WriteLine(value: $"Number hrefs: {hrefList.Count}");
+  }
+
+  private void DataHref(ParseAction parser, List<string> hrefs)
+  {
+    MatchCondition haveHref = new MatchCondition(
+      searchMethod: matching => matching.HasAnnotation && matching.Annotation == "data-href",
+      conditionOnRecent: matching => matching.Parts.Exists( p => p.Count > 0 && p.ElementAt(1) == "href")
+    );
+
+    parser
+      .SkipUntil(TD)
+      .Expect(TD, annotation: "td-action-id")
+        .Expect(ANCHOR_ID, annotation:"a-id").Expect(END_ANCHOR, annotation:"end-a-id")
+        .Expect(ANCHOR_HREF, annotation:"a-href").Expect(END_ANCHOR, annotation:"end-a-href")
+      .Expect(END_TD, annotation: "td-actionid-end")
+      .AllMatchThen( (list, writer) => {
+        Console.WriteLine(value: "TD - Action ID, HREF");
+      })
+      .MismatchesThen()
+        .Expect(TD, annotation: "td-start")
+          .Expect(PARA, annotation: "data-p")
+            .Expect(ANCHOR_HREF, annotation:"data-href")
+            .Expect(END_ANCHOR, annotation: "data-href-end")
+          .Expect(END_PARA, annotation: "data-p-end")
+        .Expect(END_TD, annotation: "td-end")
+        .IfElse( haveHref, (parser, match) => {
+            match.Parts.MatchSome(parts => hrefs.Add(parts.ElementAt(index: 2)));
+            match.Parts.MatchSome(parts => Console.WriteLine(value: $"Href value: {parts}"));
+            return parser;
+          },
+          (parser) => parser
+        )
+        .MismatchesThen()
+          .SkipUntil(TD)
+          .Expect(TD, annotation: "td-empty-start")
+          .Expect(END_TD, annotation:"td-empty-end")
+          .AllMatchThen( (list, writer) => {
+            Console.WriteLine(value:"Empty TD");
+          })
+        .MismatchesThen()
+          .SkipUntil(TD)
+          .Expect(TD, annotation: "td-nondata-start")
+          .SkipUntil(END_TD)
+          .Expect(END_TD, annotation:"td-nondata-end")
+          .AllMatchThen( (list, writer) => {
+            Console.WriteLine(value:"other TD");
+          });
   }
 }
