@@ -134,6 +134,8 @@ public class TestParsing
   readonly Matcher
     TABLE = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB,name: "table"),
     END_TABLE = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table"),
+    THEAD = Utils.SingularMatchRule(HtmlPatterns.THEAD, name: "thead"),
+    END_THEAD = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, name: "end:thead"),
     TR = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "tr"),
     END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
     TH = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th"),
@@ -335,6 +337,56 @@ public class TestParsing
       a12 => Assert.Equal(expected: "heading", a12), // 6
       a13 => Assert.Equal(expected: "end-th", a13)
     );
+  }
+
+  [Fact]
+  public void ParseAction_MayExpect_appliesAnnotationWhenMatching()
+  {
+    bool isMatched = false;
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .MayExpect(TABLE, annotation: "start-table")
+      .MayExpect(THEAD, annotation: "head")
+      .SkipUntil(END_TR)
+      .MayExpect(END_TR, annotation: "end-row")
+      .MayExpect(END_THEAD, annotation: "end-head")
+      .AllMatchThen( (list, writer) =>{
+        isMatched = true;
+
+        var query =
+          from node in list where node.IsMatch && node.HasAnnotation
+          && node.Annotation.Contains(value: "head") select node.Annotation;
+        Assert.Collection(query,
+          h1 => Assert.Equal(expected: "head", h1),
+          h2 => Assert.Equal(expected: "end-head", h2)
+        );
+      });
+    Assert.True(isMatched);
+  }
+
+  [Fact]
+  public void ParseAction_MayExpect_makesNoChangeOnMismatch()
+  {
+    bool isMatched = false;
+    ParseAction parser = Parsing.Group(_Pipe)
+      .SkipUntil(TABLE)
+      .Expect(TABLE, annotation:"table-start")
+      .MayExpect(TR, annotation: "missed-thead-tr")
+      .MayExpect(PARA, annotation: "para")
+      .Expect(THEAD, annotation: "thead-found")
+      .AllMatchThen( (list, writer) => {
+        isMatched = true;
+
+        var query = 
+          from matching in list where matching.HasAnnotation
+          select matching.Annotation;
+        Assert.Collection(query,
+          a1 => Assert.Equal(expected: "table-start", a1),
+          a2 => Assert.Equal(expected: "thead-found", a2)
+        );
+      });
+    Assert.True(isMatched);
   }
 
   [Fact]

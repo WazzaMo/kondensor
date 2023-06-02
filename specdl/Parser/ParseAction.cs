@@ -97,8 +97,37 @@ public struct ParseAction
     return this;
   }
 
-  public ParseAction MayExpect(Matcher nextRule, string annotation)
-  {}
+  /// <summary>
+  /// Check the next token to see if it matches the maybeRule and parse it if it does.
+  /// </summary>
+  /// <param name="maybeRule">Rule to check parsing with.</param>
+  /// <param name="annotation">Mandatory annotation to apply if matched</param>
+  /// <returns>same parser object.</returns>
+  public ParseAction MayExpect(Matcher maybeRule, string annotation)
+  {
+    int checkpoint = _Pipe.GetCheckPoint();
+    bool hasToken = _Pipe.ReadToken(out string token);
+
+    if (hasToken)
+    {
+      Matching result = maybeRule.Invoke(token);
+      if (result.IsMatch)
+      {
+        if (! result.HasName)
+        {
+          result.MatcherName = maybeRule.Method.Name;
+        }
+        result.Annotation = annotation;
+        _CountMatched++;
+        _MatchHistory.AddLast(result);
+      }
+      else
+      {
+        _Pipe.ReturnToCheckPoint(checkpoint);
+      }
+    }
+    return this;
+  }
 
   public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
