@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 
+namespace Spec;
+
 /// <summary>
 /// A type that indicates what kind of table has been found.
 /// </summary>

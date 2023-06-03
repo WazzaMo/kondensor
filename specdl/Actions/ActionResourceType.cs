@@ -8,6 +8,8 @@ using System.Collections.Generic;
 
 using Optional;
 
+namespace Actions;
+
 /// <summary>
 /// For an Actions, Resources, Condition Keys table, this identifies
 /// the resource type in the hierarchy and any list of specific condition keys

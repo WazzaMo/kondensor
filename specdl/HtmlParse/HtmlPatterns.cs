@@ -21,6 +21,8 @@ public static class HtmlPatterns
     END_TH = new Regex(pattern: @"\<\/th\>"),
     TD = new Regex(pattern: @"\<td\>"),
     TD_ATTRIB_VALUE = new Regex(pattern: @"\<td\s?(\w+)=?\""(\d+)\""?\>([\w\s\(\*\)]*)"),
+    TD_VALUE = new Regex(pattern: @"\<td\>([\w\s\(\*\)]*)"),
+
     END_TD = new Regex(pattern: @"\<\/td\>"),
     TR = new Regex(pattern: @"\<tr\>"),
     TR_ATTRIB = new Regex(pattern: @"\<tr\s?(\w+)=?\""(\d+)\""?\>"),

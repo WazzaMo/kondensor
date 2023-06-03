@@ -7,6 +7,9 @@
 
 using Optional;
 
+namespace Actions;
+
+
 public record struct ActionParseEntry (
   Option<string> Id,
   Option<string> SourceDocLink,

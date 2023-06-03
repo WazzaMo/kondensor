@@ -8,6 +8,10 @@ using Optional;
 
 using System.Collections.Generic;
 
+using Spec;
+
+namespace Actions;
+
 public struct ActionsTableContext : IContext
 {
   private const int

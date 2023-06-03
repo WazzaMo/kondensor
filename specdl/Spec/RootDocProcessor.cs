@@ -4,10 +4,14 @@
  *  Distributed under the Kondensor License.
  */
 
+using Parser;
+
+namespace Spec;
+
 
 public struct RootDocProcessor : IProcessor
 {
-  public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
+  public void ProcessAllLines(IPipe pipe)
   {
     throw new NotImplementedException();
   }

@@ -6,6 +6,9 @@
 
 using System.Collections.Generic;
 
+namespace Actions;
+
+
 /// <summary>
 /// An action type can be incrementally built within the context
 /// and then added to the context's list of actions.

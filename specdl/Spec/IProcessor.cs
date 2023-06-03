@@ -6,6 +6,11 @@
 
 using System.IO;
 
+using Parser;
+
+namespace Spec;
+
+
 /// <summary>
 /// A processor reads each line of the input document, and optionally, writes
 /// to the output document. This interface allows processors to be plugged-in
@@ -20,5 +25,5 @@ public interface IProcessor
   /// <param name="countHandled">Number of lines processed.</param>
   /// <param name="input">source of text to process.</param>
   /// <param name="output">destination to write any processed data, if needed.</param>
-  void ProcessAllLines(out int countHandled, TextReader input, TextWriter output);
+  void ProcessAllLines(IPipe pipe);
 }

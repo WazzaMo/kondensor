@@ -9,6 +9,8 @@ using Optional;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
+namespace Spec;
+
 
 /// <summary>
 /// A document processor reads line-by-line an HTML file given to it.

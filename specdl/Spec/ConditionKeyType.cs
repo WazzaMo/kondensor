@@ -4,6 +4,8 @@
  *  Distributed under the Kondensor License.
  */
 
+namespace Spec;
+
 public record struct ConditionKeyType (
   string ConditionKeyId,
   string Description,

@@ -4,6 +4,9 @@
  *  Distributed under the Kondensor License.
  */
 
+namespace Actions;
+
+
 /// <summary>
 /// A fixed, known set of access levels that can be considered
 /// for each IAM action.

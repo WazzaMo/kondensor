@@ -4,6 +4,10 @@
  *  Distributed under the Kondensor License.
  */
 
+
+namespace Spec;
+
+
 public enum TablePurpose
 {
   /// <summary>Table is not a known kind and does not help with policies.</summary>

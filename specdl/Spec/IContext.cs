@@ -4,7 +4,8 @@
  *  Distributed under the Kondensor License.
  */
 
-public struct NoneContext : IContext
-{
+namespace Spec;
 
-}
+
+public interface IContext
+{}
