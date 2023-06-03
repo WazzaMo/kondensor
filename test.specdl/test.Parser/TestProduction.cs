@@ -414,7 +414,6 @@ public class TestProduction
       select actNode;
     
     Assert.Equal(expected: 13, actionQuery.Count());
-    // Assert.Equal(expected: 6, Annotations.Count);
     
     var actDescQuery =
       from descNode in Annotations
@@ -428,13 +427,10 @@ public class TestProduction
       select accessNode;
     Assert.Equal(expected: 13, actAccessQuery.Count());
 
-    Console.WriteLine(value: $"Number of resource entries found: {_ResCount}");
-
     var resourceQuery =
       from node in Annotations
       where node.EndsWith(ACT_RESOURCE_TD)
       select node;
-    Console.WriteLine(value: $"Count repeated resource cells {resourceQuery.Count()}");
     Assert.Equal(expected: _ResCount, resourceQuery.Count());
   }
 }
