@@ -395,13 +395,44 @@ public class TestParsing
     List<string> hrefList = new List<string>();
 
     var parser = Parsing.Group(_Pipe)
-      .SkipUntil(TD)
-      .ExpectProductionNTimes(numExpected: 10, p => {
+      .SkipUntil(TABLE)
+      .Expect(TABLE)
+        .Expect(THEAD)
+          .Expect(TR, annotation:"row-heading")
+            .SkipUntil(END_TR)
+          .Expect(END_TR, annotation: "end:row-heading")
+        .Expect(END_THEAD)
+      .ExpectProductionUntil(p => {
         DataHref(p, hrefList);
         return p;
-      })
+      },
+        endRule: END_TABLE,
+        endAnnodation: "ActionTableEnd"
+      )
+      // .ExpectProductionNTimes(numExpected: 10, p => {
+      //   DataHref(p, hrefList);
+      //   return p;
+      // })
       ;
-      Console.WriteLine(value: $"Number hrefs: {hrefList.Count}");
+
+      Assert.Collection(hrefList,
+        h1 => Assert.Equal(expected:"[href-1] = #awsaccountmanagement-accountInOrganization", h1),
+        h2 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_AlternateContactTypes", h2),
+        h3 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h3),
+        h4 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_TargetRegion", h4),
+        h5 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h5),
+        h6 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_TargetRegion", h6),
+        h7 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h7),
+        h8 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_AlternateContactTypes", h8),
+        h9 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h9),
+        h10 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h10),
+        h11 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_TargetRegion", h11),
+        h12 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h12),
+        h13 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h13),
+        h14 => Assert.Equal(expected: "[href-2] = #awsaccountmanagement-account_AlternateContactTypes", h14),
+        h15 => Assert.Equal(expected: "[href-1] = #awsaccountmanagement-accountInOrganization", h15)
+      );
+
   }
 
   private void DataHref(ParseAction parser, List<string> hrefs)
@@ -412,42 +443,42 @@ public class TestParsing
     );
 
     parser
-      .SkipUntil(TD)
-      .Expect(TD, annotation: "td-action-id")
-        .Expect(ANCHOR_ID, annotation:"a-id").Expect(END_ANCHOR, annotation:"end-a-id")
-        .Expect(ANCHOR_HREF, annotation:"a-href").Expect(END_ANCHOR, annotation:"end-a-href")
-      .Expect(END_TD, annotation: "td-actionid-end")
-      .AllMatchThen( (list, writer) => {
-        Console.WriteLine(value: "TD - Action ID, HREF");
-      })
-      .MismatchesThen()
-        .Expect(TD, annotation: "td-start")
-          .Expect(PARA, annotation: "data-p")
-            .Expect(ANCHOR_HREF, annotation:"data-href")
-            .Expect(END_ANCHOR, annotation: "data-href-end")
-          .Expect(END_PARA, annotation: "data-p-end")
-        .Expect(END_TD, annotation: "td-end")
-        .IfElse( haveHref, (parser, match) => {
-            match.Parts.MatchSome(parts => hrefs.Add(parts.ElementAt(index: 2)));
-            match.Parts.MatchSome(parts => Console.WriteLine(value: $"Href value: {parts}"));
-            return parser;
-          },
-          (parser) => parser
-        )
-        .MismatchesThen()
-          .SkipUntil(TD)
-          .Expect(TD, annotation: "td-empty-start")
-          .Expect(END_TD, annotation:"td-empty-end")
-          .AllMatchThen( (list, writer) => {
-            Console.WriteLine(value:"Empty TD");
-          })
-        .MismatchesThen()
-          .SkipUntil(TD)
-          .Expect(TD, annotation: "td-nondata-start")
+      .SkipUntil(TR)
+      .Expect(TR, annotation:"row-start")
+        .Expect(TD, annotation:"data1-start")
+          .MayExpect(PARA, annotation: "p1")
+            .MayExpect(ANCHOR_HREF, annotation: "href-1").MayExpect(END_ANCHOR, annotation:"a:end")
+          .MayExpect(END_PARA, annotation: "p1-end")
           .SkipUntil(END_TD)
-          .Expect(END_TD, annotation:"td-nondata-end")
-          .AllMatchThen( (list, writer) => {
-            Console.WriteLine(value:"other TD");
-          });
+        .Expect(END_TD, annotation: "data1-end")
+        .Expect(TD, annotation: "data2-start")
+          .MayExpect(PARA, annotation: "p2")
+            .MayExpect(ANCHOR_HREF, annotation: "href-2").MayExpect(END_ANCHOR, annotation:"a:end")
+          .MayExpect(END_PARA, annotation: "p2-end")
+          .SkipUntil(END_TD)
+        .Expect(END_TD, annotation: "data2-end")
+        .Expect(TD, annotation: "data3-start")
+          .MayExpect(PARA, annotation: "p3")
+            .MayExpect(ANCHOR_HREF, annotation: "href-3").MayExpect(END_ANCHOR, annotation:"a:end")
+          .MayExpect(END_PARA, annotation: "p3-end")
+          .SkipUntil(END_TD)
+        .Expect(END_TD, annotation: "data3-end")
+        .SkipUntil(END_TR)
+      .Expect(END_TR, annotation: "row-end")
+      .AllMatchThen((list, writer) => {
+        var hrefQuery =
+          from matching in list
+          where matching.HasAnnotation && matching.Annotation.Contains(value:"href-")
+          select matching;
+        hrefQuery.ForEach( (entry, idx) => {
+          string part = "";
+          entry.Parts.MatchSome(p => part = p.ElementAt(index: 0) );
+          hrefs.Add($"[{entry.Annotation}] = {part}");
+        });
+      })
+      .MismatchesThen((list, writer) => {
+        Assert.False(true, userMessage: "Failed to parse without mismatches recorded.");
+      })
+      ;
   }
 }
