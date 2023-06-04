@@ -58,6 +58,27 @@ public static class HtmlPartsUtils
     return attribValue;
   }
 
+  public static string GetAIdAttribValue(Option<LinkedList<string>> Parts)
+  {
+    string attribValue = EMPTY_STRING;
+    Parts.MatchSome(list => attribValue = list.ElementAt(HtmlPatterns.A_ID_VALUE_IDX));
+    return attribValue;
+  }
+
+  public static string GetAHrefAttribValue(Option<LinkedList<string>> Parts)
+  {
+    string attribValue = EMPTY_STRING;
+    Parts.MatchSome(list => attribValue = list.ElementAt(HtmlPatterns.A_HREF_ATTRIB_VALUE_IDX));
+    return attribValue;
+  }
+
+  public static string GetAHrefTagValue(Option<LinkedList<string>> Parts)
+  {
+    string tagValue = EMPTY_STRING;
+    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.A_HREF_TAG_VALUE_IDX));
+    return tagValue;
+  }
+
   public static bool IsEmptyPartsValue(this string value)
     => value == EMPTY_STRING;
 }

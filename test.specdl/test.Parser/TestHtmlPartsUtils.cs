@@ -175,4 +175,84 @@ public class TestHtmlPartsUtils
       ;
     Assert.True(isMatched);
   }
+
+  [Fact]
+  public void GetAIdAttribValue_returnIdValue()
+  {
+    const string EXPECTED_VALUE = "awsaccountmanagement-CloseAccount";
+    bool isMatched = false;
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, annotation: "table")
+      .SkipUntil(HtmlRules.END_THEAD)
+      .Expect(HtmlRules.END_THEAD, annotation: "end:thead")
+      .Expect(HtmlRules.START_TR, annotation: "start:tr")
+        .Expect(HtmlRules.START_TD_VALUE, annotation: "start:td-firstCell")
+          .Expect(HtmlRules.START_A_ID, annotation: "subject")
+      .AllMatchThen( (list,idx) => {
+        var query = from node in list
+          where node.HasAnnotation && node.Annotation == "subject"
+          select node;
+        Matching matching = query.Last();
+        Assert.Equal(EXPECTED_VALUE, HtmlPartsUtils.GetAIdAttribValue(matching.Parts));
+        isMatched = true;
+      })
+      ;
+    Assert.True(isMatched);
+  }
+
+  [Fact]
+  public void GetAHrefAttribValue_returnsAttribValue()
+  {
+    const string EXPECTED_VALUE = "https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html";
+    bool isMatched = false;
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, annotation: "table")
+      .SkipUntil(HtmlRules.END_THEAD)
+      .Expect(HtmlRules.END_THEAD, annotation: "end:thead")
+      .Expect(HtmlRules.START_TR, annotation: "start:tr")
+        .Expect(HtmlRules.START_TD_VALUE, annotation: "start:td-firstCell")
+          .Expect(HtmlRules.START_A_ID, annotation: "start:a-id").Expect(HtmlRules.END_A)
+          .Expect(HtmlRules.START_A_HREF, annotation: "subject")
+      .AllMatchThen( (list,idx) => {
+        var query = from node in list
+          where node.HasAnnotation && node.Annotation == "subject"
+          select node;
+        Matching matching = query.Last();
+        Assert.Equal(EXPECTED_VALUE, HtmlPartsUtils.GetAHrefAttribValue(matching.Parts));
+        isMatched = true;
+      })
+      ;
+    Assert.True(isMatched);
+  }
+
+  [Fact]
+  public void GetAHrefTagValue_returnsTagValue()
+  {
+    const string EXPECTED_VALUE = "CloseAccount";
+    bool isMatched = false;
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, annotation: "table")
+      .SkipUntil(HtmlRules.END_THEAD)
+      .Expect(HtmlRules.END_THEAD, annotation: "end:thead")
+      .Expect(HtmlRules.START_TR, annotation: "start:tr")
+        .Expect(HtmlRules.START_TD_VALUE, annotation: "start:td-firstCell")
+          .Expect(HtmlRules.START_A_ID, annotation: "start:a-id").Expect(HtmlRules.END_A)
+          .Expect(HtmlRules.START_A_HREF, annotation: "subject")
+      .AllMatchThen( (list,idx) => {
+        var query = from node in list
+          where node.HasAnnotation && node.Annotation == "subject"
+          select node;
+        Matching matching = query.Last();
+        Assert.Equal(EXPECTED_VALUE, HtmlPartsUtils.GetAHrefTagValue(matching.Parts));
+        isMatched = true;
+      })
+      ;
+    Assert.True(isMatched);
+  }
 }
