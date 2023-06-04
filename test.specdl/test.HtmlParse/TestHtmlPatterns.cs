@@ -67,14 +67,6 @@ public class TestHtmlPatterns
   }
 
   [Fact]
-  public void TR_ATTRIB_match()
-  {
-    Match match;
-    match = HtmlPatterns.TR_ATTRIB.Match("<tr rowspan=\"3\">");
-    CheckMatches(3, match);
-  }
-
-  [Fact]
   public void TH_matchWithDescription()
   {
     const string

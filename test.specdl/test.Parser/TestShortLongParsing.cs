@@ -47,28 +47,16 @@ public class TestShortLongParsing
   {
     Matching result;
     Regex
-      trRule = HtmlPatterns.TR,
-      trAttribsRule = HtmlPatterns.TR_ATTRIB;
+      trRule = HtmlPatterns.TR;
 
-    Matcher tr = Utils.ShortLongMatchRules(trRule, trAttribsRule, name: "tr");
+    Matcher tr = Utils.SingularMatchRule(trRule, name: "tr");
 
     
     result = tr.Invoke("<tr>");
     Assert.True(result.IsMatch);
-    Assert.Equal(MatchKind.ShortMatch, result.MatchResult);
-    Assert.False(result.Parts.HasValue);
-
-    result = tr.Invoke(token: "<tr rowspan=\"10\">");
-    Assert.True(result.IsMatch);
-    Assert.Equal(MatchKind.LongMatch, result.MatchResult);
+    Assert.Equal(MatchKind.SingularMatch, result.MatchResult);
     Assert.True(result.Parts.HasValue);
-    result.Parts.MatchSome( list => {
-      var itr = list.GetEnumerator();
-      Assert.True(itr.MoveNext());
-      Assert.Equal(expected: "rowspan", itr.Current);
-      Assert.True(itr.MoveNext());
-      Assert.Equal(expected: "10", itr.Current);
-    });
+    Assert.False(result.Parts.Exists(parts => parts.Count > 0));
   }
 
   [Fact]

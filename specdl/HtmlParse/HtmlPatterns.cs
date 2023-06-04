@@ -24,7 +24,6 @@ public static class HtmlPatterns
     TD_VALUE = new Regex(pattern: @"\<td\>([\w\s\(\*\)]*)"),
     END_TD = new Regex(pattern: @"\<\/td\>"),
     TR = new Regex(pattern: @"\<tr\>"),
-    TR_ATTRIB = new Regex(pattern: @"\<tr\s?(\w+)=?\""(\d+)\""?\>"),
     END_TR = new Regex(pattern: @"\<\/tr\>"),
     A_ID = new Regex(pattern: @"\<a id=\""([\-\w\s]+)\""\>$"),
     A_HREF = new Regex(pattern: @"\<a href=""([*:\-_./#*\w\s]+)""\>(.*)"),
@@ -41,8 +40,6 @@ public static class HtmlPatterns
     TD_ATTRIB_VALUE_IDX = 1,
     TD_ATTRIB_TAG_VALUE_IDX = 2,
     TD_TAG_VALUE_IDX = 0,
-    TR_ATTRIB_NAME_VALUE_IDX = 0,
-    TR_ATTRIB_VALUE_IDX = 1,
     A_ID_VALUE_IDX = 0,
     A_HREF_ATTRIB_VALUE_IDX = 0,
     A_HREF_TAG_VALUE_IDX = 1;

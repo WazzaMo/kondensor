@@ -107,7 +107,7 @@ public class TestParsing
       _table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, name: "table"),
       _endTable = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end-table"),
       _tr = Utils.SingularMatchRule(HtmlPatterns.TR, "tr-only"),
-      _trAll = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, "tr-all"),
+      _trAll = Utils.SingularMatchRule(HtmlPatterns.TR, "tr-all"),
       _endtr = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end-tr"),
       _thead = Utils.SingularMatchRule(HtmlPatterns.THEAD, "thead"),
       _endThead = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, "end-thead");
@@ -136,7 +136,7 @@ public class TestParsing
     END_TABLE = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table"),
     THEAD = Utils.SingularMatchRule(HtmlPatterns.THEAD, name: "thead"),
     END_THEAD = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, name: "end:thead"),
-    TR = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "tr"),
+    TR = Utils.SingularMatchRule(HtmlPatterns.TR, name: "tr"),
     END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
     TH = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th"),
     END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th"),

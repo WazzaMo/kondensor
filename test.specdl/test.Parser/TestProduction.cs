@@ -58,7 +58,7 @@ public class TestProduction
     _endTable = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table");
     _Thead = Utils.SingularMatchRule(HtmlPatterns.THEAD, "thead");
     _endThead = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, name: "end:thead");
-    _Tr = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "tr");
+    _Tr = Utils.SingularMatchRule(HtmlPatterns.TR, name: "tr");
     _endTr = Utils.SingularMatchRule(HtmlPatterns.END_TR, "end:tr");
     _Th = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "th");
     _endTh = Utils.SingularMatchRule(HtmlPatterns.END_TH, "end:th");

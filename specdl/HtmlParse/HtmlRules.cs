@@ -22,7 +22,7 @@ public static class HtmlRules
     END_THEAD = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, name: "end:thead"),
     START_TH_VALUE = Utils.SingularMatchRule(HtmlPatterns.TH_VALUE, name: "start:th-value"),
     END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th"),
-    START_TR = Utils.ShortLongMatchRules(HtmlPatterns.TR, HtmlPatterns.TR_ATTRIB, name: "start:tr"),
+    START_TR = Utils.SingularMatchRule(HtmlPatterns.TR, name: "start:tr"),
     END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
     START_TD_VALUE = Utils.SingularMatchRule(HtmlPatterns.TD_VALUE, name: "start:td-value"),
     START_TD_ATTRIB_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-attrib-value"),
