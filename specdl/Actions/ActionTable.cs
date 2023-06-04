@@ -27,7 +27,18 @@ public struct ActionTable
     _HeadingNames = new List<string>();
   }
 
-  public ParseAction ActionsHeader(ParseAction parser)
+  public ParseAction ActionsTable(ParseAction parser)
+  {
+    parser
+      .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, annotation: "start:table:actions")
+        .Expect(production: ActionsHeader)
+      .Expect(HtmlRules.END_TABLE, annotation: "end:table:actions")
+      ;
+    return parser;
+  }
+
+  private ParseAction ActionsHeader(ParseAction parser)
   {
     var headingList = _HeadingNames;
 
@@ -54,4 +65,30 @@ public struct ActionTable
       .Expect(HtmlRules.START_TH_VALUE, annotation: HEADING_ANNOTATION)
       .Expect(HtmlRules.END_TH, annotation: "end:th");
 
+  private ParseAction TableData(ParseAction parser)
+  {
+    return parser;
+  }
+
+  private ParseAction RowData(ParseAction parser)
+  {
+    parser
+      .Expect(HtmlRules.START_TR, annotation: "start:tr:row")
+        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td:action")
+          .Expect(HtmlRules.START_A_ID, annotation: "start:a-id:action")
+          .Expect(HtmlRules.END_A, annotation:"end:a-id:action")
+          .Expect(HtmlRules.START_A_HREF, annotation:"start:a-href:action")
+          .Expect(HtmlRules.END_A, annotation: "end:a-href:action")
+        .Expect(HtmlRules.END_TD, annotation: "end:td:action")
+        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td:description")
+        .Expect(HtmlRules.END_TD, annotation: "end:td:description")
+      .Expect(HtmlRules.END_TR, annotation: "end:tr:row")
+      ;
+    return parser;
+  }
+
+  private ParseAction RepeatRowData(ParseAction parser)
+  {
+    return parser;
+  }
 }

@@ -4,6 +4,8 @@
  *  Distributed under the Kondensor License.
  */
 
+using Spec;
+
 const string
   BASE_URL = "https://docs.aws.amazon.com",
   // ROOT_DOC = "/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html",

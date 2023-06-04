@@ -11,7 +11,7 @@ namespace Spec;
 
 public struct RootDocProcessor : IProcessor
 {
-  public void ProcessAllLines(IPipe pipe)
+  public void ProcessAllLines(ReplayWrapPipe pipe)
   {
     throw new NotImplementedException();
   }

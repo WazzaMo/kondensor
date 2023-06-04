@@ -10,6 +10,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Optional;
 
+using Spec;
+using Parser;
+using HtmlParse;
+
 public struct SpecDownloader
 {
   private Option<string> _Url;
@@ -72,7 +76,9 @@ public struct SpecDownloader
   {
     Option<TextReader> _source = _Source;
     Option<TextWriter> _dest = _Destination;
-    int countLines = 0;
+
+    HtmlPipe htmlPipe;
+    ReplayWrapPipe thePipe;
 
     _Processor.Match(
       processor => {
@@ -80,17 +86,18 @@ public struct SpecDownloader
           source => {
             _dest.Match(
               destination => {
-                processor.ProcessAllLines(out countLines, source, destination);
+                htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
+                thePipe = new ReplayWrapPipe(htmlPipe);
+                processor.ProcessAllLines(thePipe);
               },
               () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Destination not set!")
             );
           },
-          () => Console.Error.WriteLine($"{nameof(SpecDownloader)}: Source not set!")
+          () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Source not set!")
         );
       },
       () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Processor not set!")
     );
-    _LinesRead = countLines;
   }
 
   private string? DownloadText(string path)

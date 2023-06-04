@@ -9,6 +9,11 @@ using Optional;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
+using Parser;
+using HtmlParse;
+
+using Actions;
+
 namespace Spec;
 
 
@@ -29,272 +34,19 @@ namespace Spec;
 /// </summary>
 public struct DocProcessor : IProcessor
 {
-  private Stack<StackTask> _ParseStack;
-  private IContext _CurrentContext;
-
-  private Queue<string> _Tokens;
-
-  private int _LinesProcessed;
+  private ActionTable _Actions;
 
   public DocProcessor()
   {
-    _ParseStack = new Stack<StackTask>();
-    _CurrentContext = InitStackTaskForTable(_ParseStack, new NoneContext());
-    _Tokens = new Queue<string>();
-    _LinesProcessed = 0;
+    _Actions = new ActionTable();
   }
 
-  public void ProcessAllLines(out int countHandled, TextReader input, TextWriter output)
+  public void ProcessAllLines(ReplayWrapPipe pipe)
   {
-    if (input != null && output != null) 
-    {
-      string? token;
-
-      do
-      {
-        token = GetToken(input);
-        if (token != null)
-        {
-          string topStack = _ParseStack.Peek().Element.GetType().Name;
-          // Console.WriteLine($"ParseNext: {topStack} for {token}");
-
-          if (IsMatch(token))
-          {
-            _CurrentContext = Process(token, output, _CurrentContext);
-            string contextName = _CurrentContext.GetType().Name;
-          }
-          else if (IsFinalMatch(token))
-          {
-            _CurrentContext = FinalProcess(token, output, _CurrentContext);
-          }
-          else
-          {
-            topStack = _ParseStack.Peek().Element.GetType().Name;
-            // No match
-            Console.WriteLine(value: $"MISSED {token} by no match of {topStack}");
-          }
-        }
-      } while( token != null);
-      Console.WriteLine($"Number lines processed: {_LinesProcessed}");
-    }
-    else
-    {
-      if (input == null)
-        throw new ArgumentException("Parameter input is NULL");
-      else if (output == null)
-        throw new ArgumentException("Parameter output is NULL");
-    }
-    countHandled = _LinesProcessed;
+    var parser = Parsing.Group(pipe)
+      .Expect(_Actions.ActionsTable)
+      ;
   }
 
-  /// <summary>
-  /// Get next token to process.
-  /// </summary>
-  /// <param name="input">Input to read line from.</param>
-  /// <returns>NULL if end of input file stream or a string.</returns>
-  private string? GetToken(TextReader input)
-  {
-    string? result;
-
-    if (_Tokens.Count == 0)
-    {
-      string? line = input.ReadLine();
-      int found = line != null ? line.IndexOf("<tr>") : -1;
-      if (found > 0)
-      {
-        string topStack = _ParseStack.Peek().Element.GetType().Name;
-        Console.WriteLine($"TR: {topStack} -> " + line);
-      }
-      if (line != null)
-      {
-        _LinesProcessed++;
-        TokeniseLineParts(line);
-        result = DequeueTokenOrEmpty();
-      }
-      else
-        result = null;
-    }
-    else
-      result = DequeueTokenOrEmpty();
-    
-    return result;
-  }
-
-  private string DequeueTokenOrEmpty()
-    => _Tokens.Count > 0
-        ? _Tokens.Dequeue()
-        : "";
-
-  private static readonly Regex LineSep = new Regex(pattern: @"\<");
-  private void TokeniseLineParts(string line)
-  {
-    MatchCollection parts = LineSep.Matches(line);
-
-    for(int partIndex = 0; partIndex < parts.Count; partIndex++)
-    {
-      int index1, index2, length;
-
-      index1 = parts[partIndex].Index;
-      index2 = partIndex < (parts.Count - 1)
-        ? parts[partIndex + 1].Index
-        : line.Length;
-      length = index2 - index1;
-
-      string sub = line.Substring(index1, length);
-      _Tokens.Enqueue(sub);
-    }
-  }
-
-  private bool IsMatch(string line)
-    => _ParseStack.Peek().Element.IsMatch(line);
-
-  private bool IsFinalMatch(string line)
-    => _ParseStack.Peek().Element.IsFinalMatch(line);
-
-  private IContext Process(string line, TextWriter output, IContext current)
-  {
-    StackTask task = _ParseStack.Peek();
-    IContext context = task.Element.Processed(line, output, _CurrentContext);
-    context = task.UponMatch(_ParseStack, context);
-    return context;
-  }
-
-  private IContext FinalProcess(string line, TextWriter output, IContext current)
-  {
-    StackTask task = _ParseStack.Pop();
-    IContext context = task.Element.Processed(line, output, _CurrentContext);
-    context = task.UponFinalMatch(_ParseStack, context);
-    return context;
-  }
-
-  private static IContext InitStackTaskForTable(Stack<StackTask> stack, IContext current)
-  {
-    StackTask handleTableEnd = new StackTask() {
-      Element = new TableEndElement(),
-      UponFinalMatch = InitStackTaskForTable,
-      UponMatch = DocGeneralProcessor.Fault
-    };
-    StackTask handleTableStart = new StackTask() {
-      Element = new SkipOrOtherElement( new TableStartElement() ),
-      UponFinalMatch = ConfigParseForTHead,
-      UponMatch = DocGeneralProcessor.ContextPassThrough
-    };
-    stack.Push(handleTableEnd);
-    stack.Push(handleTableStart);
-    return new NoneContext();
-  }
-
-  private static IContext ConfigParseForTHead(Stack<StackTask> stack, IContext current)
-  {
-    StackTask headingEnd = new StackTask() {
-      Element = new TableHeadEndElement(),
-      UponFinalMatch = PrepareForDataRow,
-      UponMatch = DocGeneralProcessor.Fault
-    };
-    StackTask headingStart = new StackTask() {
-      Element = new TableHeadStartElement(),
-      UponFinalMatch = ConfigForHeadingTRow,
-      UponMatch = DocGeneralProcessor.Fault
-    };
-    stack.Push(headingEnd);
-    stack.Push(headingStart);
-    return new NoneContext();
-  }
-
-  private static IContext ConfigForHeadingTRow(Stack<StackTask> stack, IContext context)
-  {
-    StackTask
-      rowStart = new StackTask() {
-        Element = new TableRowStartElement(),
-        UponFinalMatch = ConfigForHeadingSpec,
-        UponMatch = DocGeneralProcessor.Fault
-      },
-      thOrRowEnd = new StackTask() {
-        Element = new THSpecOrEndTrElement(),
-        UponMatch = EndHeadingSpec,
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough
-      };
-      stack.Push(thOrRowEnd);
-      stack.Push(rowStart);
-      return new NoneContext();
-  }
-
-  private static IContext EndHeadingSpec(Stack<StackTask> stack, IContext context)
-  {
-    StackTask
-      thEnd = new StackTask() {
-        Element = new THEndElement(),
-        UponFinalMatch = DocGeneralProcessor.ContextPassThrough,
-        UponMatch = DocGeneralProcessor.Fault
-      };
-    stack.Push(thEnd);
-    return context;
-  }
-
-  private static IContext ConfigForHeadingSpec(Stack<StackTask> stack, IContext context)
-  {
-    return new TableHeaderContext();
-  }
-
-  /// <summary>
-  /// Handle data row after heading is complete.
-  /// </summary>
-  /// <param name="stack"></param>
-  /// <param name="context"></param>
-  /// <returns></returns>
-  private static IContext PrepareForDataRow(Stack<StackTask> stack, IContext context)
-  {
-    IContext newContext;
-
-    if (context is TableHeaderContext header)
-    {
-      if (header.Headings.Count > 0)
-      {
-        header.Kind = GetKindFrom(header.Headings);
-      }
-
-      newContext = header.Kind switch {
-        TablePurpose.Actions => DocActionsProcessor.ActionDataRows(stack, context),
-        _ => new NoneContext()
-      };
-    }
-    else
-    {
-      newContext = new NoneContext();
-    }
-    return newContext;
-  }
-
-  private static IContext ConfigForDataRow(Stack<StackTask> stack, IContext context)
-  {
-    StackTask
-      dataRow = new StackTask() {
-        Element = new TableRowStartElement(),
-        UponMatch = DocGeneralProcessor.ContextPassThrough // replace
-      },
-      dataRowEnd = new StackTask() {
-        Element = new TableDataOrRowEndElement(),
-        UponMatch = DocGeneralProcessor.ContextPassThrough // replace
-      };
-    stack.Push(dataRowEnd);
-    stack.Push(dataRow);
-    return context;
-  }
-
-  private static TablePurpose GetKindFrom(List<string> headings)
-  {
-    TablePurpose kind = headings[0] switch {
-      ACTIONS => TablePurpose.Actions,
-      RESOURCE_TYPES => TablePurpose.ResourceTypes,
-      CONDITION_KEYS => TablePurpose.ConditionKeys,
-      _ => TablePurpose.Unknown
-    };
-    return kind;
-  }
-
-  const string
-    ACTIONS = "Actions",
-    RESOURCE_TYPES = "Resource types",
-    CONDITION_KEYS = "Condition keys";
-
+  
 }

@@ -34,5 +34,18 @@ public static class HtmlPatterns
     END_PARA = new Regex(pattern: @"\<\/p\>")
     ;
 
+  public const int
+    TABLE_ATTRIB_NAME_IDX = 0,
+    TABLE_ATTRIB_VALUE_IDX = 1,
+    TH_VALUE_INDEX_IDX = 0,
+    TD_ATTRIB_NAME_IDX = 0,
+    TD_ATTRIB_VALUE_IDX = 1,
+    TD_ATTRIB_TAG_VALUE_IDX = 2,
+    TD_TAG_VALUE_IDX = 0,
+    TR_ATTRIB_NAME_VALUE_IDX = 0,
+    TR_ATTRIB_VALUE_IDX = 1,
+    A_ID_VALUE_IDX = 0,
+    A_HREF_ATTRIB_VALUE_IDX = 1,
+    A_HREF_TAG_VALUE_IDX = 2;
 
 }
