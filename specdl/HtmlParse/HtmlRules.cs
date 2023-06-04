@@ -12,9 +12,7 @@ using Parser;
 namespace HtmlParse;
 
 public static class HtmlRules
-{
-  public const int TH_VALUE_INDEX = 0;
-  
+{  
   public static readonly Matcher
     START_TABLE = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, name:"start:table"),
     END_TABLE = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table"),
@@ -30,6 +28,7 @@ public static class HtmlRules
     START_A_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "start:a-id"),
     START_A_HREF = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "start:a-href"),
     END_A = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:a"),
-    START_PARA = Utils.SingularMatchRule(HtmlPatterns.PARA, name: "start:p"),
+    START_PARA = Utils.SingularMatchRule(HtmlPatterns.PARA,name: "start:p"),
+    START_PARA_VALUE = Utils.SingularMatchRule(HtmlPatterns.PARA_VALUE, name: "start:p-value"),
     END_PARA = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p");
 }

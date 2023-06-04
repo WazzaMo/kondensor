@@ -79,6 +79,13 @@ public static class HtmlPartsUtils
     return tagValue;
   }
 
+  public static string GetPTagValue(Option<LinkedList<string>> Parts)
+  {
+    string tagValue = EMPTY_STRING;
+    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.PARA_VALUE_IDX).Trim());
+    return tagValue;
+  }
+
   public static bool IsEmptyPartsValue(this string value)
     => value == EMPTY_STRING;
 }

@@ -9,7 +9,9 @@ using Optional;
 
 using System.IO;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
+
 
 namespace Parser
 {
@@ -72,21 +74,73 @@ namespace Parser
     private bool GetTokenFromInput(out string token)
     {
       bool isOk;
-      string? line = _Input.ReadLine();
 
-      if (line != null)
+      if (_EofInput)
       {
-        TokeniseLineParts(line);
-        token = DequeueTokenOrEmpty();
-        isOk = true;
-      }
-      else
-      {
-        _EofInput = true;
         isOk = false;
         token = "";
       }
+      else
+      {
+        string? line = GreedyRead();// _Input.ReadLine();
+        if (line != null)
+        {
+          TokeniseLineParts(line);
+          token = DequeueTokenOrEmpty();
+          isOk = true;
+        }
+        else
+        {
+          _EofInput = true;
+          isOk = false;
+          token = "";
+        }
+      }
       return isOk;
+    }
+
+    /// <summary>
+    /// Read until next token starts.
+    /// </summary>
+    /// <returns>One or more lines of text</returns>
+    private string? GreedyRead()
+    {
+      string? result = null;
+      StringBuilder builder = new StringBuilder();
+
+      int charInput;
+      int tokenCount = 0;
+
+      do
+      {
+        charInput = _Input.Peek();
+        tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
+        if ( charInput > 0 && tokenCount < 2)
+        {
+          builder.Append((char) _Input.Read());
+        }
+      } while( charInput > 0 && tokenCount < 2);
+
+      if (builder.Length > 0)
+      {
+        result = builder.ToString();
+      }
+      return result;
+    }
+
+    private string? GetText(out MatchCollection parts)
+    {
+      string? line = _Input.ReadLine();
+      if (line != null)
+      {
+        parts = __LineSep.Matches(line);
+      }
+      else
+      {
+        parts = __LineSep.Matches("");
+      }
+
+      return line;
     }
 
     private void TokeniseLineParts(string line)
@@ -103,7 +157,7 @@ namespace Parser
           : line.Length;
         length = index2 - index1;
 
-        string sub = line.Substring(index1, length);
+        string sub = line.Substring(index1, length).Trim();
         _InputQueue.Enqueue(sub);
       }
     }

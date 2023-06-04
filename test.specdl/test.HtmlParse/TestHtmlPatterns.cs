@@ -212,6 +212,24 @@ public class TestHtmlPatterns
     Assert.Equal(html, match.Value);
   }
 
+  [Fact]
+  public void PARA_VALUE_matches()
+  {
+    const string
+      html = @"<p>
+                                iam:CreateServiceLinkedRole",
+      depAction = @"
+                                iam:CreateServiceLinkedRole";
+    Match match;
+
+    match = HtmlPatterns.PARA_VALUE.Match(html);
+    Assert.Equal(html.Length, match.Length);
+    Assert.Collection(match.Groups.Values,
+      g0 => Assert.Equal(html, g0.Value),
+      g1 => Assert.Equal(depAction, g1.Value)
+    );
+  }
+
   private void CheckMatches(int count, Match match)
   {
     Assert.True(match.Length > 0);

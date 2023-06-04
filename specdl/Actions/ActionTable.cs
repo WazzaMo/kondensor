@@ -18,7 +18,29 @@ namespace Actions;
 /// </summary>
 public struct ActionTable
 {
-  const string HEADING_ANNOTATION = "start:th:heading";
+  const string
+    HEADING_ANNOTATION = "start:th:heading",
+    START_ROW_ANNOTATION = "start:tr:row",
+    START_CELL_ACTION_ANNOTATION = "start:td:action",
+    START_ID_ACTION_ANNOTATION = "start:a-id:action",
+    END_ID_ACTION_ANNOTATION = "end:a-id:action",
+    START_HREF_ACTION_ANNOTATION = "start:a-href:action",
+    END_HREF_ACTION_ANNOTATION = "end:a-href:action",
+    END_CELL_ACTION_ANNOTATION = "end:td:action",
+    START_CELL_ACTIONDESC_ANNOTATION = "start:td:description",
+    END_CELL_ACTIONDESC_ANNOTATION = "end:td:description",
+    START_ACCESSLEVEL_ANNOTATION = "start:td:accesslevel",
+    END_ACCESSLEVEL_ANNOTATION = "end:td:accesslevel",
+    START_REPEAT_RESOURCE_CELL = "start:td:resource",
+    END_REPEAT_RESOURCE_CELL = "end:td:resource",
+    START_REPEAT_CONDKEY_CELL = "start:td:condkey",
+    END_REPEAT_CONDKEY_CELL = "end:td:condkey",
+    START_REPEAT_DEPEND_CELL = "start:td:dependentaction",
+    END_REPEAT_DEPEND_CELL = "end:td:dependentaction",
+    A_HREF_RESOURCE = "a:href:resourece",
+    A_HREF_CONDKEY = "a:href:condkey",
+    P_DEENDENT = "p:dependentaction",
+    END_ROW_ANNOTATION = "end:tr:row";
 
   private List<string> _HeadingNames;
 
@@ -54,7 +76,7 @@ public struct ActionTable
           && node.Parts.HasValue
           select node;
         query.ForEach( (node, idx) => {
-          node.Parts.MatchSome( parts => headingList.Add(parts.ElementAt(HtmlRules.TH_VALUE_INDEX)));
+          headingList.Add( HtmlPartsUtils.GetThTagValue(node.Parts));
         });
       });
     return parser;
@@ -73,22 +95,26 @@ public struct ActionTable
   private ParseAction RowData(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TR, annotation: "start:tr:row")
-        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td:action")
-          .Expect(HtmlRules.START_A_ID, annotation: "start:a-id:action")
-          .Expect(HtmlRules.END_A, annotation:"end:a-id:action")
-          .Expect(HtmlRules.START_A_HREF, annotation:"start:a-href:action")
-          .Expect(HtmlRules.END_A, annotation: "end:a-href:action")
-        .Expect(HtmlRules.END_TD, annotation: "end:td:action")
-        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td:description")
-        .Expect(HtmlRules.END_TD, annotation: "end:td:description")
-      .Expect(HtmlRules.END_TR, annotation: "end:tr:row")
+      .Expect(HtmlRules.START_TR, annotation: START_ROW_ANNOTATION)
+        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: START_CELL_ACTION_ANNOTATION)
+          .Expect(HtmlRules.START_A_ID, annotation: START_ID_ACTION_ANNOTATION)
+          .Expect(HtmlRules.END_A, annotation: END_ID_ACTION_ANNOTATION)
+          .Expect(HtmlRules.START_A_HREF, annotation: START_HREF_ACTION_ANNOTATION)
+          .Expect(HtmlRules.END_A, annotation: END_HREF_ACTION_ANNOTATION)
+        .Expect(HtmlRules.END_TD, annotation: END_CELL_ACTION_ANNOTATION)
+        .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: START_CELL_ACTIONDESC_ANNOTATION)
+        .Expect(HtmlRules.END_TD, annotation: END_CELL_ACTIONDESC_ANNOTATION)
+        .Expect(HtmlRules.START_TD_VALUE, annotation: START_ACCESSLEVEL_ANNOTATION)
+        .Expect(HtmlRules.END_TD, annotation: END_ACCESSLEVEL_ANNOTATION)
+      .Expect(HtmlRules.END_TR, annotation: END_ROW_ANNOTATION)
       ;
     return parser;
   }
 
   private ParseAction RepeatRowData(ParseAction parser)
   {
+    parser
+      .Expect(HtmlRules.START_TD_ATTRIB_VALUE);
     return parser;
   }
 }

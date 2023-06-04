@@ -29,6 +29,7 @@ public static class HtmlPatterns
     A_HREF = new Regex(pattern: @"\<a href=""([*:\-_./#*\w\s]+)""\>(.*)"),
     END_A = new Regex(pattern: @"\<\/a\>"),
     PARA = new Regex(pattern: @"\<p\>"),
+    PARA_VALUE = new Regex(pattern: @"\<p\>([*:*\w\s\(\*\)]+)"),
     END_PARA = new Regex(pattern: @"\<\/p\>")
     ;
 
@@ -42,6 +43,7 @@ public static class HtmlPatterns
     TD_TAG_VALUE_IDX = 0,
     A_ID_VALUE_IDX = 0,
     A_HREF_ATTRIB_VALUE_IDX = 0,
-    A_HREF_TAG_VALUE_IDX = 1;
+    A_HREF_TAG_VALUE_IDX = 1,
+    PARA_VALUE_IDX = 0;
 
 }

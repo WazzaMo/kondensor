@@ -11,6 +11,20 @@ namespace test;
 
 public static class PipeValues
 {
+    public static StringReader REPEAT => new StringReader(
+      @"<td>
+            <p>
+                <a href=""#awselementalmediapackagevod-packaging-groups"">packaging-groups*</a>
+            </p>
+        </td>
+        <td></td>
+        <td>
+            <p>
+                iam:CreateServiceLinkedRole
+            </p>
+        </td>"
+    );
+
     /// <summary>Subset of HTML</summary>
     /// 
     public static StringReader HTML => new StringReader(

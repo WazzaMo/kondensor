@@ -256,4 +256,33 @@ public class TestHtmlPartsUtils
     Assert.True(isMatched);
   }
 
+  [Fact]
+  public void GetPTagValue_returnsTagValue()
+  {
+    const string EXPECTED_VALUE = "iam:CreateServiceLinkedRole";
+    bool isMatched = false;
+
+    _HtmlPipe = new HtmlPipe(PipeValues.REPEAT, Console.Out);
+    _Pipe = new ReplayWrapPipe(_HtmlPipe);
+
+    var parser = Parsing.Group(_Pipe)
+      .Expect(HtmlRules.START_TD_VALUE, annotation: "start:td-firstCell")
+        .SkipUntil(HtmlRules.END_TD)
+      .Expect(HtmlRules.END_TD, annotation:"end:td-firstCell")
+      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation:"start:td-2ndcell")
+      .Expect(HtmlRules.END_TD, annotation: "end:td-2ndcell")
+      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td-3rdcell")
+        .Expect(HtmlRules.START_PARA_VALUE, annotation: "subject")
+      .AllMatchThen( (list,idx) => {
+        var query = from node in list
+          where node.HasAnnotation && node.Annotation == "subject"
+          select node;
+        Matching matching = query.Last();
+        Assert.Equal(EXPECTED_VALUE, HtmlPartsUtils.GetPTagValue(matching.Parts));
+        isMatched = true;
+      })
+      ;
+    Assert.True(isMatched);
+  }
+
 }
