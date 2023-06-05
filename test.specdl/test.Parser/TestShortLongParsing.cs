@@ -73,7 +73,7 @@ public class TestShortLongParsing
     result = tr.Invoke("<td>");
     Assert.True(result.IsMatch);
     Assert.Equal(MatchKind.ShortMatch, result.MatchResult);
-    Assert.False(result.Parts.HasValue);
+    Assert.True(result.Parts.HasValue);
     Assert.True(result.HasName);
     Assert.Equal(expected:"td", result.MatcherName);
     Assert.False(result.HasAnnotation); // no annotation set

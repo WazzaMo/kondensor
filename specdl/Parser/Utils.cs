@@ -100,21 +100,22 @@ namespace Parser
         Matching result = Utils.NoMatch();
         Match match;
 
-        match = shortRule.Match(token);
+        match = longRule.Match(token);
         if (match.Length > 0)
         {
           result = new Matching() {
             MatcherName = name,
-            MatchResult = MatchKind.ShortMatch
+            MatchResult = MatchKind.LongMatch,
+            Parts = GetParts(match)
           };
         }
         else {
-          match = longRule.Match(token);
+          match = shortRule.Match(token);
           if (match.Length > 0)
           {
             result = new Matching() {
               MatcherName = name,
-              MatchResult = MatchKind.LongMatch,
+              MatchResult = MatchKind.ShortMatch,
               Parts = GetParts(match)
             };
           }
@@ -122,7 +123,8 @@ namespace Parser
           {
             result = new Matching() {
               MatcherName = name,
-              MatchResult = MatchKind.Mismatch
+              MatchResult = MatchKind.Mismatch,
+              MismatchToken = token
             };
           }
         }
