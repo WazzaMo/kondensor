@@ -19,7 +19,8 @@ namespace Actions;
 public struct ActionTable
 {
   const string
-    HEADING_ANNOTATION = "start:th:heading",
+    START_HEADING_ANNOTATION = "start:th:heading",
+    END_HEADING_ANNOTATION = "end:th:heading",
     START_ROW_ANNOTATION = "start:tr:row",
     START_CELL_ACTION_ANNOTATION = "start:td:action",
     START_ID_ACTION_ANNOTATION = "start:a-id:action",
@@ -40,7 +41,14 @@ public struct ActionTable
     A_HREF_RESOURCE = "a:href:resourece",
     A_HREF_CONDKEY = "a:href:condkey",
     P_DEENDENT = "p:dependentaction",
-    END_ROW_ANNOTATION = "end:tr:row";
+    END_ROW_ANNOTATION = "end:tr:row",
+    START_ACTION_TABLE_ANNOTATION = "start:table:actions",
+    END_ACTION_TABLE_ANNOTATION = "end:table:actions",
+    START_ACTION_THEAD_ANNOTATION = "start:thead:actions",
+    END_ACTION_THEAD_ANNOTATION = "end:thead:actions",
+    START_HEADER_TR_ANNOTATION = "start:tr:header",
+    END_HEADER_TR_ANNOTATION = "end:tr:header"
+    ;
 
   private List<string> _HeadingNames;
 
@@ -53,9 +61,9 @@ public struct ActionTable
   {
     parser
       .SkipUntil(HtmlRules.START_TABLE)
-      .Expect(HtmlRules.START_TABLE, annotation: "start:table:actions")
+      .Expect(HtmlRules.START_TABLE, annotation: START_ACTION_TABLE_ANNOTATION)
         .Expect(production: ActionsHeader)
-      .Expect(HtmlRules.END_TABLE, annotation: "end:table:actions")
+      .Expect(HtmlRules.END_TABLE, annotation: END_ACTION_TABLE_ANNOTATION)
       ;
     return parser;
   }
@@ -65,14 +73,14 @@ public struct ActionTable
     var headingList = _HeadingNames;
 
     parser
-      .Expect(HtmlRules.START_THEAD, annotation: "start:thead:actions")
-        .Expect(HtmlRules.START_TR, annotation: "start:tr:header")
+      .Expect(HtmlRules.START_THEAD, annotation: START_ACTION_THEAD_ANNOTATION)
+        .Expect(HtmlRules.START_TR, annotation: START_HEADER_TR_ANNOTATION)
           .ExpectProductionUntil(Heading,
-        endRule: HtmlRules.END_TR, endAnnodation: "end:tr:header")
-      .Expect(HtmlRules.END_THEAD, annotation: "end:thead:actions")
+        endRule: HtmlRules.END_TR, endAnnodation: END_HEADER_TR_ANNOTATION)
+      .Expect(HtmlRules.END_THEAD, annotation: END_ACTION_THEAD_ANNOTATION)
       .AllMatchThen( (list, writer) => {
         var query = from node in list
-          where node.HasAnnotation && node.Annotation == HEADING_ANNOTATION
+          where node.HasAnnotation && node.Annotation == START_HEADING_ANNOTATION
           && node.Parts.HasValue
           select node;
         query.ForEach( (node, idx) => {
@@ -84,8 +92,8 @@ public struct ActionTable
 
   private ParseAction Heading(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TH_VALUE, annotation: HEADING_ANNOTATION)
-      .Expect(HtmlRules.END_TH, annotation: "end:th");
+      .Expect(HtmlRules.START_TH_VALUE, annotation: START_HEADING_ANNOTATION)
+      .Expect(HtmlRules.END_TH, annotation: END_HEADING_ANNOTATION);
 
   private ParseAction TableData(ParseAction parser)
   {

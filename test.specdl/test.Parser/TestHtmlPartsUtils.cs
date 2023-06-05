@@ -148,6 +148,36 @@ public class TestHtmlPartsUtils
   }
 
   [Fact]
+  public void GetTdAttribIntValue_returnsNumericValue()
+  {
+    const int EXPECTED_VALUE = 3;
+    bool isMatched = false;
+
+    var parser = Parsing.Group(_Pipe)
+      .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, annotation: "table")
+      .SkipUntil(HtmlRules.END_THEAD)
+      .Expect(HtmlRules.END_THEAD, annotation: "end:thead")
+      .Expect(HtmlRules.START_TR, annotation: "start:tr")
+      .SkipUntil(HtmlRules.END_TR)
+      .Expect(HtmlRules.END_TR, annotation: "end:tr-firstRow")
+      .Expect(HtmlRules.START_TR, annotation: "start:tr-secondRow")
+      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "subject")
+      .AllMatchThen( (list,idx) => {
+        var query = from node in list
+          where node.HasAnnotation && node.Annotation == "subject"
+          select node;
+        Matching matching = query.Last();
+        int rowspan = HtmlPartsUtils.GetTdAttribIntValue(matching.Parts);
+        Assert.False(rowspan.IsEmptyIntValue());
+        Assert.Equal(EXPECTED_VALUE, rowspan);
+        isMatched = true;
+      })
+      ;
+    Assert.True(isMatched);
+  }
+
+  [Fact]
   public void GetTdTagValue_returnsTagValue()
   {
     const string EXPECTED_VALUE = "Grants permission to close an account";

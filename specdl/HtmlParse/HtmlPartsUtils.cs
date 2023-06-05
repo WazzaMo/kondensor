@@ -15,6 +15,7 @@ namespace HtmlParse;
 public static class HtmlPartsUtils
 {
   const string EMPTY_STRING = "__EMPTY__";
+  const int EMPTY_INT = -9999;
 
   public static string GetTableAttribName(Option<LinkedList<string>> Parts)
   {
@@ -58,6 +59,16 @@ public static class HtmlPartsUtils
     return attribValue;
   }
 
+  public static int GetTdAttribIntValue(Option<LinkedList<string>> Parts)
+  {
+    int value = EMPTY_INT;
+    Parts.MatchSome(list => {
+      string attribValue = list.ElementAt(HtmlPatterns.TD_ATTRIB_VALUE_IDX);
+      value = Int32.Parse(attribValue);
+    });
+    return value;
+  }
+
   public static string GetAIdAttribValue(Option<LinkedList<string>> Parts)
   {
     string attribValue = EMPTY_STRING;
@@ -88,4 +99,7 @@ public static class HtmlPartsUtils
 
   public static bool IsEmptyPartsValue(this string value)
     => value == EMPTY_STRING;
+  
+  public static bool IsEmptyIntValue(this int value)
+    => value == EMPTY_INT;
 }
