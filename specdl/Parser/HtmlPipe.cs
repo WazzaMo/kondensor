@@ -128,21 +128,6 @@ namespace Parser
       return result;
     }
 
-    private string? GetText(out MatchCollection parts)
-    {
-      string? line = _Input.ReadLine();
-      if (line != null)
-      {
-        parts = __LineSep.Matches(line);
-      }
-      else
-      {
-        parts = __LineSep.Matches("");
-      }
-
-      return line;
-    }
-
     private void TokeniseLineParts(string line)
     {
       MatchCollection parts = __LineSep.Matches(line);
