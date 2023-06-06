@@ -128,7 +128,8 @@ public struct ActionTable
   }
 
   private ParseAction ActionDeclaration(ParseAction parser)
-    => parser
+  {
+    parser
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_CELL_ACTION_ANNOTATION)
         .Expect(HtmlRules.START_A_ID, annotation: ActionAnnotations.START_ID_ACTION_ANNOTATION)
         .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_ID_ACTION_ANNOTATION)
@@ -137,15 +138,27 @@ public struct ActionTable
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
 
+    parser
+      .MismatchesThen( (list, writer) =>{
+        var query = from node in list where node.MatchResult == MatchKind.Mismatch
+          select node;
+        query.ForEach( (m, idx) => Console.WriteLine(value:$"ActionDecl {idx}: token {m.MismatchToken}"));
+      })
+      // .SkipUntil(HtmlRules.END_TD)
+      // .Expect(HtmlRules.END_TD, annotation:"end:tr:skipped-ActionDeclaration")
+    ;
+    return parser;
+  }
+
   private ParseAction ActionDescription(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
+      .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
   private ParseAction ActionAccessLevel(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
+      .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
       ;
   

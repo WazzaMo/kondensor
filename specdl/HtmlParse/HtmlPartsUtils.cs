@@ -48,7 +48,11 @@ public static class HtmlPartsUtils
   public static string GetTdAttribName(Option<LinkedList<string>> Parts)
   {
     string attribName = EMPTY_STRING;
-    Parts.MatchSome(list => attribName = list.ElementAt(HtmlPatterns.TD_ATTRIB_NAME_IDX));
+    Parts.MatchSome(list =>
+      attribName = list.Count > 0
+        ? list.ElementAt(HtmlPatterns.TD_ATTRIB_NAME_IDX)
+        : EMPTY_STRING
+    );
     return attribName;
   }
 
