@@ -41,7 +41,18 @@ public static class HtmlPartsUtils
   public static string GetTdTagValue(Option<LinkedList<string>> Parts)
   {
     string tagValue = EMPTY_STRING;
-    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.TD_TAG_VALUE_IDX));
+    Parts.MatchSome(list =>
+      {
+        if (list.Count >= HtmlPatterns.TD_ATTRIB_TAG_VALUE_IDX)
+        {
+          tagValue = list.ElementAt(HtmlPatterns.TD_ATTRIB_TAG_VALUE_IDX);
+        }
+        else
+        {
+          tagValue = list.ElementAt(HtmlPatterns.TD_TAG_VALUE_IDX);
+        }
+      }
+    );
     return tagValue;
   }
 
@@ -49,7 +60,7 @@ public static class HtmlPartsUtils
   {
     string attribName = EMPTY_STRING;
     Parts.MatchSome(list =>
-      attribName = list.Count > 0
+      attribName = list.Count >= HtmlPatterns.TD_ATTRIB_TAG_VALUE_IDX
         ? list.ElementAt(HtmlPatterns.TD_ATTRIB_NAME_IDX)
         : EMPTY_STRING
     );

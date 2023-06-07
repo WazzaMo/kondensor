@@ -19,10 +19,14 @@ namespace Actions;
 public struct ActionTable
 {
   private List<string> _HeadingNames;
+  private List<ActionType> _Actions;
+  private Option<ActionAccessLevel> _CurrentAccessLevel;
 
   public ActionTable()
   {
     _HeadingNames = new List<string>();
+    _Actions = new List<ActionType>();
+    _CurrentAccessLevel = Option.None<ActionAccessLevel>();
   }
 
   public ParseAction ActionsTable(ParseAction parser)
@@ -80,6 +84,8 @@ public struct ActionTable
   private ParseAction RowData(ParseAction parser)
   {
     int countResources = -1;
+    ActionType foundAction = new ActionType();
+    Action<LinkedList<Matching>> processActionInfo = ProcessActionDeclaration;
 
     parser
       .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
@@ -91,6 +97,8 @@ public struct ActionTable
         .Expect( DependendActions )
       .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
       .AllMatchThen( (list,writer) => {
+        processActionInfo(list);
+        //
         var query = from node in list
           where (node.HasAnnotation
             && node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
@@ -104,19 +112,24 @@ public struct ActionTable
         }
         else
           countResources = 0;
-      })
-      .MismatchesThen( (list,wr) => {
-        var query = from node in list where node.MatchResult == MatchKind.Mismatch
-          select node;
-        query.ForEach( (node, idx) => {
-          Console.Error.WriteLine(
-            value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-          );
-        });
-      })
-        .SkipUntil(HtmlRules.END_TR)
-        .Expect(HtmlRules.END_TR, annotation: "end:tr:SKIPPED-ROW")
-      ;
+      });
+
+      if (! parser.IsAllMatched)
+      {
+        parser
+          .MismatchesThen( (list,wr) => {
+          var query = from node in list where node.MatchResult == MatchKind.Mismatch
+            select node;
+          query.ForEach( (node, idx) => {
+            Console.Error.WriteLine(
+              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
+            );
+          });
+        })
+          .SkipUntil(HtmlRules.END_TR)
+          .Expect(HtmlRules.END_TR, annotation: "end:tr:SKIPPED-ROW")
+        ;
+      }
       if (countResources > 0)
       {
         for(int index = 0; index < countResources; index++)
@@ -125,6 +138,39 @@ public struct ActionTable
         }
       }
     return parser;
+  }
+
+  private void ProcessActionDeclaration(LinkedList<Matching> list)
+  {
+    ActionType foundAction = new ActionType();
+    bool hasData = false;
+
+    var idNode = 
+      from node in list where node.Annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION
+      select node;
+    var hrefNode =
+      from node in list where node.Annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
+      select node;
+    var descNode =
+      from node in list where node.Annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION
+      select node;
+
+    hasData = idNode.Count() > 0
+      && hrefNode.Count() > 0
+      && descNode.Count() > 0;
+
+    if (hasData)
+    {
+      Matching id = idNode.Last();
+      Matching href = hrefNode.Last();
+      Matching desc = descNode.Last();
+
+      foundAction.SetActionId(HtmlPartsUtils.GetAIdAttribValue(id.Parts));
+      foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValue(href.Parts));
+      foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
+      foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
+      _Actions.Add(foundAction);
+    }
   }
 
   private ParseAction ActionDeclaration(ParseAction parser)
@@ -138,15 +184,18 @@ public struct ActionTable
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
 
-    parser
-      .MismatchesThen( (list, writer) =>{
-        var query = from node in list where node.MatchResult == MatchKind.Mismatch
-          select node;
-        query.ForEach( (m, idx) => Console.WriteLine(value:$"ActionDecl {idx}: token {m.MismatchToken}"));
-      })
-      // .SkipUntil(HtmlRules.END_TD)
-      // .Expect(HtmlRules.END_TD, annotation:"end:tr:skipped-ActionDeclaration")
-    ;
+    if (! parser.IsAllMatched)
+    {
+      parser
+        .MismatchesThen( (list, writer) =>{
+          var query = from node in list where node.MatchResult == MatchKind.Mismatch
+            select node;
+          query.ForEach( (m, idx) => Console.WriteLine(value:$"ActionDecl {idx}: token {m.MismatchToken}"));
+        })
+        .SkipUntil(HtmlRules.END_TD)
+        .Expect(HtmlRules.END_TD, annotation:"end:tr:skipped-ActionDeclaration")
+      ;
+    }
     return parser;
   }
 
