@@ -23,34 +23,23 @@ namespace Actions;
 /// </summary>
 public struct ActionResourceType
 {
+  private const string EMPTY_STRING = "---EMPTY---";
   private bool _IsAllResourceTypes;
-  private Option<string> _ResourceTypeDefinitionId;
-  private Option<string> _ResourceTypeName;
+  private string _ResourceTypeDefinitionId;
+  private string _ResourceTypeName;
   private List<string> _SpecificConditionKeyIds;
   private List<string> _DependentActionIds;
 
-  public string ResourceTypeDefId {
-    get {
-      string value = "";
-      _ResourceTypeDefinitionId.MatchSome(id => value = id);
-      return value;
-    }
-  }
+  public string ResourceTypeDefId => _ResourceTypeDefinitionId;
 
-  public string ResourceTypeName {
-    get {
-      string value = "";
-      _ResourceTypeName.MatchSome(n => value = n);
-      return value;
-    }
-  }
+  public string ResourceTypeName => _ResourceTypeName;
 
   public bool IsAllResourceTypes => _IsAllResourceTypes;
 
   public void SetTypeIdAndName(string id, string name)
   {
-    _ResourceTypeDefinitionId = Option.Some(id);
-    _ResourceTypeName = Option.Some(name);
+    _ResourceTypeDefinitionId = id;
+    _ResourceTypeName = name;
     _IsAllResourceTypes = false;
   }
 
@@ -63,8 +52,8 @@ public struct ActionResourceType
   public ActionResourceType()
   {
     _IsAllResourceTypes = true;
-    _ResourceTypeDefinitionId = Option.None<string>();
-    _ResourceTypeName = Option.None<string>();
+    _ResourceTypeDefinitionId = EMPTY_STRING;
+    _ResourceTypeName = EMPTY_STRING;
     _SpecificConditionKeyIds = new List<string>();
     _DependentActionIds = new List<string>();
   }

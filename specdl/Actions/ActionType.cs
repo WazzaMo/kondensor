@@ -23,6 +23,11 @@ public struct ActionType
   private string _Description;
   private Dictionary<ActionAccessLevel,List<ActionResourceType>> _AccessLevelToResourceTypeMappings;
 
+  public string ActionId => _ActionId;
+  public string Name => _Name;
+  public string ApiLink => _AwsApiDocumentLink;
+  public string Description => _Description;
+
   public ActionType()
   {
     _ActionId = UNSET_STRING;
