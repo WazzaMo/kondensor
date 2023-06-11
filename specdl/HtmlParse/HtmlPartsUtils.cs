@@ -94,7 +94,10 @@ public static class HtmlPartsUtils
   public static string GetAHrefAttribValue(Option<LinkedList<string>> Parts)
   {
     string attribValue = EMPTY_STRING;
-    Parts.MatchSome(list => attribValue = list.ElementAt(HtmlPatterns.A_HREF_ATTRIB_VALUE_IDX));
+    Parts.MatchSome(list => attribValue = list.Count > 0
+      ? list.ElementAt(HtmlPatterns.A_HREF_ATTRIB_VALUE_IDX)
+      : EMPTY_STRING
+    );
     return attribValue;
   }
 

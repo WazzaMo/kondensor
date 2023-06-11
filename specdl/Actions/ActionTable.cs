@@ -18,17 +18,31 @@ namespace Actions;
 /// </summary>
 public struct ActionTable
 {
-  private List<string> _HeadingNames;
-  private List<ActionType> _Actions;
-  private Option<ActionAccessLevel> _CurrentAccessLevel;
-  private Option<ActionResourceType> _CurrentResourceType;
+  class InternalData{
+    public List<string> _HeadingNames = new List<string>();
+    public List<ActionType> _Actions = new List<ActionType>();
+    public Option<ActionAccessLevel> _CurrentAccessLevel;
+    public Option<ActionResourceType> _CurrentResourceType;
+  }
+
+  private InternalData _Data;
+  // private List<string> _HeadingNames;
+  // private List<ActionType> _Actions;
+  // private Option<ActionAccessLevel> _CurrentAccessLevel;
+  // private Option<ActionResourceType> _CurrentResourceType;
 
   public ActionTable()
   {
-    _HeadingNames = new List<string>();
-    _Actions = new List<ActionType>();
-    _CurrentAccessLevel = Option.None<ActionAccessLevel>();
-    _CurrentResourceType = Option.None<ActionResourceType>();
+    _Data = new InternalData() {
+      _HeadingNames = new List<string>(),
+      _Actions = new List<ActionType>(),
+      _CurrentAccessLevel = Option.None<ActionAccessLevel>(),
+      _CurrentResourceType = Option.None<ActionResourceType>()
+    };
+    // _HeadingNames = new List<string>();
+    // _Actions = new List<ActionType>();
+    // _CurrentAccessLevel = Option.None<ActionAccessLevel>();
+    // _CurrentResourceType = Option.None<ActionResourceType>();
   }
 
   public ParseAction ActionsTable(ParseAction parser)
@@ -54,7 +68,7 @@ public struct ActionTable
 
   private ParseAction ActionsHeader(ParseAction parser)
   {
-    var headingList = _HeadingNames;
+    var headingList = _Data._HeadingNames;
 
     parser
       .Expect(HtmlRules.START_THEAD, annotation: ActionAnnotations.START_ACTION_THEAD_ANNOTATION)
@@ -87,15 +101,16 @@ public struct ActionTable
   {
     int countResources = -1;
     ActionType foundAction = new ActionType();
+    InternalData data = _Data;
     Action<LinkedList<Matching>>
-      processActionInfo = ProcessActionDeclaration,
-      processResource = ProcessResoureVlues;
+      processActionInfo = (list) => ProcessActionDeclaration(list, data),
+      processResource = ProcessResoureValues;
 
     parser
       .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
         .Expect( ActionDeclaration )  
         .Expect( ActionDescription )
-        .Expect( ActionAccessLevel )
+        .Expect( ActionAccessLevelProduction )
         .Expect( ResourceType )
         .Expect( ConditionKeys )
         .Expect( DependendActions )
@@ -116,6 +131,8 @@ public struct ActionTable
         }
         else
           countResources = 0;
+        
+        processResource(list);
       });
 
       if (parser.IsAllMatched)
@@ -124,8 +141,11 @@ public struct ActionTable
         {
           for(int index = 0; index < countResources; index++)
           {
-            parser.Expect(RepeatRowData);
+            parser
+              .Expect(RepeatRowData)
+              .AllMatchThen( (list, writer) => processResource(list));
           }
+          MapCurrentResourceTypeToAccessLevel();
         }
         parser.AllMatchThen( (list, writer) => processResource(list));
       }
@@ -148,7 +168,7 @@ public struct ActionTable
     return parser;
   }
 
-  private void ProcessActionDeclaration(LinkedList<Matching> list)
+  private static void ProcessActionDeclaration(LinkedList<Matching> list, InternalData data)
   {
     ActionType foundAction = new ActionType();
     bool hasData = false;
@@ -165,15 +185,15 @@ public struct ActionTable
     var accessLevel =
       from node in list where node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
       select node;
-    var resourceType = 
-      from node in list where node.Annotation == ActionAnnotations.A_HREF_RESOURCE
-      select node;
+    // var resourceType = 
+    //   from node in list where node.Annotation == ActionAnnotations.A_HREF_RESOURCE
+    //   select node;
 
     hasData = idNode.Count() > 0
       && hrefNode.Count() > 0
       && descNode.Count() > 0
-      && accessLevel.Count() > 0
-      && resourceType.Count() > 0;
+      && accessLevel.Count() > 0;
+      // && resourceType.Count() > 0;
 
     if (hasData)
     {
@@ -185,13 +205,13 @@ public struct ActionTable
       foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValue(href.Parts));
       foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
       foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
-      _Actions.Add(foundAction);
+      data._Actions.Add(foundAction);
 
       Matching levelNode = accessLevel.Last();
       string level = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
       ActionAccessLevel levelValue = Enum.Parse<ActionAccessLevel>(level);
-      _CurrentAccessLevel = Option.Some( levelValue );
-      _CurrentResourceType = Option.Some( new ActionResourceType() );
+      data._CurrentAccessLevel = Option.Some( levelValue );
+      data._CurrentResourceType = Option.Some( new ActionResourceType() );
       if (levelValue == Actions.ActionAccessLevel.Unknown)
         Console.Error.WriteLine(value: $"Unknown resource type for {foundAction.Name}");
     }
@@ -200,9 +220,56 @@ public struct ActionTable
     }
   }
 
-  private void ProcessResoureVlues(LinkedList<Matching> list)
+  private void ProcessResoureValues(LinkedList<Matching> list)
   {
-    //
+    var resIdAndName = from node in list
+      where node.Annotation == ActionAnnotations.A_HREF_RESOURCE select node;
+    var ckIdAndName = from node in list
+      where node.Annotation == ActionAnnotations.A_HREF_CONDKEY select node;
+    var depActions = from node in list
+      where node.Annotation == ActionAnnotations.START_TD_DEPACT select node;
+    
+    ActionResourceType resType = _Data._CurrentResourceType.ValueOr(new ActionResourceType());
+
+    if (resIdAndName.Count() > 0)
+    {
+      Matching nodeIdAndName = resIdAndName.Last();
+      string idAttribValue, nameTagValue;
+      idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeIdAndName.Parts);
+      nameTagValue = HtmlPartsUtils.GetAHrefTagValue(nodeIdAndName.Parts);
+      resType.SetTypeIdAndName(idAttribValue, nameTagValue);
+    }
+    if (ckIdAndName.Count() > 0)
+    {
+      Matching nodeCondKey = ckIdAndName.Last();
+      string idAttribValue, nameTagValue;
+      idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeCondKey.Parts);
+      nameTagValue = HtmlPartsUtils.GetAHrefTagValue(nodeCondKey.Parts);
+      resType.AddConditionKeyId(idAttribValue);
+    }
+
+    if (depActions.Count() > 0)
+    {
+      Matching nodeDepActions = depActions.Last();
+      string id = HtmlPartsUtils.GetAHrefAttribValue(nodeDepActions.Parts);
+      if (! id.IsEmptyPartsValue())
+      {
+        resType.AddDependentActionId(id);
+      }
+    }
+    _Data._CurrentResourceType = Option.Some(resType);
+  }
+
+  private void MapCurrentResourceTypeToAccessLevel()
+  {
+    if (_Data._CurrentAccessLevel.HasValue && _Data._CurrentResourceType.HasValue && _Data._Actions.Count > 0)
+    {
+      ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+      ActionType current =  _Data._Actions.Last();
+      ActionResourceType resType = _Data._CurrentResourceType.ValueOr(new ActionResourceType());
+      current.MapAccessToResourceType(level, resType);
+      _Data._Actions[_Data._Actions.Count - 1] = current;
+    }
   }
 
   private ParseAction ActionDeclaration(ParseAction parser)
@@ -237,7 +304,7 @@ public struct ActionTable
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
-  private ParseAction ActionAccessLevel(ParseAction parser)
+  private ParseAction ActionAccessLevelProduction(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
