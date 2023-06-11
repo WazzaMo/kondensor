@@ -4,6 +4,7 @@
  *  Distributed under the Kondensor License.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace Actions;
@@ -63,5 +64,38 @@ public struct ActionType
     list.Add(resourceType);
 
     _AccessLevelToResourceTypeMappings[access] = list;
+  }
+
+  public IEnumerable<ActionAccessLevel> GetMappedAccessLevels()
+  {
+    return _AccessLevelToResourceTypeMappings.Keys.AsEnumerable();
+  }
+
+  public IEnumerable<ActionResourceType> GetResourceTypesForLevel(ActionAccessLevel level)
+  {
+    IEnumerable<ActionResourceType> result;
+
+    if (_AccessLevelToResourceTypeMappings.ContainsKey(level))
+    {
+      result = _AccessLevelToResourceTypeMappings[level].AsEnumerable();
+    }
+    else
+    {
+      result = new List<ActionResourceType>().AsEnumerable();
+    }
+    return result;
+  }
+
+  public bool IsResourceMapListAvailableForLevel(ActionAccessLevel level)
+    => _AccessLevelToResourceTypeMappings.ContainsKey(level)
+      ? _AccessLevelToResourceTypeMappings[level].Count > 0
+      : false;
+
+  public ActionResourceType GetResourceFor(ActionAccessLevel level)
+  {
+    if (_AccessLevelToResourceTypeMappings.ContainsKey(level))
+      return _AccessLevelToResourceTypeMappings[level].Last();
+    else
+      throw new InvalidOperationException( message: $"Expected access level {level} to be mapped already." );
   }
 }

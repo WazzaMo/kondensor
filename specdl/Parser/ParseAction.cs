@@ -41,6 +41,8 @@ public struct ParseAction
   public bool IsAllMatched => 
     _CountMatched == _MatchHistory.Count;
 
+  public IPipeWriter Writer => (IPipeWriter) _Pipe;
+
   public ParseAction SkipUntil(Matcher rule)
   {
     int originalCheckPoint = _Pipe.GetCheckPoint();

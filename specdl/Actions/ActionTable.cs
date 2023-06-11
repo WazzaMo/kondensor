@@ -18,52 +18,85 @@ namespace Actions;
 /// </summary>
 public struct ActionTable
 {
-  class InternalData{
+  private class InternalData{
     public List<string> _HeadingNames = new List<string>();
     public List<ActionType> _Actions = new List<ActionType>();
     public Option<ActionAccessLevel> _CurrentAccessLevel;
-    public Option<ActionResourceType> _CurrentResourceType;
+
+    public ActionType CurrentAction {
+      get {
+        if (_Actions.Count == 0) _Actions.Add( item: new ActionType() );
+        ActionType _action = _Actions.Last();
+        return _action;
+      }
+    }
+
+    public ActionResourceType CurrentResourceType {
+      get {
+        ActionAccessLevel level = _CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+        if (level != ActionAccessLevel.Unknown)
+          return CurrentAction.GetResourceFor(level);
+        else
+          throw new InvalidOperationException(message: "Cannot get resource type before processing access level.");
+      }
+    }
   }
 
   private InternalData _Data;
-  // private List<string> _HeadingNames;
-  // private List<ActionType> _Actions;
-  // private Option<ActionAccessLevel> _CurrentAccessLevel;
-  // private Option<ActionResourceType> _CurrentResourceType;
 
   public ActionTable()
   {
     _Data = new InternalData() {
       _HeadingNames = new List<string>(),
       _Actions = new List<ActionType>(),
-      _CurrentAccessLevel = Option.None<ActionAccessLevel>(),
-      _CurrentResourceType = Option.None<ActionResourceType>()
+      _CurrentAccessLevel = Option.None<ActionAccessLevel>()
     };
-    // _HeadingNames = new List<string>();
-    // _Actions = new List<ActionType>();
-    // _CurrentAccessLevel = Option.None<ActionAccessLevel>();
-    // _CurrentResourceType = Option.None<ActionResourceType>();
   }
 
   public ParseAction ActionsTable(ParseAction parser)
   {
+    Action<IPipeWriter> _writeFunc = WriteTable;
+
     parser
       .SkipUntil(HtmlRules.START_TABLE)
       .Expect(HtmlRules.START_TABLE, annotation: ActionAnnotations.START_ACTION_TABLE_ANNOTATION)
         .Expect(production: ActionsHeader)
-        .Expect(TableData)
-      // .Expect(HtmlRules.END_TABLE, annotation: ActionAnnotations.END_ACTION_TABLE_ANNOTATION)
-      .MismatchesThen( (list,wr) => {
-        var query = from node in list where node.MatchResult == MatchKind.Mismatch
-          select node;
-        query.ForEach( (node, idx) => {
-          Console.Error.WriteLine(
-            value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-          );
-        });
-      })
-      ;
+        .Expect(TableData);
+      
+      if (parser.IsAllMatched)
+      {
+        WriteTable(parser.Writer);
+      }
+      else
+      {
+        parser
+          .MismatchesThen( (list,wr) => {
+            var query = from node in list where node.MatchResult == MatchKind.Mismatch
+              select node;
+            query.ForEach( (node, idx) => {
+              Console.Error.WriteLine(
+                value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
+              );
+            });
+          });
+      }
     return parser;
+  }
+
+  private void WriteTable(IPipeWriter writer)
+  {
+    _Data._HeadingNames.ForEach(heading => writer.WriteFragmentLine(fragment:$"heading: {heading}"));
+
+    _Data._Actions.ForEach( _action => {
+      writer.WriteFragmentLine(fragment: $"Action: {_action.Name}");
+      _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
+        writer.WriteFragmentLine($"  {accessLevel}:");
+        _action.GetResourceTypesForLevel(accessLevel).ForEach(
+          (rsrcType, rsrcIdx)
+            => writer.WriteFragmentLine($"    #{rsrcIdx}: {rsrcType.ResourceTypeName} - {rsrcType.ResourceTypeDefId}")
+          );
+      } );
+    });
   }
 
   private ParseAction ActionsHeader(ParseAction parser)
@@ -145,7 +178,6 @@ public struct ActionTable
               .Expect(RepeatRowData)
               .AllMatchThen( (list, writer) => processResource(list));
           }
-          MapCurrentResourceTypeToAccessLevel();
         }
       }
       else
@@ -184,15 +216,11 @@ public struct ActionTable
     var accessLevel =
       from node in list where node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
       select node;
-    // var resourceType = 
-    //   from node in list where node.Annotation == ActionAnnotations.A_HREF_RESOURCE
-    //   select node;
 
     hasData = idNode.Count() > 0
       && hrefNode.Count() > 0
       && descNode.Count() > 0
       && accessLevel.Count() > 0;
-      // && resourceType.Count() > 0;
 
     if (hasData)
     {
@@ -210,7 +238,7 @@ public struct ActionTable
       string level = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
       ActionAccessLevel levelValue = Enum.Parse<ActionAccessLevel>(level);
       _Data._CurrentAccessLevel = Option.Some( levelValue );
-      _Data._CurrentResourceType = Option.Some( new ActionResourceType() );
+
       if (levelValue == Actions.ActionAccessLevel.Unknown)
         Console.Error.WriteLine(value: $"Unknown resource type for {foundAction.Name}");
     }
@@ -228,18 +256,31 @@ public struct ActionTable
     var depActions = from node in list
       where node.Annotation == ActionAnnotations.START_TD_DEPACT select node;
     
-    ActionResourceType resType = _Data._CurrentResourceType.ValueOr(new ActionResourceType());
+    ActionResourceType resType;
+    ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+
+
+    if (level == ActionAccessLevel.Unknown)
+      throw new Exception(message: "Access level not defined for action: " + _Data.CurrentAction.Name);
 
     if (resIdAndName.Count() > 0)
     {
+      ActionResourceType rType = new ActionResourceType();
       Matching nodeIdAndName = resIdAndName.Last();
       string idAttribValue, nameTagValue;
       idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeIdAndName.Parts);
       nameTagValue = HtmlPartsUtils.GetAHrefTagValue(nodeIdAndName.Parts);
-      resType.SetTypeIdAndName(idAttribValue, nameTagValue);
+      rType.SetTypeIdAndName(idAttribValue, nameTagValue);
+      if (level != ActionAccessLevel.Unknown)
+        _Data.CurrentAction.MapAccessToResourceType(level, rType);
     }
-    if (ckIdAndName.Count() > 0)
+
+    if (ckIdAndName.Count() > 0
+        && level != ActionAccessLevel.Unknown
+        && _Data.CurrentAction.IsResourceMapListAvailableForLevel(level))
     {
+      resType = _Data.CurrentAction.GetResourceFor(level);
+
       Matching nodeCondKey = ckIdAndName.Last();
       string idAttribValue, nameTagValue;
       idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeCondKey.Parts);
@@ -247,27 +288,18 @@ public struct ActionTable
       resType.AddConditionKeyId(idAttribValue);
     }
 
-    if (depActions.Count() > 0)
+    if (depActions.Count() > 0 
+      && level != ActionAccessLevel.Unknown
+      && _Data.CurrentAction.IsResourceMapListAvailableForLevel(level))
     {
+      resType = _Data.CurrentAction.GetResourceFor(level);
+
       Matching nodeDepActions = depActions.Last();
       string id = HtmlPartsUtils.GetAHrefAttribValue(nodeDepActions.Parts);
       if (! id.IsEmptyPartsValue())
       {
         resType.AddDependentActionId(id);
       }
-    }
-    _Data._CurrentResourceType = Option.Some(resType);
-  }
-
-  private void MapCurrentResourceTypeToAccessLevel()
-  {
-    if (_Data._CurrentAccessLevel.HasValue && _Data._CurrentResourceType.HasValue && _Data._Actions.Count > 0)
-    {
-      ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
-      ActionType current =  _Data._Actions.Last();
-      ActionResourceType resType = _Data._CurrentResourceType.ValueOr(new ActionResourceType());
-      current.MapAccessToResourceType(level, resType);
-      _Data._Actions[_Data._Actions.Count - 1] = current;
     }
   }
 
