@@ -103,7 +103,7 @@ public struct ActionTable
     ActionType foundAction = new ActionType();
     InternalData data = _Data;
     Action<LinkedList<Matching>>
-      processActionInfo = (list) => ProcessActionDeclaration(list, data),
+      processActionInfo = ProcessActionDeclaration,
       processResource = ProcessResoureValues;
 
     parser
@@ -147,7 +147,6 @@ public struct ActionTable
           }
           MapCurrentResourceTypeToAccessLevel();
         }
-        parser.AllMatchThen( (list, writer) => processResource(list));
       }
       else
       {
@@ -168,7 +167,7 @@ public struct ActionTable
     return parser;
   }
 
-  private static void ProcessActionDeclaration(LinkedList<Matching> list, InternalData data)
+  private void ProcessActionDeclaration(LinkedList<Matching> list)
   {
     ActionType foundAction = new ActionType();
     bool hasData = false;
@@ -205,13 +204,13 @@ public struct ActionTable
       foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValue(href.Parts));
       foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
       foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
-      data._Actions.Add(foundAction);
+      _Data._Actions.Add(foundAction);
 
       Matching levelNode = accessLevel.Last();
       string level = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
       ActionAccessLevel levelValue = Enum.Parse<ActionAccessLevel>(level);
-      data._CurrentAccessLevel = Option.Some( levelValue );
-      data._CurrentResourceType = Option.Some( new ActionResourceType() );
+      _Data._CurrentAccessLevel = Option.Some( levelValue );
+      _Data._CurrentResourceType = Option.Some( new ActionResourceType() );
       if (levelValue == Actions.ActionAccessLevel.Unknown)
         Console.Error.WriteLine(value: $"Unknown resource type for {foundAction.Name}");
     }
