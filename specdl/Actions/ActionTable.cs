@@ -19,6 +19,7 @@ namespace Actions;
 public struct ActionTable
 {
   private class InternalData{
+    public string _SourceUrl = "";
     public List<string> _HeadingNames = new List<string>();
     public List<ActionType> _Actions = new List<ActionType>();
     public Option<ActionAccessLevel> _CurrentAccessLevel;
@@ -40,7 +41,7 @@ public struct ActionTable
           throw new InvalidOperationException(message: "Cannot get resource type before processing access level.");
       }
     }
-  }
+  } // -- Internal Data
 
   private InternalData _Data;
 
@@ -52,6 +53,8 @@ public struct ActionTable
       _CurrentAccessLevel = Option.None<ActionAccessLevel>()
     };
   }
+
+  public void SetSourceUrl(string url) => _Data._SourceUrl = url;
 
   public ParseAction ActionsTable(ParseAction parser)
   {
@@ -85,18 +88,7 @@ public struct ActionTable
 
   private void WriteTable(IPipeWriter writer)
   {
-    _Data._HeadingNames.ForEach(heading => writer.WriteFragmentLine(fragment:$"heading: {heading}"));
-
-    _Data._Actions.ForEach( _action => {
-      writer.WriteFragmentLine(fragment: $"Action: {_action.Name}");
-      _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
-        writer.WriteFragmentLine($"  {accessLevel}:");
-        _action.GetResourceTypesForLevel(accessLevel).ForEach(
-          (rsrcType, rsrcIdx)
-            => writer.WriteFragmentLine($"    #{rsrcIdx}: {rsrcType.ResourceTypeName} - {rsrcType.ResourceTypeDefId}")
-          );
-      } );
-    });
+    ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, writer);
   }
 
   private ParseAction ActionsHeader(ParseAction parser)

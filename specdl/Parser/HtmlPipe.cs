@@ -65,11 +65,17 @@ namespace Parser
       return isOk;
     }
 
-    public void WriteFragment(string fragment)
-      => _Output.Write(fragment);
+    public IPipeWriter WriteFragment(string fragment)
+    {
+      _Output.Write(fragment);
+      return (IPipeWriter) this;
+    }
 
-    public void WriteFragmentLine(string fragment)
-      => _Output.WriteLine(fragment);
+    public IPipeWriter WriteFragmentLine(string fragment)
+    {
+      _Output.WriteLine(fragment);
+      return (IPipeWriter) this;
+    }
 
     private bool GetTokenFromInput(out string token)
     {

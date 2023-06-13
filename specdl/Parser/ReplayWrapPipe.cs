@@ -64,11 +64,17 @@ namespace Parser
       return isOk;
     }
 
-    public void WriteFragment(string fragment)
-      => _BasePipe.WriteFragment(fragment);
+    public IPipeWriter WriteFragment(string fragment)
+    {
+      _BasePipe.WriteFragment(fragment);
+      return (IPipeWriter) this;
+    }
 
-    public void WriteFragmentLine(string fragment)
-      => _BasePipe.WriteFragmentLine(fragment);
+    public IPipeWriter WriteFragmentLine(string fragment)
+    {
+      _BasePipe.WriteFragmentLine(fragment);
+      return (IPipeWriter) this;
+    }
 
     public int GetCheckPoint() => ReadIndex;
 

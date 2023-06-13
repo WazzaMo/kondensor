@@ -22,5 +22,5 @@ downloader.SetProcessor( docProcessor );
 // downloader.Process();
 // Console.WriteLine("-----------------------------------");
 downloader.DownloadSource( ACCT_MGT_DOC );
-downloader.Process();
+downloader.Process(BASE_URL + "/" + ACCT_MGT_DOC);
 

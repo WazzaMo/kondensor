@@ -41,8 +41,9 @@ public struct DocProcessor : IProcessor
     _Actions = new ActionTable();
   }
 
-  public void ProcessAllLines(ReplayWrapPipe pipe)
+  public void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe)
   {
+    _Actions.SetSourceUrl(sourceUrl);
     var parser = Parsing.Group(pipe)
       .Expect(_Actions.ActionsTable)
       ;

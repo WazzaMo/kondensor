@@ -72,7 +72,7 @@ public struct SpecDownloader
     }
   }
 
-  public void Process()
+  public void Process(string path)
   {
     Option<TextReader> _source = _Source;
     Option<TextWriter> _dest = _Destination;
@@ -88,7 +88,7 @@ public struct SpecDownloader
               destination => {
                 htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
                 thePipe = new ReplayWrapPipe(htmlPipe);
-                processor.ProcessAllLines(thePipe);
+                processor.ProcessAllLines(path, thePipe);
               },
               () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Destination not set!")
             );

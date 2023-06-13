@@ -25,5 +25,5 @@ public interface IProcessor
   /// <param name="countHandled">Number of lines processed.</param>
   /// <param name="input">source of text to process.</param>
   /// <param name="output">destination to write any processed data, if needed.</param>
-  void ProcessAllLines(ReplayWrapPipe pipe);
+  void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe);
 }

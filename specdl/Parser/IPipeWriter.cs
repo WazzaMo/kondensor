@@ -17,13 +17,13 @@ namespace Parser
     /// Write string without any line ending.
     /// </summary>
     /// <param name="fragment">Text fragment to write.</param>
-    void WriteFragment(string fragment);
+    IPipeWriter WriteFragment(string fragment);
 
     /// <summary>
     /// Write string fragment with line ending.
     /// </summary>
     /// <param name="fragment">Text fragment to write.</param>
-    void WriteFragmentLine(string fragment);
+    IPipeWriter WriteFragmentLine(string fragment);
 
   }
 
