@@ -57,13 +57,13 @@ public static class ActionsYamlWriter
 
     writer.WriteFragment(INDENT).WriteFragment(MEMBER).WriteFragment(DEFINITIONS).WriteFragmentLine(SEP);
     actions.ForEach( _action => {
-      writer.WriteFragment(INDENT).WriteFragment(INDENT)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
         .WriteFragment(ACTION_DEF).WriteFragment(SEP).WriteFragmentLine(_action.ActionId);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
         .WriteFragment(ACTION_NAME).WriteFragment(SEP).WriteFragmentLine(_action.Name);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
         .WriteFragment(DESCRIPTION).WriteFragment(SEP).WriteFragmentLine(_action.Description);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
         .WriteFragment(API_URL).WriteFragment(SEP).WriteFragmentLine(_action.ApiLink);
 
       // _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
