@@ -24,7 +24,6 @@ namespace Actions;
 public struct ActionResourceType
 {
   private const string EMPTY_STRING = "---EMPTY---";
-  private bool _IsAllResourceTypes;
   private string _ResourceTypeDefinitionId;
   private string _ResourceTypeName;
   private List<string> _SpecificConditionKeyIds;
@@ -34,13 +33,14 @@ public struct ActionResourceType
 
   public string ResourceTypeName => _ResourceTypeName;
 
-  public bool IsAllResourceTypes => _IsAllResourceTypes;
+  public IEnumerable<string> ConditionKeyIds() => _SpecificConditionKeyIds.AsEnumerable();
+
+  public IEnumerable<string> DependendActionIds() => _DependentActionIds.AsEnumerable();
 
   public void SetTypeIdAndName(string id, string name)
   {
     _ResourceTypeDefinitionId = id;
     _ResourceTypeName = name;
-    _IsAllResourceTypes = false;
   }
 
   public void AddConditionKeyId(string id)
@@ -51,7 +51,6 @@ public struct ActionResourceType
 
   public ActionResourceType()
   {
-    _IsAllResourceTypes = true;
     _ResourceTypeDefinitionId = EMPTY_STRING;
     _ResourceTypeName = EMPTY_STRING;
     _SpecificConditionKeyIds = new List<string>();

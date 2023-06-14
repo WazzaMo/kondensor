@@ -18,15 +18,22 @@ namespace Actions;
 public static class ActionsYamlWriter
 {
   public const string
+    EMPTY = "",
     INDENT = "  ",
     SEP = ": ",
-    MEMBER = "- ",
+    CHILD = "  ",
+    SEQUENCE = "- ",
     TABLE = "ActionsTable",
     SRC_URL = "SourceUrl",
     HEADINGS = "Headings",
+    UNESCQUOTE = "'",
+    ESCQUOTE = "\"",
     DEFINITIONS = "Definitions",
     ACTION_DEF = "Action",
     ACTION_NAME = "Name",
+    RESOURCE_DEF = "Resource",
+    RESOURCE_NAME = "Name",
+    CONDITION_KEYS = "ConditionKeys",
     DESCRIPTION = "Description",
     API_URL = "ApiUrl";
 
@@ -45,26 +52,45 @@ public static class ActionsYamlWriter
   )
   {
     writer.WriteFragment(TABLE).WriteFragmentLine(SEP);
-    writer.WriteFragment(INDENT).WriteFragment(MEMBER).WriteFragment(SRC_URL).WriteFragment(SEP).WriteFragmentLine(sourceUrl);
-    writer.WriteFragment(INDENT).WriteFragment(MEMBER).WriteFragment(HEADINGS).WriteFragmentLine(SEP);
+    writer.WriteFragment(INDENT).WriteFragment(CHILD).WriteFragment(SRC_URL).WriteFragment(SEP).Url(sourceUrl).WriteFragmentLine(EMPTY);
+    writer.WriteFragment(INDENT).WriteFragment(CHILD).WriteFragment(HEADINGS).WriteFragmentLine(SEP);
   
     headings.ForEach(
       heading => writer
         .WriteFragment(INDENT).WriteFragment(INDENT)
-        .WriteFragment(MEMBER)
-        .WriteFragmentLine(heading)
+        .WriteFragment(SEQUENCE)
+        .WriteFragment(UNESCQUOTE).WriteFragment(heading).WriteFragmentLine(UNESCQUOTE)
     );
 
-    writer.WriteFragment(INDENT).WriteFragment(MEMBER).WriteFragment(DEFINITIONS).WriteFragmentLine(SEP);
+    writer.WriteFragment(INDENT).WriteFragment(CHILD).WriteFragment(DEFINITIONS).WriteFragmentLine(SEP);
     actions.ForEach( _action => {
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(CHILD)
         .WriteFragment(ACTION_DEF).WriteFragment(SEP).WriteFragmentLine(_action.ActionId);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(CHILD)
         .WriteFragment(ACTION_NAME).WriteFragment(SEP).WriteFragmentLine(_action.Name);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(CHILD)
         .WriteFragment(DESCRIPTION).WriteFragment(SEP).WriteFragmentLine(_action.Description);
-      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(MEMBER)
-        .WriteFragment(API_URL).WriteFragment(SEP).WriteFragmentLine(_action.ApiLink);
+      writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(CHILD)
+        .WriteFragment(API_URL).WriteFragment(SEP).Url(_action.ApiLink).WriteFragmentLine(EMPTY);
+      _action.GetMappedAccessLevels().ForEach( (accessLevel, idex) => {
+
+        _action.GetResourceTypesForLevel(accessLevel).ForEach( (resource, rIdx) => {
+          writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(CHILD)
+            .WriteFragment(RESOURCE_DEF + SEP).WriteFragmentLine(resource.ResourceTypeDefId);
+          writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT)
+            .WriteFragment(CHILD).WriteFragment(RESOURCE_NAME + SEP).WriteFragmentLine(resource.ResourceTypeName);
+
+          writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT)
+            .WriteFragment(CHILD).WriteFragmentLine(CONDITION_KEYS + SEP);
+          
+          resource.ConditionKeyIds().ForEach( (condkey, ckIdx) =>
+            writer.WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT).WriteFragment(INDENT)
+              .WriteFragment(INDENT).StringList(condkey).WriteFragmentLine(EMPTY)
+          );
+        });
+        
+        //
+      });
 
       // _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
       //   writer.WriteFragmentLine($"  {accessLevel}:");
@@ -75,4 +101,10 @@ public static class ActionsYamlWriter
       // } );
     });
   }
+
+  private static IPipeWriter Url(this IPipeWriter writer, string url)
+    =>  writer.WriteFragment(UNESCQUOTE).WriteFragment(url).WriteFragment(UNESCQUOTE);
+  
+  private static IPipeWriter StringList(this IPipeWriter writer, string member)
+    => writer.WriteFragment(SEQUENCE).WriteFragmentLine(fragment: $"{UNESCQUOTE}{member}{UNESCQUOTE}");
 }
