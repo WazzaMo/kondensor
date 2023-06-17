@@ -106,13 +106,6 @@ public static class ActionsYamlWriter
         });
       });
 
-      // _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
-      //   writer.WriteFragmentLine($"  {accessLevel}:");
-      //   _action.GetResourceTypesForLevel(accessLevel).ForEach(
-      //     (rsrcType, rsrcIdx)
-      //       => writer.WriteFragmentLine($"    #{rsrcIdx}: {rsrcType.ResourceTypeName} - {rsrcType.ResourceTypeDefId}")
-      //     );
-      // } );
     });
   }
 
