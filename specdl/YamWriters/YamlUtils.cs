@@ -43,6 +43,13 @@ public static class YamlUtils
   public static IPipeWriter QuoteLine(this IPipeWriter writer, string value)
     =>  writer.WriteFragmentLine(UNESCQUOTE + value + UNESCQUOTE);
 
+  public static IPipeWriter ListItem(this IPipeWriter writer, int indent, Action<IPipeWriter> member)
+  {
+    writer.Indent(count: indent).WriteFragment(SEQUENCE);
+    member(writer);
+    return writer;
+  }
+
   public static IPipeWriter StringList(this IPipeWriter writer, string member)
     => writer.WriteFragment(SEQUENCE).WriteFragment(fragment: $"{UNESCQUOTE}{member}{UNESCQUOTE}");
 

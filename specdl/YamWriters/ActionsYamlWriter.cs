@@ -22,13 +22,15 @@ public static class ActionsYamlWriter
 {
   public const string
     TABLE = "ActionsTable",
+    ID = "Id",
     SRC_URL = "SourceUrl",
     HEADINGS = "Headings",
     UNESCQUOTE = "'",
     ESCQUOTE = "\"",
-    DEFINITIONS = "Definitions",
+    ACTION_LIST = "Actions",
     ACTION_DEF = "Action",
     ACTION_NAME = "Name",
+    RESOURCE_LIST = "Resources",
     RESOURCE_DEF = "Resource",
     RESOURCE_NAME = "Name",
     CONDITION_KEYS = "ConditionKeys",
@@ -50,44 +52,55 @@ public static class ActionsYamlWriter
     IPipeWriter writer
   )
   {
+    const int
+      MBR_TABLE = 1,
+      MBR_HEADINGS_LIST = MBR_TABLE + 1,
+      MBR_ACTION_LIST = MBR_TABLE + 1,
+      MBR_ACTION_DEF = MBR_ACTION_LIST + 2,
+      MBR_RESOURCE_LIST = MBR_ACTION_DEF + 0,
+      MBR_RESOURCE_REC = MBR_RESOURCE_LIST + 2;
+
     writer.KeyLine(TABLE)
-      .Indent(1).Key(SRC_URL).UrlLIne(sourceUrl)
-      .Indent(count: 1).KeyLine(HEADINGS);
+      .Indent(MBR_TABLE).Key(SRC_URL).UrlLIne(sourceUrl)
+      .Indent(MBR_TABLE).KeyLine(HEADINGS);
  
     headings.ForEach(
       heading => writer
-        .Indent(count: 2).StringListLine(heading)
+        .Indent(MBR_HEADINGS_LIST).StringListLine(heading)
     );
 
-    writer.Indent(count: 2).KeyLine(DEFINITIONS);
+    writer.Indent(MBR_TABLE).KeyLine(ACTION_LIST);
 
     actions.ForEach( _action => {
       writer
-        .Indent(count: 3).Key(ACTION_DEF).QuoteLine(_action.ActionId)
-        .Indent(count: 4).Key(ACTION_NAME).WriteFragmentLine(_action.Name)
-        .Indent(count: 4).Key(DESCRIPTION).WriteFragmentLine(_action.Description)
-        .Indent(count: 4).Key(API_URL).UrlLIne(_action.ApiLink);
+        .ListItem(MBR_ACTION_LIST, act => act.KeyLine(ACTION_DEF))
+          .Indent(MBR_ACTION_DEF).Key(ID).QuoteLine(_action.ActionId)
+          .Indent(MBR_ACTION_DEF).Key(ACTION_NAME).WriteFragmentLine(_action.Name)
+          .Indent(MBR_ACTION_DEF).Key(DESCRIPTION).WriteFragmentLine(_action.Description)
+          .Indent(MBR_ACTION_DEF).Key(API_URL).UrlLIne(_action.ApiLink)
+          .Indent(MBR_ACTION_DEF).KeyLine(RESOURCE_LIST);
 
       _action.GetMappedAccessLevels().ForEach( (accessLevel, idex) => {
 
         _action.GetResourceTypesForLevel(accessLevel).ForEach( (resource, rIdx) => {
+          writer.ListItem( MBR_RESOURCE_LIST, list => list.KeyLine(RESOURCE_DEF) );
           writer
-            .Indent(count: 5).Key(RESOURCE_DEF).QuoteLine(resource.ResourceTypeDefId)
-              .Indent(count: 6).Key(RESOURCE_NAME).WriteFragmentLine(resource.ResourceTypeName);
+            .Indent(MBR_RESOURCE_REC).Key(ID).QuoteLine(resource.ResourceTypeDefId)
+            .Indent(MBR_RESOURCE_REC).Key(RESOURCE_NAME).WriteFragmentLine(resource.ResourceTypeName);
 
           if (resource.ConditionKeyIds().Count() > 0)
           {
-            writer.Indent(count: 6).KeyLine(CONDITION_KEYS);
+            writer.Indent(MBR_RESOURCE_REC).KeyLine(CONDITION_KEYS);
             resource.ConditionKeyIds().ForEach( (condkey, ckIdx) =>
-              writer.Indent(count: 6).StringListLine(condkey)
+              writer.Indent(MBR_RESOURCE_REC).StringListLine(condkey)
             );
           }
 
           if (resource.DependendActionIds().Count() > 0)
           {
-            writer.Indent(count: 6).KeyLine( DEPENDENT_ACTIONS );
+            writer.Indent(MBR_RESOURCE_REC).KeyLine( DEPENDENT_ACTIONS );
             resource.DependendActionIds().ForEach( (depAction, idxDa)
-              => writer.Indent(count: 6).StringListLine(depAction)
+              => writer.Indent(MBR_RESOURCE_REC).StringListLine(depAction)
             );
           }
         });
