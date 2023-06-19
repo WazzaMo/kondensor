@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 
+using Parser;
+
 namespace Resources;
 
 public struct ResourceTable
@@ -34,4 +36,15 @@ public struct ResourceTable
   
   public IEnumerable<ResourceDefinition> GetResourceDefinitions()
     => _Data._Resources.AsEnumerable();
+  
+  public ParseAction ResourcesTable(ParseAction parser)
+  {
+    parser
+      .Expect(ResourceTableParser.ResourceTable)
+      .AllMatchThen( (list,writer) => {
+        Console.WriteLine("Parsed resource table");
+      });
+
+    return parser;
+  }
 }
