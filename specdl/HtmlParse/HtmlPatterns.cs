@@ -30,7 +30,12 @@ public static class HtmlPatterns
     END_A = new Regex(pattern: @"\<\/a\>"),
     PARA = new Regex(pattern: @"\<p\>"),
     PARA_VALUE = new Regex(pattern: @"\<p\>([*:*\w\s\(\*\)]+)"),
-    END_PARA = new Regex(pattern: @"\<\/p\>")
+    END_PARA = new Regex(pattern: @"\<\/p\>"),
+    CODE = new Regex(pattern: @"\<code (\w+)=\""(\w+)\""\>([*:${/}\-*\w\s\(\*\)]*)"),
+    END_CODE = new Regex(pattern: @"\<\/code\>"),
+    CODE_TEXT = new Regex(pattern: @"([*:${/}\-*\w\s\(\*\)]*)"),
+    SPAN = new Regex(pattern: @"\<span\>{"),
+    END_SPAN = new Regex(pattern: @"\<\/span\>")
     ;
 
   public const int

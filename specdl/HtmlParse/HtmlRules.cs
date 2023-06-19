@@ -22,8 +22,8 @@ public static class HtmlRules
     END_TH = Utils.SingularMatchRule(HtmlPatterns.END_TH, name: "end:th"),
     START_TR = Utils.SingularMatchRule(HtmlPatterns.TR, name: "start:tr"),
     END_TR = Utils.SingularMatchRule(HtmlPatterns.END_TR, name: "end:tr"),
+    START_TD = Utils.SingularMatchRule(HtmlPatterns.TD, name: "start:td"),
     START_TD_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD_VALUE, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-value"),
-    // START_TD_VALUE = Utils.SingularMatchRule(HtmlPatterns.TD_VALUE, name: "start:td-value"),
     START_TD_ATTRIB_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-attrib-value"),
     END_TD = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td"),
     START_A_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "start:a-id"),
@@ -31,5 +31,10 @@ public static class HtmlRules
     END_A = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:a"),
     START_PARA = Utils.SingularMatchRule(HtmlPatterns.PARA,name: "start:p"),
     START_PARA_VALUE = Utils.SingularMatchRule(HtmlPatterns.PARA_VALUE, name: "start:p-value"),
-    END_PARA = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p");
+    END_PARA = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p"),
+    START_CODE_ATTRIB_VALUE = Utils.SingularMatchRule(HtmlPatterns.CODE, name:"start:code-attrib-value"),
+    END_CODE = Utils.SingularMatchRule(HtmlPatterns.END_CODE, name: "end:code"),
+    START_SPAN = Utils.SingularMatchRule(HtmlPatterns.SPAN, name: "start:span"),
+    END_SPAN = Utils.SingularMatchRule(HtmlPatterns.END_SPAN, name: "end:span"),
+    BODY_CODE_TEXT = Utils.SingularMatchRule(HtmlPatterns.CODE_TEXT, name: "body:code-text");
 }

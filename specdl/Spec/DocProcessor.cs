@@ -13,6 +13,7 @@ using Parser;
 using HtmlParse;
 
 using Actions;
+using Resources;
 
 namespace Spec;
 
@@ -35,10 +36,12 @@ namespace Spec;
 public struct DocProcessor : IProcessor
 {
   private ActionTable _Actions;
+  private ResourceTable _Resources;
 
   public DocProcessor()
   {
     _Actions = new ActionTable();
+    _Resources = new ResourceTable();
   }
 
   public void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe)
@@ -46,6 +49,7 @@ public struct DocProcessor : IProcessor
     _Actions.SetSourceUrl(sourceUrl);
     var parser = Parsing.Group(pipe)
       .Expect(_Actions.ActionsTable)
+      .Expect(_Resources.ResourcesTable)
       ;
   }
 
