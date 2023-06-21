@@ -88,10 +88,12 @@ namespace Parser
       }
       else
       {
-        string? line = GreedyRead();// _Input.ReadLine();
-        if (line != null)
+        // string? line = GreedyRead();
+        isOk = GreedyRead();
+        // if (line != null)
+        if (isOk)
         {
-          TokeniseLineParts(line);
+          // TokeniseLineParts(line);
           token = DequeueTokenOrEmpty();
           isOk = true;
         }
@@ -109,29 +111,61 @@ namespace Parser
     /// Read until next token starts.
     /// </summary>
     /// <returns>One or more lines of text</returns>
-    private string? GreedyRead()
+    private bool GreedyRead()
     {
-      string? result = null;
+      bool isTextRead = false;
       StringBuilder builder = new StringBuilder();
 
-      int charInput;
+      // int charInput;
+      char charInput;
       int tokenCount = 0;
+      string? inputLine;
 
-      do
+      inputLine = _Input.ReadLine();
+      if (inputLine != null)
       {
-        charInput = _Input.Peek();
-        tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
-        if ( charInput > 0 && tokenCount < 2)
+        int index = 0;
+        while(index < inputLine.Length)
         {
-          builder.Append((char) _Input.Read());
+          charInput = inputLine[index];
+          tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
+          if ( tokenCount < 2)
+          {
+            builder.Append(charInput);
+          }
+          else if (builder.Length > 0)
+          {
+            TokeniseLineParts(builder.ToString());
+            isTextRead = true;
+            builder.Clear();
+            tokenCount = charInput == '<' ? 1 : 0;
+            builder.Append(charInput);
+          }
+          index++;
         }
-      } while( charInput > 0 && tokenCount < 2);
 
-      if (builder.Length > 0)
-      {
-        result = builder.ToString();
+        if (builder.Length > 0)
+        {
+          TokeniseLineParts(builder.ToString());
+          isTextRead = true;
+        }
       }
-      return result;
+
+      // do
+      // {
+      //   charInput = _Input.Peek();
+      //   tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
+      //   if ( charInput > 0 && tokenCount < 2)
+      //   {
+      //     builder.Append((char) _Input.Read());
+      //   }
+      // } while( charInput > 0 && tokenCount < 2);
+
+      // if (builder.Length > 0)
+      // {
+      //   result = builder.ToString();
+      // }
+      return isTextRead;
     }
 
     private void TokeniseLineParts(string line)

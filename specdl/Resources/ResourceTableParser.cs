@@ -77,8 +77,16 @@ public static class ResourceTableParser
   {
     parser
       .MayExpect(HtmlRules.START_SPAN, ResourceAnnotations.S_SPAN)
-      .If( match last span)
-      .Expect(HtmlRules.END_SPAN, ResourceAnnotations.E_SPAN)
+      .If(
+        (match) => match.HasAnnotation && match.Annotation == ResourceAnnotations.S_SPAN,
+        (parser, list) => {
+          if (list.Last().Annotation == ResourceAnnotations.S_SPAN)
+          {
+            parser.Expect(HtmlRules.END_SPAN, ResourceAnnotations.E_SPAN);
+          }
+          return parser;
+        }
+      )
 
       .MayExpect(HtmlRules.BODY_CODE_TEXT, ResourceAnnotations.TEXT_CODE)
       ;
