@@ -139,6 +139,7 @@ public class TestHtmlPartsUtils
         var query = from node in list
           where node.HasAnnotation && node.Annotation == "subject"
           select node;
+        Assert.NotEmpty(query);
         Matching matching = query.Last();
         Assert.Equal(EXPECTED_VALUE, HtmlPartsUtils.GetTdAttribValue(matching.Parts));
         isMatched = true;

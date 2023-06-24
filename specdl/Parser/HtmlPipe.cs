@@ -20,42 +20,56 @@ namespace Parser
   {
     private static readonly Regex __LineSep = new Regex(pattern: @"\<");
 
-    private TextReader _Input;
-    private Queue<string> _InputQueue;
-    private TextWriter _Output;
-    private bool _IsOpen;
-    private bool _EofInput;
+    private class _InternalData
+    {
+      internal TextReader _Input;
+      internal Queue<string> _InputQueue;
+      internal TextWriter _Output;
+      internal bool _IsOpen;
+      internal bool _EofInput;
+      internal char[] _UnprocessedText;
+      internal int _UnprocessedIndex;
+
+      internal _InternalData( TextReader input, TextWriter output)
+      {
+        _Input = input;
+        _InputQueue = new Queue<string>();
+        _UnprocessedText = EmptyCharArray();
+        _UnprocessedIndex = 0;
+        _Output = output;
+        _IsOpen = true;
+        _EofInput = false;
+      }
+    }
+
+    private _InternalData _Data;
 
     public HtmlPipe(TextReader input, TextWriter output)
     {
-      _Input = input;
-      _InputQueue = new Queue<string>();
-      _Output = output;
-      _IsOpen = true;
-      _EofInput = false;
+      _Data = new _InternalData(input, output);
     }
 
     public void ClosePipe()
     {
-      _Input.Close();
-      _Output.Close();
-      _IsOpen = false;
+      _Data._Input.Close();
+      _Data._Output.Close();
+      _Data._IsOpen = false;
     }
 
     public bool IsPipeOpen()
-      => _IsOpen;
+      => _Data._IsOpen;
 
-    public bool IsInFlowEnded => _EofInput;
+    public bool IsInFlowEnded => _Data._EofInput;
 
     public bool ReadToken(out string token)
     {
       bool isOk;
-      if (_InputQueue.Count == 0)
+      if (_Data._InputQueue.Count == 0)
       {
         do
         {
           isOk = GetTokenFromInput(out token);
-        } while( isOk && ! _EofInput && token.Length == 0);
+        } while( isOk && ! _Data._EofInput && token.Length == 0);
       }
       else 
       {
@@ -67,13 +81,13 @@ namespace Parser
 
     public IPipeWriter WriteFragment(string fragment)
     {
-      _Output.Write(fragment);
+      _Data._Output.Write(fragment);
       return (IPipeWriter) this;
     }
 
     public IPipeWriter WriteFragmentLine(string fragment)
     {
-      _Output.WriteLine(fragment);
+      _Data._Output.WriteLine(fragment);
       return (IPipeWriter) this;
     }
 
@@ -81,7 +95,7 @@ namespace Parser
     {
       bool isOk;
 
-      if (_EofInput)
+      if (_Data._EofInput)
       {
         isOk = false;
         token = "";
@@ -99,13 +113,15 @@ namespace Parser
         }
         else
         {
-          _EofInput = true;
+          _Data._EofInput = true;
           isOk = false;
           token = "";
         }
       }
       return isOk;
     }
+
+    private static char[] EmptyCharArray() => new char[] {};
 
     /// <summary>
     /// Read until next token starts.
@@ -116,56 +132,61 @@ namespace Parser
       bool isTextRead = false;
       StringBuilder builder = new StringBuilder();
 
-      // int charInput;
       char charInput;
       int tokenCount = 0;
-      string? inputLine;
+      string inputLine;
 
-      inputLine = _Input.ReadLine();
-      if (inputLine != null)
+      if (! _Data._EofInput)
       {
-        int index = 0;
-        while(index < inputLine.Length)
+        do
         {
-          charInput = inputLine[index];
-          tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
-          if ( tokenCount < 2)
+          if ( _Data._UnprocessedIndex >= _Data._UnprocessedText.Length )
           {
-            builder.Append(charInput);
+            if (TryReadInput(out inputLine))
+            {
+              _Data._UnprocessedText = inputLine.ToCharArray();
+            }
+            else
+            {
+              _Data._UnprocessedText = EmptyCharArray();
+            }
+            _Data._UnprocessedIndex = 0;
           }
-          else if (builder.Length > 0)
-          {
-            TokeniseLineParts(builder.ToString());
-            isTextRead = true;
-            builder.Clear();
-            tokenCount = charInput == '<' ? 1 : 0;
-            builder.Append(charInput);
-          }
-          index++;
-        }
 
-        if (builder.Length > 0)
-        {
-          TokeniseLineParts(builder.ToString());
-          isTextRead = true;
-        }
+          if (_Data._UnprocessedIndex < _Data._UnprocessedText.Length)
+          {
+            charInput = _Data._UnprocessedText[_Data._UnprocessedIndex];
+            tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
+
+            if (tokenCount < 2)
+            {
+              builder.Append(charInput);
+              _Data._UnprocessedIndex++;
+            }
+            else
+            {
+              string segment = builder.ToString();
+              TokeniseLineParts(segment);
+              isTextRead = true;
+              builder.Clear();
+              tokenCount = charInput == '<' ? 1 : 0;
+            }
+          }
+
+        } while(! _Data._EofInput && ! isTextRead);
       }
 
-      // do
-      // {
-      //   charInput = _Input.Peek();
-      //   tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
-      //   if ( charInput > 0 && tokenCount < 2)
-      //   {
-      //     builder.Append((char) _Input.Read());
-      //   }
-      // } while( charInput > 0 && tokenCount < 2);
-
-      // if (builder.Length > 0)
-      // {
-      //   result = builder.ToString();
-      // }
       return isTextRead;
+    }
+
+    private bool TryReadInput(out string textLine)
+    {
+      string? inputLine = _Data._Input.ReadLine();
+      _Data._EofInput = inputLine == null ? true : _Data._EofInput;
+      textLine = _Data._EofInput
+        ? ""
+        : inputLine + "\n";
+      return inputLine != null;
     }
 
     private void TokeniseLineParts(string line)
@@ -183,14 +204,14 @@ namespace Parser
         length = index2 - index1;
 
         string sub = line.Substring(index1, length).Trim();
-        _InputQueue.Enqueue(sub);
+        _Data._InputQueue.Enqueue(sub);
       }
     }
 
     private string DequeueTokenOrEmpty()
     {
-      string value = _InputQueue.Count > 0
-        ? _InputQueue.Dequeue()
+      string value = _Data._InputQueue.Count > 0
+        ? _Data._InputQueue.Dequeue()
         : "";
       return value;
     }
