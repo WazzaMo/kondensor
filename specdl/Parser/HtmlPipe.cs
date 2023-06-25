@@ -29,6 +29,7 @@ namespace Parser
       internal bool _EofInput;
       internal char[] _UnprocessedText;
       internal int _UnprocessedIndex;
+      internal List<IPreprocessor> _Preprocessors;
 
       internal _InternalData( TextReader input, TextWriter output)
       {
@@ -39,6 +40,7 @@ namespace Parser
         _Output = output;
         _IsOpen = true;
         _EofInput = false;
+        _Preprocessors = new List<IPreprocessor>();
       }
     }
 
@@ -91,6 +93,11 @@ namespace Parser
       return (IPipeWriter) this;
     }
 
+    public void AddPreprocessor(IPreprocessor processor)
+    {
+      _Data._Preprocessors.Add(processor);
+    }
+
     private bool GetTokenFromInput(out string token)
     {
       bool isOk;
@@ -102,12 +109,9 @@ namespace Parser
       }
       else
       {
-        // string? line = GreedyRead();
         isOk = GreedyRead();
-        // if (line != null)
         if (isOk)
         {
-          // TokeniseLineParts(line);
           token = DequeueTokenOrEmpty();
           isOk = true;
         }
@@ -145,6 +149,7 @@ namespace Parser
             if (TryReadInput(out inputLine))
             {
               _Data._UnprocessedText = inputLine.ToCharArray();
+              ApplyPreprocessors();
             }
             else
             {
@@ -177,6 +182,23 @@ namespace Parser
       }
 
       return isTextRead;
+    }
+
+    private void ApplyPreprocessors()
+    {
+      char[] text = _Data._UnprocessedText;
+      char[] nextText;
+
+      bool isUpdated = false;
+      _Data._Preprocessors.ForEach( preproc => {
+        if (preproc.IsMatch(text))
+        {
+          isUpdated = preproc.ProcessText(text, out nextText);
+          text = nextText;
+        }
+      });
+      if (isUpdated)
+        _Data._UnprocessedText = text;
     }
 
     private bool TryReadInput(out string textLine)

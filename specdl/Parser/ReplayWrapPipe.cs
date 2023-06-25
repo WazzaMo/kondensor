@@ -87,5 +87,10 @@ namespace Parser
       else
         throw new ArgumentException(message: $"Illegal checkpoint value given {checkPoint}, history is only {_TokenHistory.Count} long");
     }
+
+    public void AddPreprocessor(IPreprocessor processor)
+    {
+      _BasePipe.AddPreprocessor(processor);
+    }
   }
 }

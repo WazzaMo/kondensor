@@ -24,6 +24,8 @@ namespace Parser
     void ClosePipe();
 
     bool IsPipeOpen();
+
+    void AddPreprocessor(IPreprocessor processor);
   }
 
 }
