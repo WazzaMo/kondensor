@@ -75,6 +75,52 @@ public class TestPreprocessorUtils
     Assert.Equal(expected: 2, PreprocessorUtils.CountMatches(textWith2, search));
   }
 
+  [Fact]
+  public void ReplaceTextCut_does_not_replace_mismatch()
+  {
+    string Text = "Hi there <span>Captain Strange</span>";
+    string Expected1 = "Hi there <h1>Captain Strange</span>";
+    string Expected2 = "Hi there <h1>Captain Strange</h1>";
+    string Replacement = "h1",
+          Search = "span";
+
+    Span<char> text = SpanFor(Text);
+    Span<char> search = SpanFor(Search);
+    Span<char> replacement = SpanFor(Replacement);
+    char[] buffer = new char[ text.Length + replacement.Length - search.Length ];
+    Span<char> target = new Span<char>(buffer);
+
+    Assert.True(PreprocessorUtils.FindNextMatch(text, search, 0, out int cut));
+    Assert.True(PreprocessorUtils.ReplaceTextCut(text, replacement, cut, search.Length, target));
+    Assert.Equal(Expected1, target.ToString());
+
+    Assert.True(PreprocessorUtils.FindNextMatch(target, search, cut + 1, out cut));
+    Assert.True(PreprocessorUtils.ReplaceTextCut(target, replacement, cut, search.Length, target));
+    target = target.Slice(0, PreprocessorUtils.ComputeTargetLenFullReplacement(text, search, replacement));
+    Assert.Equal(Expected2, target.ToString());
+  }
+
+  [Fact]
+  public void ReplaceFull_replaces_all_instances_of_search_text()
+  {
+    string Text = "Hi there <span>Captain Strange</span>";
+    string ExpectedShorterReplace = "Hi there <h1>Captain Strange</h1>";
+    string ExpectedLongerReplace = "Hi there <amazing>Captain Strange</amazing>";
+    string ReplacementShorter = "h1",
+      ReplacementLonger = "amazing",
+      Search = "span";
+
+    Span<char> text = SpanFor(Text);
+    Span<char> search = SpanFor(Search);
+    Span<char> shortReplacement = SpanFor(ReplacementShorter);
+    Span<char> longReplacement = SpanFor(ReplacementLonger);
+
+    var result = PreprocessorUtils.ReplaceFull(text, search, shortReplacement);
+    Assert.Equal(ExpectedShorterReplace, result.ToString());
+
+    result = PreprocessorUtils.ReplaceFull(text, search, longReplacement);
+    Assert.Equal(ExpectedLongerReplace, result.ToString());
+  }
 
   private Span<char> SpanFor(string value)
     => new Span<char>(value.ToCharArray());
