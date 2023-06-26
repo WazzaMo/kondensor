@@ -147,16 +147,21 @@ public static class PreprocessorUtils
     int workingBufferLength
       = (search.Length > replacement.Length) ? text.Length
       : finalLength;
-    
+    int targetLength = workingBufferLength;
+    int sourceLength = text.Length;
+
+    Span<char> source = new Span<char>( new char[workingBufferLength]);
     Span<char> target = new Span<char>( new char[workingBufferLength]);
-    text.CopyTo(target);
+    text.CopyTo(source);
 
     int countReplacements = CountMatches(text, search);
-    for(int index = -1, count = 0; count < countReplacements && FindNextMatch(target, search, index + 1, out index); count++)
+    for(int index = -1, count = 0; count < countReplacements && FindNextMatch(source, search, index + 1, out index); count++)
     {
-      ReplaceTextCut(target, replacement, index, search.Length, target);
+      Replace(source, sourceLength, replacement, index, search.Length, target, out targetLength);
+      target.Slice(0,targetLength).CopyTo(source);
+      sourceLength = targetLength;
     }
-    return target.Slice(start: 0, length: finalLength);
+    return target.Slice(start: 0, length: targetLength);
   }
 
   /// <summary>
@@ -192,5 +197,22 @@ public static class PreprocessorUtils
     if (text.Length == 0) throw new ArgumentException("inText too short");
     if (replacement.Length == 0) throw new ArgumentException(message: "replacement too short");
     if (search.Length == 0 ) throw new ArgumentException("search too short");
+  }
+
+  private static void Replace(Span<char> text, int sourceLen, Span<char> replacement, int cutIndex, int cutLength, Span<char> target, out int destLen)
+  {
+    destLen = ComputeTargetLengthForSingleReplacement(sourceLen, cutLength, replacement.Length);
+    var source = text.Slice(0, sourceLen);
+    var destination = target.Slice(0, destLen);
+
+    var passThrough = source.Slice(0, cutIndex);
+    passThrough.CopyTo(destination);
+
+    var destReplacement = destination.Slice(cutIndex, replacement.Length);
+    replacement.CopyTo(destReplacement);
+
+    var destRemaining = destination.Slice(cutIndex + replacement.Length);
+    var sourceRemainingAfterCut = source.Slice(cutIndex + cutLength);
+    sourceRemainingAfterCut.CopyTo(destRemaining);
   }
 }
