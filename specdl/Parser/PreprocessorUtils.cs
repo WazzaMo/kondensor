@@ -97,8 +97,9 @@ public static class PreprocessorUtils
   /// <param name="cutIndex">Index of cut where replace will go</param>
   /// <param name="cutLength">Length of text to remove when inserting replacement.</param>
   /// <param name="outText">New version of text - must be pre-allocated</param>
+  /// <param name="finalLength">Out int indicating the populated length of the outText buffer.</param>
   /// <returns>True if attempted when all the lengths, especially outText, are suitable.</returns>
-  public static bool ReplaceTextCut(Span<char> inText, Span<char> replacement, int cutIndex, int cutLength, Span<char> outText)
+  public static bool ReplaceTextCut(Span<char> inText, Span<char> replacement, int cutIndex, int cutLength, Span<char> outText, out int finalLength)
   {
     int lengthNeeded = ComputeTargetLengthForSingleReplacement(inText.Length, cutLength, replacement.Length);
     bool isAttempted
@@ -110,18 +111,11 @@ public static class PreprocessorUtils
 
     if (isAttempted)
     {
-      var passThrough = inText.Slice(0, cutIndex);
-      passThrough.CopyTo(outText);
-
-      var destReplacement = outText.Slice(cutIndex, replacement.Length);
-      replacement.CopyTo(destReplacement);
-
-      var destRemaining = outText.Slice(cutIndex + replacement.Length);
-      var sourceRemainingAfterCut = inText.Slice(cutIndex + cutLength);
-      sourceRemainingAfterCut.CopyTo(destRemaining);
+      Replace(inText, inText.Length, replacement, cutIndex, cutLength, outText, out finalLength);
     }
     else
     {
+      finalLength = 0;
       if (inText.Length <= 0) throw new ArgumentException("inText too short");
       if (replacement.Length <= 0) throw new ArgumentException(message: "replacement too short");
       if (cutIndex < 0 || cutIndex >= inText.Length) throw new ArgumentException("cutIndex invalid for inText length");
@@ -158,7 +152,7 @@ public static class PreprocessorUtils
     for(int index = -1, count = 0; count < countReplacements && FindNextMatch(source, search, index + 1, out index); count++)
     {
       Replace(source, sourceLength, replacement, index, search.Length, target, out targetLength);
-      target.Slice(0,targetLength).CopyTo(source);
+      target.Slice(start: 0,targetLength).CopyTo(source);
       sourceLength = targetLength;
     }
     return target.Slice(start: 0, length: targetLength);

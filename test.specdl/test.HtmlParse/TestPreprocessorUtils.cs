@@ -91,12 +91,12 @@ public class TestPreprocessorUtils
     Span<char> target = new Span<char>(buffer);
 
     Assert.True(PreprocessorUtils.FindNextMatch(text, search, 0, out int cut));
-    Assert.True(PreprocessorUtils.ReplaceTextCut(text, replacement, cut, search.Length, target));
+    Assert.True(PreprocessorUtils.ReplaceTextCut(text, replacement, cut, search.Length, target, out int targetLength));
     Assert.Equal(Expected1, target.ToString());
 
     Assert.True(PreprocessorUtils.FindNextMatch(target, search, cut + 1, out cut));
-    Assert.True(PreprocessorUtils.ReplaceTextCut(target, replacement, cut, search.Length, target));
-    target = target.Slice(0, PreprocessorUtils.ComputeTargetLenFullReplacement(text, search, replacement));
+    Assert.True(PreprocessorUtils.ReplaceTextCut(target, replacement, cut, search.Length, target, out targetLength));
+    target = target.Slice(0, targetLength);
     Assert.Equal(Expected2, target.ToString());
   }
 
