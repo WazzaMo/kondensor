@@ -15,71 +15,39 @@ using System.Text.RegularExpressions;
 
 namespace test.HtmlParse;
 
-/*
+
 public struct FooPreprocessor : IPreprocessor
 {
-  const string SEARCH = "$<span>{</span>"; //"Foo";
+  private char[] _Search;
+  private char[] _Replace;
 
-  const string REPLACEMENT = "${";//"Fighter";
-
-  public bool IsMatch(Span<char> textToMatch)
-    => IsMatched(textToMatch, 0, out int index);
-  
-  private bool IsMatched(Span<char> textToMatch, int startIndex, out int matchIndex)
+  public FooPreprocessor(string search, string replace)
   {
-    bool matched = false;
-    matchIndex = -1;
-
-    Span<char> search = new Span<char>(SEARCH.ToCharArray());
-
-    for(int index = startIndex; !matched && index < textToMatch.Length - search.Length; index++)
-    {
-      matched = isMatch(index, textToMatch);
-      if (matched)
-        matchIndex = index;
-    }
-    return matched;
+    _Search = search.ToCharArray();
+    _Replace = search.ToCharArray();
   }
 
+  public bool IsMatch(char[] textToMatch)
+  {
+    Span<char> search = new Span<char>( _Search );
+    Span<char> text = new Span<char>(textToMatch);
+    return PreprocessorUtils.FindNextMatch(text, search, startIndex: 0, out int index);
+  }
+  
   public bool ProcessText(char[] inputText, out char[] processedText)
   {
-    if ( inputText.Length > 0 && IsMatched(inputText, 0, out int matchIndex))
+    Span<char> text = new Span<char>(inputText);
+    Span<char> search = new Span<char>( _Search );
+
+    bool isMatch = PreprocessorUtils.FindNextMatch(text, search, startIndex: 0, out int index);
+    if (isMatch)
     {
-      return ReplaceText(inputText, matchIndex, out processedText);
+      Span<char> replacement = new Span<char>( _Replace );
+      Span<char> processed = PreprocessorUtils.ReplaceFull(text, search, replacement);
+      processedText = processed.ToArray();
     }
-    else{
-      processedText = new char[] {};
-      return false;
-    }
-  }
-
-  private bool ReplaceText(Span<char> inText, int matchIndex, out Span<char> outText)
-  {
-    char[] target = new char[inputText.Length + REPLACEMENT.Length - SEARCH.Length + 1];
-    Span<char> destination = new Span<char>(target);
-    Span<char> source = new Span<char>(inputText);
-
-    source.Slice(0, matchIndex).CopyTo(destination);
-    Span<char> replacement = new Span<char>( REPLACEMENT.ToCharArray() );
-    var destReplacement = destination.Slice(matchIndex, replacement.Length);
-    replacement.CopyTo(destReplacement);
-
-    var destRemaining = destination.Slice(matchIndex + replacement.Length);
-    var sourceRemainingAfterCut = source.Slice(matchIndex + SEARCH.Length);
-    sourceRemainingAfterCut.CopyTo(destRemaining);
-    processedText = destination.ToArray();
-    return true;
-  }
-
-  private bool isMatch(int startIndex, Span<char> text)
-  {
-    Span<char> seeking = new Span<char>(SEARCH.ToCharArray());
-    Span<char> domain = new Span<char>(text).Slice(startIndex);
-    bool isMatch = true;
-    for(int index = 0; isMatch && index < seeking.Length && index < domain.Length; index++)
-    {
-      isMatch = seeking[index] == domain[index];
-    }
+    else
+      processedText = new char[0];
     return isMatch;
   }
 }
@@ -105,11 +73,14 @@ public class TestHtmlPipe
   [Fact]
   public void HtmlPipe_readsCodeStrippingSpanElements()
   {
+    const string SEARCH = "$<span>{</span>"; //"Foo";
+    const string REPLACEMENT = "${";//"Fighter";
+    
     const string CodeFragment = "<code class=\"code\">arn:$<span>{</span>Partition}:account::$<span>{</span>Account}:account</code>";
     const string StrippedValue = "<code class=\"code\">arn:${Partition}:account::${Account}:account";
 
     _Subject = PipeFor(CodeFragment);
-    _Subject.AddPreprocessor(new FooPreprocessor() );
+    _Subject.AddPreprocessor(new FooPreprocessor(SEARCH, REPLACEMENT) );
     Assert.True( _Subject.ReadToken(out string token));
     Assert.Equal( StrippedValue, token);
   }
@@ -118,10 +89,12 @@ public class TestHtmlPipe
   public void HtmlPipe_handlesPreprocessors()
   {
     const string Fragment = "<p>Hi there Foo, this is Foo</p>";
-    const string ExpectedToken = "<p>Hi there Fighter, this is Foo";
+    const string ExpectedToken = "<p>Hi there Fighter, this is Foo",
+      Search = "Foo",
+      Replace = "Fighter";
 
     _Subject = PipeFor(Fragment);
-    _Subject.AddPreprocessor(new FooPreprocessor() );
+    _Subject.AddPreprocessor(new FooPreprocessor(Search, Replace) );
     Assert.True(_Subject.ReadToken(out string token));
     // Assert.Equal(ExpectedToken, token);
   }
@@ -133,4 +106,3 @@ public class TestHtmlPipe
     => new StringReader(value);
 }
 
-*/
