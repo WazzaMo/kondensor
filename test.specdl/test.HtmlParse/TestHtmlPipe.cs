@@ -16,42 +16,6 @@ using System.Text.RegularExpressions;
 namespace test.HtmlParse;
 
 
-public struct FooPreprocessor : IPreprocessor
-{
-  private char[] _Search;
-  private char[] _Replace;
-
-  public FooPreprocessor(string search, string replace)
-  {
-    _Search = search.ToCharArray();
-    _Replace = replace.ToCharArray();
-  }
-
-  public bool IsMatch(char[] textToMatch)
-  {
-    Span<char> search = new Span<char>( _Search );
-    Span<char> text = new Span<char>(textToMatch);
-    return PreprocessorUtils.FindNextMatch(text, search, startIndex: 0, out int index);
-  }
-  
-  public bool ProcessText(char[] inputText, out char[] processedText)
-  {
-    Span<char> text = new Span<char>(inputText);
-    Span<char> search = new Span<char>( _Search );
-
-    bool isMatch = PreprocessorUtils.FindNextMatch(text, search, startIndex: 0, out int index);
-    if (isMatch)
-    {
-      Span<char> replacement = new Span<char>( _Replace );
-      Span<char> processed = PreprocessorUtils.ReplaceFull(text, search, replacement);
-      processedText = processed.ToArray();
-    }
-    else
-      processedText = new char[0];
-    return isMatch;
-  }
-}
-
 public class TestHtmlPipe
 {
   private HtmlPipe _Subject;
@@ -80,7 +44,7 @@ public class TestHtmlPipe
     const string StrippedValue = "<code class=\"code\">arn:${Partition}:account::${Account}:account";
 
     _Subject = PipeFor(CodeFragment);
-    _Subject.AddPreprocessor(new FooPreprocessor(SEARCH, REPLACEMENT) );
+    _Subject.AddPreprocessor(new ConfigurablePreprocessor(SEARCH, REPLACEMENT) );
     Assert.True( _Subject.ReadToken(out string token));
     Assert.Equal( StrippedValue, token);
   }
@@ -94,7 +58,7 @@ public class TestHtmlPipe
       Replace = "Fighter";
 
     _Subject = PipeFor(Fragment);
-    _Subject.AddPreprocessor(new FooPreprocessor(Search, Replace) );
+    _Subject.AddPreprocessor(new ConfigurablePreprocessor(Search, Replace) );
     Assert.True(_Subject.ReadToken(out string token));
     Assert.Equal(ExpectedToken, token);
   }
