@@ -13,6 +13,7 @@ using Optional;
 using Spec;
 using Parser;
 using HtmlParse;
+using Resources;
 
 public struct SpecDownloader
 {
@@ -80,6 +81,8 @@ public struct SpecDownloader
     HtmlPipe htmlPipe;
     ReplayWrapPipe thePipe;
 
+    IPreprocessor arnPreprocessor = new ArnSpecPreprocessor();
+
     _Processor.Match(
       processor => {
         _source.Match(
@@ -87,6 +90,7 @@ public struct SpecDownloader
             _dest.Match(
               destination => {
                 htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
+                htmlPipe.AddPreprocessor( arnPreprocessor );
                 thePipe = new ReplayWrapPipe(htmlPipe);
                 processor.ProcessAllLines(path, thePipe);
               },
