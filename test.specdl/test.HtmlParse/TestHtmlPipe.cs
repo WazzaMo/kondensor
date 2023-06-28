@@ -24,7 +24,7 @@ public struct FooPreprocessor : IPreprocessor
   public FooPreprocessor(string search, string replace)
   {
     _Search = search.ToCharArray();
-    _Replace = search.ToCharArray();
+    _Replace = replace.ToCharArray();
   }
 
   public bool IsMatch(char[] textToMatch)
@@ -89,14 +89,14 @@ public class TestHtmlPipe
   public void HtmlPipe_handlesPreprocessors()
   {
     const string Fragment = "<p>Hi there Foo, this is Foo</p>";
-    const string ExpectedToken = "<p>Hi there Fighter, this is Foo",
+    const string ExpectedToken = "<p>Hi there Fighter, this is Fighter",
       Search = "Foo",
       Replace = "Fighter";
 
     _Subject = PipeFor(Fragment);
     _Subject.AddPreprocessor(new FooPreprocessor(Search, Replace) );
     Assert.True(_Subject.ReadToken(out string token));
-    // Assert.Equal(ExpectedToken, token);
+    Assert.Equal(ExpectedToken, token);
   }
 
   private HtmlPipe PipeFor(string value)
