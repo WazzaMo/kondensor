@@ -49,6 +49,7 @@ public static class HtmlPatterns
     A_ID_VALUE_IDX = 0,
     A_HREF_ATTRIB_VALUE_IDX = 0,
     A_HREF_TAG_VALUE_IDX = 1,
-    PARA_VALUE_IDX = 0;
+    PARA_VALUE_IDX = 0,
+    CODE_TAG_VALUE = 2;
 
 }

@@ -29,4 +29,34 @@ public struct ResourceDefinition
   {
     _Definition = new InternalData();
   }
+
+  public bool IsValid()
+    => Id != EMPTY_STRING
+    && ApiLink != EMPTY_STRING
+    && Name != EMPTY_STRING;
+
+  public string Id {
+    get => _Definition._Id;
+    set => _Definition._Id = value;
+  }
+
+  public string ApiLink {
+    get => _Definition._ApiDocLink;
+    set => _Definition._ApiDocLink = value;
+  }
+
+  public string Name {
+    get => _Definition._Name;
+    set => _Definition._Name = value;
+  }
+
+  public string Arn {
+    get => _Definition._Arn;
+    set => _Definition._Arn = value;
+  }
+
+  public Option<ResourceConditionKey> ConditionKey {
+    get => _Definition._ConditionKey;
+    set => _Definition._ConditionKey = value;
+  }
 }

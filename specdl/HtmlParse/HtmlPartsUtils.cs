@@ -115,9 +115,17 @@ public static class HtmlPartsUtils
     return tagValue;
   }
 
+  public static string GetCodeTagValue(Option<LinkedList<string>> Parts)
+  {
+    string tagValue = EMPTY_STRING;
+    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.CODE_TAG_VALUE).Trim() );
+    return tagValue;
+  }
+
   public static bool IsEmptyPartsValue(this string value)
     => value == EMPTY_STRING;
   
   public static bool IsEmptyIntValue(this int value)
     => value == EMPTY_INT;
+  
 }
