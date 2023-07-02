@@ -23,4 +23,6 @@ public interface IYamlValues
   IYamlValues Url(string url);
 
   IYamlValues Value(string value);
+
+  IYamlHierarchy DeclarationLine(string field);
 }

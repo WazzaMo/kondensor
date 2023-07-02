@@ -53,6 +53,13 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
+  IYamlHierarchy IYamlValues.DeclarationLine(string field)
+  {
+    _Writer.KeyLine(field);
+    _Indent++;
+    return this;
+  }
+
   IYamlHierarchy IYamlHierarchy.FieldAndValue(string field, string value)
   {
     _Writer.Indent(_Indent).Key(field).WriteFragmentLine(value);
