@@ -12,7 +12,7 @@ using Parser;
 
 namespace YamlWriters;
 
-public ref struct YamlFormatter
+public struct YamlFormatter : IYamlHierarchy, IYamlValues
 {
   private int _Indent;
   private IPipeWriter _Writer;
@@ -23,34 +23,64 @@ public ref struct YamlFormatter
     _Indent = 0;
   }
 
-  public YamlFormatter Declaration(string key)
+  IYamlHierarchy IYamlValues.Line()
   {
-    _Writer.Indent(_Indent).KeyLine(key);
+    _Writer.EndLine();
+    return (IYamlHierarchy) this;
+  }
+
+  IYamlValues IYamlValues.Field(string field)
+  {
+    _Writer.Key(field);
+    return this;
+  }
+
+  IYamlValues IYamlValues.Quote(string quoted)
+  {
+    _Writer.Quote(quoted);
+    return this;
+  }
+
+  IYamlValues IYamlValues.Url(string url)
+  {
+    _Writer.Url(url);
+    return this;
+  }
+
+  IYamlValues IYamlValues.Value(string value)
+  {
+    _Writer.WriteFragment(value);
+    return this;
+  }
+
+  IYamlHierarchy IYamlHierarchy.FieldAndValue(string field, string value)
+  {
+    _Writer.Indent(_Indent).Key(field).WriteFragmentLine(value);
+    return this;
+  }
+
+  IYamlValues IYamlHierarchy.List()
+  {
+    _Writer.Indent(_Indent).WriteFragment(YamlUtils.SEQUENCE);
+    return this;
+  }
+
+  IYamlHierarchy IYamlHierarchy.DeclarationLine(string declared)
+  {
+    _Writer.Indent(_Indent).KeyLine(declared);
     _Indent++;
     return this;
   }
 
-  public YamlFormatter EndDecl()
+  IYamlHierarchy IYamlHierarchy.EndDecl()
   {
     _Indent--;
     return this;
   }
 
-  public YamlFormatter Field(string fieldName)
+  IYamlValues IYamlHierarchy.Field(string field)
   {
-    _Writer.Indent(_Indent).Key(fieldName);
-    return this;
-  }
-
-  public YamlFormatter Quote( string value)
-  {
-    _Writer.Quote(value);
-    return this;
-  }
-
-  public YamlFormatter Line()
-  {
-    _Writer.EndLine();
+    _Writer.Indent(_Indent).Key(field);
     return this;
   }
 }

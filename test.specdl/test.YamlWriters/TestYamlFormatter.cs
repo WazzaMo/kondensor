@@ -35,9 +35,9 @@ public class TestYamlFormatter
   Heading:
 ";
 
-    var subject = new YamlFormatter(Writer);
-    subject.Declaration(KEY1)
-      .Declaration(KEY2);
+    IYamlHierarchy subject = new YamlFormatter(Writer);
+    subject.DeclarationLine(KEY1)
+      .DeclarationLine(KEY2);
     string text = _TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
@@ -55,11 +55,11 @@ public class TestYamlFormatter
   NextHeading:
 ";
 
-    var subject = new YamlFormatter(Writer);
-    subject.Declaration(KEY1)
-      .Declaration(KEY2)
+    IYamlHierarchy subject = new YamlFormatter(Writer);
+    subject.DeclarationLine(KEY1)
+      .DeclarationLine(KEY2)
       .EndDecl()
-      .Declaration(KEY3);
+      .DeclarationLine(KEY3);
     string text = _TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
@@ -77,11 +77,54 @@ public class TestYamlFormatter
     Name: 'Fred'
 ";
 
-    var subject = new YamlFormatter(Writer);
-    subject.Declaration(KEY1)
-      .Declaration(KEY2)
+    IYamlHierarchy subject = new YamlFormatter(Writer);
+    subject.DeclarationLine(KEY1)
+      .DeclarationLine(KEY2)
         .Field(FLD1).Quote(VAL1).Line();
     string text = _TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
+
+  [Fact]
+  public void List_withNoParams_writes_indent_keyVal_in_one()
+  {
+    const string
+      DECL = "List",
+      OBJECT = "ListItem",
+      OBJ_KEY1 = "Name", Name = "Cloud",
+      EXPECT =
+@"List:
+  - ListItem: 
+  Name: Cloud
+";
+    IYamlHierarchy subject = new YamlFormatter(_TextWriter);
+    subject.DeclarationLine(DECL)
+      .List().Field(OBJECT).Line()
+      .FieldAndValue(OBJ_KEY1, Name)
+      ;
+    string text = _TextWriter.ToString();
+    Assert.Equal(EXPECT, text);
+  }
+
+  [Fact]
+  public void List_withNoParams_writes_indent_keyVal_in_parts()
+  {
+    const string
+      DECL = "List",
+      OBJECT = "ListItem",
+      OBJ_KEY1 = "Link", link = "https://github.com",
+      EXPECT =
+@"List:
+  - ListItem: 
+  Link: 'https://github.com'
+";
+    IYamlHierarchy subject = new YamlFormatter(_TextWriter);
+    subject.DeclarationLine(DECL)
+      .List().Field(OBJECT).Line()
+      .Field(OBJ_KEY1).Url(link).Line()
+      ;
+    string text = _TextWriter.ToString();
+    Assert.Equal(EXPECT, text);
+  }
+
 }
