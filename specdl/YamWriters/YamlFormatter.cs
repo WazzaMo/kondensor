@@ -23,18 +23,6 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     _Indent = 0;
   }
 
-  IYamlHierarchy IYamlValues.Line()
-  {
-    _Writer.EndLine();
-    return (IYamlHierarchy) this;
-  }
-
-  IYamlValues IYamlValues.Field(string field)
-  {
-    _Writer.Key(field);
-    return this;
-  }
-
   IYamlValues IYamlValues.Quote(string quoted)
   {
     _Writer.Quote(quoted);
@@ -53,10 +41,13 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
-  IYamlHierarchy IYamlValues.DeclarationLine(string field)
+  IYamlValues IYamlValues.ObjectListItem<T>(T item, Action<T, IYamlHierarchy> handler)
   {
-    _Writer.KeyLine(field);
-    _Indent++;
+    IYamlHierarchy yaml = this;
+    _Writer.Indent(_Indent).WriteFragment(YamlUtils.SEQUENCE);
+    IncIndent();
+    handler(item, yaml);
+    DecIndent();
     return this;
   }
 
@@ -66,28 +57,54 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
-  IYamlValues IYamlHierarchy.List()
+  IYamlHierarchy IYamlHierarchy.List<T>(List<T> items, Action<T, IYamlValues> handler)
   {
-    _Writer.Indent(_Indent).WriteFragment(YamlUtils.SEQUENCE);
+    IYamlValues yaml = this;
+    IPipeWriter writer = _Writer;
+
+    IncIndent();
+    int indent = _Indent;
+
+    items.ForEach( item => {
+      writer.Indent(indent).WriteFragment(YamlUtils.SEQUENCE);
+      handler(item, yaml);
+      writer.EndLine();
+    });
+
+    DecIndent();
     return this;
   }
 
-  IYamlHierarchy IYamlHierarchy.DeclarationLine(string declared)
+  IYamlHierarchy IYamlHierarchy.DeclarationLine(string declared, Action<IYamlHierarchy> handler)
   {
+    IYamlHierarchy yaml= this;
+
     _Writer.Indent(_Indent).KeyLine(declared);
-    _Indent++;
+
+    IncIndent();
+    handler(yaml);
+    DecIndent();
     return this;
   }
 
-  IYamlHierarchy IYamlHierarchy.EndDecl()
+  IYamlHierarchy IYamlHierarchy.Field(string field, Action<IYamlValues> handler)
   {
-    _Indent--;
-    return this;
-  }
-
-  IYamlValues IYamlHierarchy.Field(string field)
-  {
+    IYamlValues yaml = this;
     _Writer.Indent(_Indent).Key(field);
+    handler(yaml);
+    _Writer.EndLine();
     return this;
+  }
+
+  private void IncIndent()
+  {
+    _Indent++;
+  }
+
+  private void DecIndent()
+  {
+    _Indent = (_Indent > 0)
+      ? _Indent - 1
+      : 0;
   }
 }

@@ -14,9 +14,6 @@ namespace YamlWriters;
 
 public interface IYamlValues
 {
-  IYamlHierarchy Line();
-
-  IYamlValues Field(string field);
 
   IYamlValues Quote(string quoted);
 
@@ -24,5 +21,5 @@ public interface IYamlValues
 
   IYamlValues Value(string value);
 
-  IYamlHierarchy DeclarationLine(string field);
+  IYamlValues ObjectListItem<T>(T item, Action<T, IYamlHierarchy> handler);
 }

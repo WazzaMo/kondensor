@@ -15,10 +15,8 @@ namespace YamlWriters;
 public interface IYamlHierarchy
 {
   IYamlHierarchy FieldAndValue(string field, string value);
-  IYamlValues List();
+  IYamlHierarchy List<T>(List<T> items, Action<T, IYamlValues> handler);
   
-  IYamlHierarchy DeclarationLine(string declared);
-  IYamlValues Field(string field);
-
-  IYamlHierarchy EndDecl();
+  IYamlHierarchy DeclarationLine(string declared, Action<IYamlHierarchy> handler);
+  IYamlHierarchy Field(string field, Action<IYamlValues> handler);
 }

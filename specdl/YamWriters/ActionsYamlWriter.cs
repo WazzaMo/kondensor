@@ -55,12 +55,13 @@ public static class ActionsYamlWriter
     IYamlHierarchy yaml = new YamlFormatter(writer);
 
     yaml
-      .DeclarationLine(TABLE)
-        .Field(SRC_URL).Url(sourceUrl).Line()
-
-        .DeclarationLine(HEADINGS);
-          headings.ForEach( hdg => yaml.List().Value(hdg).Line());
-        yaml.EndDecl();
+      .DeclarationLine(TABLE, yTable =>{
+        yTable
+          .Field(SRC_URL, yy => yy.Url(sourceUrl) )
+          .DeclarationLine(HEADINGS, yy =>
+            yy.List(headings, (hdg, y) => y.Value(hdg))
+          );
+      });
 
     yaml
       .DeclarationLine(ACTION_LIST);
@@ -139,8 +140,6 @@ public static class ActionsYamlWriter
     //   });
 
     // });
-
-    yaml.EndDecl();
   }
 
 }
