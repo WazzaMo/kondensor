@@ -16,14 +16,16 @@ public static class YamlUtils
 {
   public const string
     INDENT = "  ",
-    SEP = ": ",
+    KEYVAL_SEP = ": ",
+    SEP = ":",
     CHILD = "  ",
     UNESCQUOTE = "'",
     ESCQUOTE = "\"",
-    SEQUENCE = "- ";
+    SEQUENCE = "- ",
+    LINE_END = "\n";
 
   public static IPipeWriter Key(this IPipeWriter writer, string key)
-    => writer.WriteFragment(key + SEP);
+    => writer.WriteFragment(key + KEYVAL_SEP);
 
   public static IPipeWriter KeyLine(this IPipeWriter writer, string key)
     => writer.WriteFragmentLine(key + SEP);
@@ -55,7 +57,10 @@ public static class YamlUtils
 
   public static IPipeWriter StringListLine(this IPipeWriter writer, string member)
     => writer.WriteFragmentLine( SEQUENCE + UNESCQUOTE + member + UNESCQUOTE);
-  
+
+  public static IPipeWriter EndLine(this IPipeWriter writer)
+    => writer.WriteFragmentLine("");
+
   public static string NTimes(int count, string fragment)
   {
     StringBuilder text = new StringBuilder();
