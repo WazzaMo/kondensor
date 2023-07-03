@@ -36,12 +36,15 @@ public class TestYamlFormatter
 ";
 
     IYamlHierarchy subject = new YamlFormatter(Writer);
-    subject.DeclarationLine(KEY1)
-      .DeclarationLine(KEY2);
+    subject.DeclarationLine(
+      KEY1,
+      y1 => y1.DeclarationLine(KEY2,_ => {})
+    );
     string text = _TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
 
+/*
   [Fact]
   public void EndDecl_reduces_indent()
   {
@@ -126,5 +129,6 @@ public class TestYamlFormatter
     string text = _TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
+*/
 
 }

@@ -41,12 +41,12 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
-  IYamlValues IYamlValues.ObjectListItem<T>(T item, Action<T, IYamlHierarchy> handler)
+  IYamlValues IYamlValues.ObjectListItem(string key, Action handler)
   {
-    IYamlHierarchy yaml = this;
-    _Writer.Indent(_Indent).WriteFragment(YamlUtils.SEQUENCE);
+    _Writer.KeyLine(key);
+
     IncIndent();
-    handler(item, yaml);
+    handler();
     DecIndent();
     return this;
   }
@@ -75,13 +75,34 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
+  IYamlHierarchy IYamlHierarchy.List<T>(
+    IEnumerable<T> items,
+    Action<T, IYamlValues> handler
+  )
+  {
+    IYamlValues yaml = this;
+    IPipeWriter writer = _Writer;
+
+    IncIndent();
+    int indent = _Indent;
+
+    items.ForEach( (item,_) => {
+      writer.Indent(indent).WriteFragment(YamlUtils.SEQUENCE);
+      handler(item, yaml);
+      writer.EndLine();
+    });
+
+    DecIndent();
+    return this;
+  }
+
   IYamlHierarchy IYamlHierarchy.DeclarationLine(string declared, Action<IYamlHierarchy> handler)
   {
-    IYamlHierarchy yaml= this;
 
     _Writer.Indent(_Indent).KeyLine(declared);
 
     IncIndent();
+    IYamlHierarchy yaml= this;
     handler(yaml);
     DecIndent();
     return this;

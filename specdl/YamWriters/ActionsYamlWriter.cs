@@ -60,86 +60,44 @@ public static class ActionsYamlWriter
           .Field(SRC_URL, yy => yy.Url(sourceUrl) )
           .DeclarationLine(HEADINGS, yy =>
             yy.List(headings, (hdg, y) => y.Value(hdg))
-          );
-      });
-
-    yaml
-      .DeclarationLine(ACTION_LIST);
-    
-    actions.ForEach( _action => {
-      yaml.List().DeclarationLine(ACTION_DEF)
-        .FieldAndValue(ID, _action.Name)
-        .FieldAndValue(ACTION_NAME, _action.Name)
-        .FieldAndValue(DESCRIPTION, _action.Description)
-        .FieldAndValue(API_URL, _action.ApiLink)
-        .DeclarationLine(RESOURCE_LIST);
-      
-      _action.GetMappedAccessLevels().ForEach( (accessLevel, idx) => {
-        _action.GetResourceTypesForLevel(accessLevel).ForEach( (resource, rIdx) => {
-          yaml.List().DeclarationLine(RESOURCE_DEF)
-            .Field(ID).Quote(resource.ResourceTypeDefId).Line()
-            .Field(RESOURCE_NAME).Value(resource.ResourceTypeName).Line()
-            ;
-          if (resource.ConditionKeyIds().Count() > 0)
-          {
-            yaml.DeclarationLine(CONDITION_KEYS);
-
-              resource.ConditionKeyIds().ForEach( (condKey, ckIdx) =>
-                yaml.List().Value(condKey).Line()
-              );
-
-            yaml.EndDecl();
-          }
-          if (resource.DependendActionIds().Count() > 0)
-          {
-            yaml.DeclarationLine( DEPENDENT_ACTIONS );
-              resource.DependendActionIds().ForEach( (depAction, _) 
-                => yaml.List().Value(depAction).Line());
-            yaml.EndDecl();
-          }
+          )
+        .DeclarationLine(ACTION_LIST, yActs => {
+          yActs.List(actions, (act, yVal) => yVal.ObjectListItem(ACTION_DEF,()=> {
+            yActs
+              .FieldAndValue(ID, act.ActionId)
+              .FieldAndValue(ACTION_NAME, act.Name)
+              .FieldAndValue(DESCRIPTION, act.Description)
+              .FieldAndValue(API_URL, act.ApiLink)
+              .DeclarationLine(RESOURCE_LIST, yRes => 
+                yRes.List(
+                  act.GetMappedAccessLevels(),
+                  (accessLevel,yAL) => yAL.ObjectListItem(accessLevel.ToString(),() =>{
+                    yRes.List(
+                      act.GetResourceTypesForLevel(accessLevel),
+                      (resource, _)=> yVal.ObjectListItem(RESOURCE_DEF, () => {
+                      yRes
+                        .FieldAndValue(ID, resource.ResourceTypeDefId)
+                        .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
+                    if (resource.ConditionKeyIds().Count() > 0)
+                    {
+                      yRes.DeclarationLine(
+                        CONDITION_KEYS,
+                        yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Value(ck))
+                      );
+                    }
+                    if (resource.DependendActionIds().Count() > 0)
+                    {
+                      yRes.DeclarationLine(
+                        DEPENDENT_ACTIONS,
+                        yDep => yDep.List(resource.DependendActionIds(), (daId,yV)=>yV.Value(daId))
+                      );
+                    }
+                  }));
+                  })
+                ))
+              ;
+          }));
         });
       });
-    });
-    yaml.EndDecl();
-
-    // writer.Indent(MBR_TABLE).KeyLine(ACTION_LIST);
-
-    // actions.ForEach( _action => {
-    //   writer
-    //     .ListItem(MBR_ACTION_LIST, act => act.KeyLine(ACTION_DEF))
-    //       .Indent(MBR_ACTION_DEF).Key(ID).QuoteLine(_action.ActionId)
-    //       .Indent(MBR_ACTION_DEF).Key(ACTION_NAME).WriteFragmentLine(_action.Name)
-    //       .Indent(MBR_ACTION_DEF).Key(DESCRIPTION).WriteFragmentLine(_action.Description)
-    //       .Indent(MBR_ACTION_DEF).Key(API_URL).UrlLIne(_action.ApiLink)
-    //       .Indent(MBR_ACTION_DEF).KeyLine(RESOURCE_LIST);
-
-    //   _action.GetMappedAccessLevels().ForEach( (accessLevel, idex) => {
-
-    //     _action.GetResourceTypesForLevel(accessLevel).ForEach( (resource, rIdx) => {
-    //       writer.ListItem( MBR_RESOURCE_LIST, list => list.KeyLine(RESOURCE_DEF) );
-    //       writer
-    //         .Indent(MBR_RESOURCE_REC).Key(ID).QuoteLine(resource.ResourceTypeDefId)
-    //         .Indent(MBR_RESOURCE_REC).Key(RESOURCE_NAME).WriteFragmentLine(resource.ResourceTypeName);
-
-    //       if (resource.ConditionKeyIds().Count() > 0)
-    //       {
-    //         writer.Indent(MBR_RESOURCE_REC).KeyLine(CONDITION_KEYS);
-    //         resource.ConditionKeyIds().ForEach( (condkey, ckIdx) =>
-    //           writer.Indent(MBR_RESOURCE_REC).StringListLine(condkey)
-    //         );
-    //       }
-
-    //       if (resource.DependendActionIds().Count() > 0)
-    //       {
-    //         writer.Indent(MBR_RESOURCE_REC).KeyLine( DEPENDENT_ACTIONS );
-    //         resource.DependendActionIds().ForEach( (depAction, idxDa)
-    //           => writer.Indent(MBR_RESOURCE_REC).StringListLine(depAction)
-    //         );
-    //       }
-    //     });
-    //   });
-
-    // });
   }
-
 }

@@ -21,5 +21,5 @@ public interface IYamlValues
 
   IYamlValues Value(string value);
 
-  IYamlValues ObjectListItem<T>(T item, Action<T, IYamlHierarchy> handler);
+  IYamlValues ObjectListItem(string key, Action handler);
 }

@@ -16,6 +16,7 @@ public interface IYamlHierarchy
 {
   IYamlHierarchy FieldAndValue(string field, string value);
   IYamlHierarchy List<T>(List<T> items, Action<T, IYamlValues> handler);
+  IYamlHierarchy List<T>(IEnumerable<T> items, Action<T, IYamlValues> handler);
   
   IYamlHierarchy DeclarationLine(string declared, Action<IYamlHierarchy> handler);
   IYamlHierarchy Field(string field, Action<IYamlValues> handler);
