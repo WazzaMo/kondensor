@@ -14,7 +14,11 @@ namespace YamlWriters;
 
 public struct YamlFormatter : IYamlHierarchy, IYamlValues
 {
-  private int _Indent;
+  private int[] __Indent = new int[1]{0};
+  private int _Indent {
+    get => __Indent[0];
+    set => __Indent[0] = value;
+  }
   private IPipeWriter _Writer;
 
   public YamlFormatter(IPipeWriter writer)
@@ -46,14 +50,16 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     _Writer.KeyLine(key);
 
     IncIndent();
+    // IncIndent();
     handler();
+    // DecIndent();
     DecIndent();
     return this;
   }
 
   IYamlHierarchy IYamlHierarchy.FieldAndValue(string field, string value)
   {
-    _Writer.Indent(_Indent).Key(field).WriteFragmentLine(value);
+    _Writer.Indent(_Indent).Key(field).WriteFragment(value);
     return this;
   }
 
@@ -62,8 +68,8 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     IYamlValues yaml = this;
     IPipeWriter writer = _Writer;
 
-    IncIndent();
     int indent = _Indent;
+    IncIndent();
 
     items.ForEach( item => {
       writer.Indent(indent).WriteFragment(YamlUtils.SEQUENCE);
@@ -83,8 +89,8 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     IYamlValues yaml = this;
     IPipeWriter writer = _Writer;
 
-    IncIndent();
     int indent = _Indent;
+    IncIndent();
 
     items.ForEach( (item,_) => {
       writer.Indent(indent).WriteFragment(YamlUtils.SEQUENCE);
@@ -113,13 +119,13 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     IYamlValues yaml = this;
     _Writer.Indent(_Indent).Key(field);
     handler(yaml);
-    _Writer.EndLine();
+    _Writer.EndLine(); // TODO
     return this;
   }
 
   private void IncIndent()
   {
-    _Indent++;
+    _Indent = _Indent + 1;
   }
 
   private void DecIndent()

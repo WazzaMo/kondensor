@@ -103,9 +103,10 @@ public class TestYamlFormatter
       OBJECT = "ListItem",
       OBJ_KEY1 = "Name", Name = "Cloud",
       EXPECT =
-@"List:
-  - ListItem: 
-  Name: Cloud
+@"
+List:
+  - ListItem:
+      Name: Cloud
 ";
     Tuple<string, string> pair = new Tuple<string, string>(OBJ_KEY1, Name);
     List<Tuple<string,string>> theList = new List<Tuple<string, string>>();
@@ -120,33 +121,8 @@ public class TestYamlFormatter
       );
     });
 
-    string text = _TextWriter.ToString();
-    Console.WriteLine("Output: \n"+text);
-    Console.WriteLine("----End");
-    // Assert.Equal(EXPECT, text);
-  }
-
-/*
-  [Fact]
-  public void List_withNoParams_writes_indent_keyVal_in_parts()
-  {
-    const string
-      DECL = "List",
-      OBJECT = "ListItem",
-      OBJ_KEY1 = "Link", link = "https://github.com",
-      EXPECT =
-@"List:
-  - ListItem: 
-  Link: 'https://github.com'
-";
-    IYamlHierarchy subject = new YamlFormatter(_TextWriter);
-    subject.DeclarationLine(DECL)
-      .List().Field(OBJECT).Line()
-      .Field(OBJ_KEY1).Url(link).Line()
-      ;
-    string text = _TextWriter.ToString();
+    string text = "\n"+_TextWriter.ToString();
     Assert.Equal(EXPECT, text);
   }
-*/
 
 }
