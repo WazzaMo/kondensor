@@ -22,4 +22,5 @@ public interface IYamlValues
   IYamlValues Value(string value);
 
   IYamlValues ObjectListItem(string key, Action handler);
+  IYamlValues ShortComment(string message);
 }

@@ -125,4 +125,31 @@ List:
     Assert.Equal(EXPECT, text);
   }
 
+  [Fact]
+  public void ShortComment_truncates_long_statements_at_space()
+  {
+    const string
+      LongStatement = "Hi there, this statement is too long and should be truncated.",
+      Truncated = "Hi there, this statement is too long and...\n",
+      Expected = "# " + Truncated;
+
+    IYamlValues subject = new YamlFormatter(_TextWriter);
+    subject.ShortComment(LongStatement);
+    string text = _TextWriter.ToString();
+    Assert.Equal(Expected, text);
+  }
+
+  [Fact]
+  public void ShortComment_does_not_truncate_short_comments()
+  {
+    const string
+      Statement = "Hi there, this statement is Short.",
+      Truncated = "Hi there, this statement is Short.\n",
+      Expected = "# " + Truncated;
+
+    IYamlValues subject = new YamlFormatter(_TextWriter);
+    subject.ShortComment(Statement);
+    string text = _TextWriter.ToString();
+    Assert.Equal(Expected, text);
+  }
 }

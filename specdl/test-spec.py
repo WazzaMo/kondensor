@@ -7,7 +7,10 @@ import yaml
 #   from yaml import CLoader as Loader, CDumper as Dumper
 # except ImportError:
 
-stream = open('actions.yaml','rt')
+# test_file = 'actions.yaml'
+test_file = 'n-actions.yaml'
+
+stream = open(test_file,'rt')
 
 text = stream.read()
 

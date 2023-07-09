@@ -56,6 +56,21 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
+  IYamlValues IYamlValues.ShortComment(string message)
+  {
+    string truncatedOrShort;
+
+    if (message.Length > SPLIT_LEN)
+    {
+      int space = message.IndexOf(SPLIT_ON, SPLIT_LEN);
+      truncatedOrShort = message.Substring(0, space) + "...";
+    }
+    else
+      truncatedOrShort = message;
+    CommentLine(truncatedOrShort);
+    return this;
+  }
+
   IYamlHierarchy IYamlHierarchy.FieldAndValue(string field, string value)
   {
     _Writer.Indent(_Indent).Key(field).WriteFragment(value);
@@ -123,6 +138,42 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     handler(yaml);
     LineEnd();
     return this;
+  }
+
+  const int SPLIT_LEN = 40;
+  const char SPLIT_ON = ' ', COMMENT = '#';
+
+  IYamlHierarchy IYamlHierarchy.Comment(string message)
+  {
+    if (message.Length > SPLIT_LEN)
+      SplitComment(message);
+    else
+      CommentLine(message);
+
+    return this;
+  }
+
+  private void CommentLine(string text)
+  {
+    _Writer.Indent(_Indent).WriteFragmentLine($"{COMMENT} {text}");
+  }
+
+  private void SplitComment(string original)
+  {
+    List<string> parts = new List<string>();
+    int nextIndex, lastIndex;
+
+    for(int index = SPLIT_LEN; index < original.Length;  )
+    {
+      lastIndex = index;
+      nextIndex = (original.Length - index) > SPLIT_LEN
+       ? original.IndexOf(SPLIT_ON, index)
+       : original.Length;
+      parts.Add( original.Substring(lastIndex, nextIndex) );
+      index = nextIndex;
+    }
+
+    parts.ForEach( CommentLine );
   }
 
   private void LineEnd()

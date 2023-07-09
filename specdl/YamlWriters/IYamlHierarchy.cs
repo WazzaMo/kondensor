@@ -20,4 +20,6 @@ public interface IYamlHierarchy
   
   IYamlHierarchy DeclarationLine(string declared, Action<IYamlHierarchy> handler);
   IYamlHierarchy Field(string field, Action<IYamlValues> handler);
+
+  IYamlHierarchy Comment(string message);
 }
