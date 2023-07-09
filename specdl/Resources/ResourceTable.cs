@@ -70,7 +70,8 @@ public struct ResourceTable
     IYamlHierarchy yaml = formatter;
 
     if (_Data.IsReadyToWrite)
-      yaml.FieldAndValue(field: "ResourceHeadingsCount", value: $"{_Data._Headings.Count}");
+      ResourcesYamlWriter.WriteTable(_Data._Headings, _Data._Resources, formatter);
+      // yaml.FieldAndValue(field: "ResourceHeadingsCount", value: $"{_Data._Headings.Count}");
     else
       throw new Exception("Not ready to write");
     //
