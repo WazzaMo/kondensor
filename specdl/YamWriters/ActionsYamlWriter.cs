@@ -49,10 +49,10 @@ public static class ActionsYamlWriter
     string sourceUrl,
     List<string> headings,
     List<ActionType> actions,
-    IPipeWriter writer
+    YamlFormatter yamlFormatter
   )
   {
-    IYamlHierarchy yaml = new YamlFormatter(writer);
+    IYamlHierarchy yaml = (IYamlHierarchy) yamlFormatter;
 
     yaml
       .DeclarationLine(TABLE, yTable =>{
@@ -76,13 +76,13 @@ public static class ActionsYamlWriter
                       act.GetResourceTypesForLevel(accessLevel),
                       (resource, _)=> yVal.ObjectListItem(RESOURCE_DEF, () => {
                       yRes
-                        .FieldAndValue(ID, resource.ResourceTypeDefId)
+                        .Field(ID, yy => yy.Quote(resource.ResourceTypeName))
                         .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
                     if (resource.ConditionKeyIds().Count() > 0)
                     {
                       yRes.DeclarationLine(
                         CONDITION_KEYS,
-                        yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Value(ck))
+                        yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Quote(ck))
                       );
                     }
                     if (resource.DependendActionIds().Count() > 0)

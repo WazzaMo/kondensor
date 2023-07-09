@@ -26,4 +26,6 @@ public interface IProcessor
   /// <param name="input">source of text to process.</param>
   /// <param name="output">destination to write any processed data, if needed.</param>
   void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe);
+
+  void WriteOutput(ReplayWrapPipe pipe);
 }

@@ -76,6 +76,9 @@ namespace Parser
       return (IPipeWriter) this;
     }
 
+    public bool IsLineTerminated() => _BasePipe.IsLineTerminated();
+
+
     public int GetCheckPoint() => ReadIndex;
 
     public void ReturnToCheckPoint(int checkPoint)

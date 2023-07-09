@@ -15,4 +15,7 @@ public struct RootDocProcessor : IProcessor
   {
     throw new NotImplementedException();
   }
+
+  public void WriteOutput(ReplayWrapPipe pipe)
+  {}
 }

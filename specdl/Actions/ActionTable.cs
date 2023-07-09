@@ -21,10 +21,15 @@ namespace Actions;
 public struct ActionTable
 {
   private class InternalData{
+    private bool _CanBeWritten;
+
     public string _SourceUrl = "";
     public List<string> _HeadingNames = new List<string>();
     public List<ActionType> _Actions = new List<ActionType>();
     public Option<ActionAccessLevel> _CurrentAccessLevel;
+
+    public bool IsReadyToWrite => _CanBeWritten;
+    public void SignalReadyToWrite() => _CanBeWritten = true;
 
     public ActionType CurrentAction {
       get {
@@ -43,6 +48,11 @@ public struct ActionTable
           throw new InvalidOperationException(message: "Cannot get resource type before processing access level.");
       }
     }
+
+    public InternalData()
+    {
+      _CanBeWritten = false;
+    }
   } // -- Internal Data
 
   private InternalData _Data;
@@ -60,8 +70,6 @@ public struct ActionTable
 
   public ParseAction ActionsTable(ParseAction parser)
   {
-    Action<IPipeWriter> _writeFunc = WriteTable;
-
     parser
       .SkipUntil(HtmlRules.START_TABLE)
       .Expect(HtmlRules.START_TABLE, annotation: ActionAnnotations.START_ACTION_TABLE_ANNOTATION)
@@ -70,7 +78,7 @@ public struct ActionTable
       
       if (parser.IsAllMatched)
       {
-        WriteTable(parser.Writer);
+        _Data.SignalReadyToWrite();
       }
       else
       {
@@ -88,9 +96,9 @@ public struct ActionTable
     return parser;
   }
 
-  private void WriteTable(IPipeWriter writer)
+  public void WriteTable(YamlFormatter formatter)
   {
-    ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, writer);
+    ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, formatter);
   }
 
   private ParseAction ActionsHeader(ParseAction parser)

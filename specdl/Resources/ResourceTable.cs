@@ -11,7 +11,7 @@ using Optional;
 
 using Parser;
 using HtmlParse;
-
+using YamlWriters;
 
 namespace Resources;
 
@@ -19,8 +19,13 @@ public struct ResourceTable
 {
   private class InternalData
   {
+    private bool _IsReadyToWrite = false;
+
     internal List<string> _Headings = new List<string>();
     internal List<ResourceDefinition> _Resources = new List<ResourceDefinition>();
+
+    internal bool IsReadyToWrite => _IsReadyToWrite;
+    internal void SignalReadyToWrite() => _IsReadyToWrite = true;
   }
   
   private InternalData _Data;
@@ -47,15 +52,28 @@ public struct ResourceTable
       collectHeadings = CollectHeadings,
       collectResources = CollectResources;
 
+    InternalData _data = _Data;
+
     parser
       .Expect(ResourceTableParser.ResourceTable)
       .AllMatchThen( (list,writer) => {
         collectHeadings(list);
         collectResources(list);
+        _data.SignalReadyToWrite();
       });
-    Console.WriteLine(value: $"Parsed resource table - {_Data._Headings.Count}");
 
     return parser;
+  }
+
+  public void WriteTable(YamlFormatter formatter)
+  {
+    IYamlHierarchy yaml = formatter;
+
+    if (_Data.IsReadyToWrite)
+      yaml.FieldAndValue(field: "ResourceHeadingsCount", value: $"{_Data._Headings.Count}");
+    else
+      throw new Exception("Not ready to write");
+    //
   }
 
   private void CollectHeadings(LinkedList<Matching> matches)

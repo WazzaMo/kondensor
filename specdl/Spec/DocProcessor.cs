@@ -14,6 +14,7 @@ using HtmlParse;
 
 using Actions;
 using Resources;
+using YamlWriters;
 
 namespace Spec;
 
@@ -48,10 +49,23 @@ public struct DocProcessor : IProcessor
   {
     _Actions.SetSourceUrl(sourceUrl);
     var parser = Parsing.Group(pipe)
-      .Expect(_Actions.ActionsTable)
+      .Expect( _Actions.ActionsTable )
       .Expect(_Resources.ResourcesTable)
       ;
   }
 
-  
+  public void WriteOutput(ReplayWrapPipe pipe)
+  {
+    Action<YamlFormatter>
+      _actions = _Actions.WriteTable,
+      _resources = _Resources.WriteTable;
+
+    YamlFormatter formatter = new YamlFormatter(( IPipeWriter)pipe);
+    IYamlHierarchy yaml = formatter;
+    yaml.DeclarationLine("ActionsResourcesConditionKeys", (yy) => {
+      _actions(formatter);
+      _resources(formatter);
+      //
+    });
+  }  
 }

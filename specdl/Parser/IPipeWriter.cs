@@ -25,6 +25,11 @@ namespace Parser
     /// <param name="fragment">Text fragment to write.</param>
     IPipeWriter WriteFragmentLine(string fragment);
 
+    /// <summary>
+    /// Indicates if last operation (e.g. WriteFragmetnLine) terminated the line.
+    /// </summary>
+    /// <returns>True if line has been terminated.</returns>
+    bool IsLineTerminated();
   }
 
 }

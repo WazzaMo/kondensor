@@ -93,6 +93,7 @@ public struct SpecDownloader
                 htmlPipe.AddPreprocessor( arnPreprocessor );
                 thePipe = new ReplayWrapPipe(htmlPipe);
                 processor.ProcessAllLines(path, thePipe);
+                processor.WriteOutput(thePipe);
               },
               () => Console.Error.WriteLine(value: $"{nameof(SpecDownloader)}: Destination not set!")
             );

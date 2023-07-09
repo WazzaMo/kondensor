@@ -30,6 +30,13 @@ namespace Parser
       internal char[] _UnprocessedText;
       internal int _UnprocessedIndex;
       internal List<IPreprocessor> _Preprocessors;
+      private bool _LineTerminated;
+
+      internal void TerminateLine() => _LineTerminated = true;
+
+      internal void UnterminatedLineWritten() => _LineTerminated = false;
+
+      internal bool IsLineTerminated() => _LineTerminated;
 
       internal _InternalData( TextReader input, TextWriter output)
       {
@@ -41,6 +48,7 @@ namespace Parser
         _IsOpen = true;
         _EofInput = false;
         _Preprocessors = new List<IPreprocessor>();
+        _LineTerminated = false;
       }
     }
 
@@ -84,14 +92,28 @@ namespace Parser
     public IPipeWriter WriteFragment(string fragment)
     {
       _Data._Output.Write(fragment);
+      _Data.UnterminatedLineWritten();
       return (IPipeWriter) this;
     }
 
     public IPipeWriter WriteFragmentLine(string fragment)
     {
-      _Data._Output.WriteLine(fragment);
+      if ( fragment.Length == 0 )
+      {
+        if (! _Data.IsLineTerminated())
+          _Data._Output.WriteLine("");
+      }
+      else
+      {
+        _Data._Output.WriteLine(fragment);
+      }
+      _Data.TerminateLine();
       return (IPipeWriter) this;
     }
+
+    public bool IsLineTerminated()
+      => _Data.IsLineTerminated();
+    
 
     public void AddPreprocessor(IPreprocessor processor)
     {
