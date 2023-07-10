@@ -6,6 +6,7 @@
 
 using System;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
 using Parser;
@@ -14,6 +15,11 @@ namespace YamlWriters;
 
 public struct YamlFormatter : IYamlHierarchy, IYamlValues
 {
+  const int SPLIT_LEN = 40;
+  const char SPLIT_ON = ' ', COMMENT = '#';
+
+  private readonly static Regex WORD_SPLIT = new Regex(@"\W");
+
   private int[] __Indent = new int[1]{0};
   private int _Indent {
     get => __Indent[0];
@@ -140,9 +146,6 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     return this;
   }
 
-  const int SPLIT_LEN = 40;
-  const char SPLIT_ON = ' ', COMMENT = '#';
-
   IYamlHierarchy IYamlHierarchy.Comment(string message)
   {
     if (message.Length > SPLIT_LEN)
@@ -161,16 +164,20 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
   private void SplitComment(string original)
   {
     List<string> parts = new List<string>();
-    int nextIndex, lastIndex;
+    string piece;
+    int index, nextIndex, lastIndex;
+    string[] segments;
 
-    for(int index = SPLIT_LEN; index < original.Length;  )
+    for(lastIndex = 0; lastIndex < (original.Length - 1);  )
     {
-      lastIndex = index;
-      nextIndex = (original.Length - index) > SPLIT_LEN
-       ? original.IndexOf(SPLIT_ON, index)
-       : original.Length;
-      parts.Add( original.Substring(lastIndex, nextIndex) );
-      index = nextIndex;
+      index = lastIndex == 0
+        ? lastIndex + SPLIT_LEN
+        : lastIndex;
+      segments = WORD_SPLIT.Split(original, count: 2, index);
+      piece = segments[0];
+      nextIndex = piece.Length + lastIndex;
+      parts.Add( piece );
+      lastIndex = nextIndex + 1;
     }
 
     parts.ForEach( CommentLine );

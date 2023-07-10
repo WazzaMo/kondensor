@@ -152,4 +152,31 @@ List:
     string text = _TextWriter.ToString();
     Assert.Equal(Expected, text);
   }
+
+  [Fact]
+  public void Comment_does_not_wrap_short_messages()
+  {
+    const string
+      Comment = "Hi there, this statement is Short.",
+      Expected = "# Hi there, this statement is Short.\n";
+    
+    IYamlHierarchy subject = new YamlFormatter(_TextWriter);
+    subject.Comment(Comment);
+    string text = _TextWriter.ToString();
+    Assert.Equal(Expected, text);
+  }
+
+  [Fact]
+  public void Comment_wraps_long_statements_at_space()
+  {
+    const string
+      LongStatement = "Hi there, this statement is too long and should be wrapped.",
+      Expected = "# " + "Hi there, this statement is too long and\n"
+                +"  " + " should be wrapped.\n";
+
+    IYamlHierarchy subject = new YamlFormatter(_TextWriter);
+    subject.Comment(LongStatement);
+    string text = _TextWriter.ToString();
+    Assert.Equal(Expected, text);
+  }
 }
