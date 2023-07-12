@@ -172,7 +172,7 @@ List:
     const string
       LongStatement = "Hi there, this statement is too long and should be wrapped.",
       Expected = "# " + "Hi there, this statement is too long and\n"
-                +"  " + " should be wrapped.\n";
+                +"# " + " should be wrapped.\n";
 
     IYamlHierarchy subject = new YamlFormatter(_TextWriter);
     subject.Comment(LongStatement);

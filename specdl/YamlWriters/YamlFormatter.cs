@@ -18,7 +18,7 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
   const int SPLIT_LEN = 40;
   const char SPLIT_ON = ' ', COMMENT = '#';
 
-  private readonly static Regex WORD_SPLIT = new Regex(@"\W");
+  private readonly static Regex SUBLINE_SPLIT = new Regex(@"(.{40}\w*)");
 
   private int[] __Indent = new int[1]{0};
   private int _Indent {
@@ -163,24 +163,13 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
 
   private void SplitComment(string original)
   {
-    List<string> parts = new List<string>();
-    string piece;
-    int index, nextIndex, lastIndex;
-    string[] segments;
+    string[] segments = SUBLINE_SPLIT.Split(original);
+    Action<string> makeComment = CommentLine;
 
-    for(lastIndex = 0; lastIndex < (original.Length - 1);  )
-    {
-      index = lastIndex == 0
-        ? lastIndex + SPLIT_LEN
-        : lastIndex;
-      segments = WORD_SPLIT.Split(original, count: 2, index);
-      piece = segments[0];
-      nextIndex = piece.Length + lastIndex;
-      parts.Add( piece );
-      lastIndex = nextIndex + 1;
-    }
-
-    parts.ForEach( CommentLine );
+    Array.ForEach(segments, part => {
+      if (part.Length > 0)
+        makeComment(part);
+    });
   }
 
   private void LineEnd()
