@@ -16,9 +16,11 @@ namespace YamlWriters;
 public struct YamlFormatter : IYamlHierarchy, IYamlValues
 {
   const int SPLIT_LEN = 40;
-  const char SPLIT_ON = ' ', COMMENT = '#';
+  const char
+    SPLIT_ON = ' ',
+    COMMENT = '#';
 
-  private readonly static Regex SUBLINE_SPLIT = new Regex(@"(.{40}\w*)");
+  private readonly static Regex SUBLINE_SPLIT = new Regex(@"(.{"+ SPLIT_LEN + @"}\w*)");
 
   private int[] __Indent = new int[1]{0};
   private int _Indent {
