@@ -72,8 +72,7 @@ public struct ResourceTable
     if (_Data.IsReadyToWrite)
       ResourcesYamlWriter.WriteTable(_Data._Headings, _Data._Resources, formatter);
     else
-      throw new Exception("Not ready to write");
-    //
+      yaml.Comment(message: "Resource table parsing did not succeed.");
   }
 
   private void CollectHeadings(LinkedList<Matching> matches)
