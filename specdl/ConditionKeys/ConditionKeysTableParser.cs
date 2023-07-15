@@ -15,8 +15,8 @@ public static class ConditionKeysTableParser
   {
     parser
       .SkipUntil(HtmlRules.START_TABLE)
+      .Expect(HtmlRules.START_TABLE, ConditionAnnotations.S_TABLE_CK)
       .Expect(HeadingsProd)
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ConditionAnnotations.S_TABLE_CK)
       .ExpectProductionUntil(ConditionKeyDefProd,
         HtmlRules.END_TABLE, ConditionAnnotations.E_TABLE_CK)
       ;
