@@ -32,7 +32,12 @@ public struct ConditionKeysTable
 
   public ParseAction ParseConditionKeysTable(ParseAction parser)
   {
-    //
+    parser
+      .Expect(ConditionKeysTableParser.Parser)
+      .AllMatchThen( (list, writer) => {
+        //
+        Console.WriteLine($"{list.Count} annotations found");
+      });
     return parser;
   }
 

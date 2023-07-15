@@ -14,6 +14,7 @@ using HtmlParse;
 
 using Actions;
 using Resources;
+using ConditionKeys;
 using YamlWriters;
 
 namespace Spec;
@@ -38,11 +39,13 @@ public struct DocProcessor : IProcessor
 {
   private ActionTable _Actions;
   private ResourceTable _Resources;
+  private ConditionKeysTable _ConditionKeys;
 
   public DocProcessor()
   {
     _Actions = new ActionTable();
     _Resources = new ResourceTable();
+    _ConditionKeys = new ConditionKeysTable();
   }
 
   public void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe)
@@ -51,6 +54,7 @@ public struct DocProcessor : IProcessor
     var parser = Parsing.Group(pipe)
       .Expect( _Actions.ActionsTable )
       .Expect(_Resources.ResourcesTable)
+      .Expect(_ConditionKeys.ParseConditionKeysTable)
       ;
   }
 
