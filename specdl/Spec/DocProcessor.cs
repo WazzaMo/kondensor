@@ -62,14 +62,15 @@ public struct DocProcessor : IProcessor
   {
     Action<YamlFormatter>
       _actions = _Actions.WriteTable,
-      _resources = _Resources.WriteTable;
+      _resources = _Resources.WriteTable,
+      _conditionKeys = _ConditionKeys.WriteTable;
 
     YamlFormatter formatter = new YamlFormatter(( IPipeWriter)pipe);
     IYamlHierarchy yaml = formatter;
     yaml.DeclarationLine("ActionsResourcesConditionKeys", (yy) => {
       _actions(formatter);
       _resources(formatter);
-      //
+      _conditionKeys(formatter);
     });
   }  
 }

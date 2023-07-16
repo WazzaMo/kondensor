@@ -10,6 +10,7 @@ using System.Linq;
 
 using Parser;
 using HtmlParse;
+using YamlWriters;
 
 namespace ConditionKeys;
 
@@ -17,6 +18,7 @@ public struct ConditionKeysTable
 {
   internal class InternalData
   {
+    internal bool IsParsedSuccessfully;
     internal List<string> Headings;
     internal List<ConditionKeyEntry> Entries;
 
@@ -24,6 +26,7 @@ public struct ConditionKeysTable
     {
       Headings = new List<string>();
       Entries = new List<ConditionKeyEntry>();
+      IsParsedSuccessfully = false;
     }
   }
 
@@ -38,15 +41,34 @@ public struct ConditionKeysTable
   {
     parser
       .Expect(ConditionKeysTableParser.Parser)
-      .AllMatchThen( CollectValuesFromMatchings );
+      .AllMatchThen( CollectValuesFromMatchings )
+      .MismatchesThen( OnFailedParsing );
     return parser;
+  }
+
+  public void WriteTable(YamlFormatter formatter)
+  {
+    const string
+      ERROR_NO_ENTRIES = "Condition keys were not parsed.";
+    IYamlHierarchy yaml = formatter;
+
+    if (_Data.IsParsedSuccessfully )
+    {
+      ConditionKeysYamlWriter.WriteYaml(_Data.Headings, _Data.Entries, formatter);
+    }
+    else
+      yaml.Comment(ERROR_NO_ENTRIES);
   }
 
   private void CollectValuesFromMatchings(LinkedList<Matching> list, IPipeWriter writer)
   {
     CollectHeadings(list);
     CollectEntries(list);
+    _Data.IsParsedSuccessfully = true;
   }
+
+  private void OnFailedParsing(LinkedList<Matching> list, IPipeWriter writer)
+    => _Data.IsParsedSuccessfully = false;
 
   private void CollectHeadings(LinkedList<Matching> list)
   {
