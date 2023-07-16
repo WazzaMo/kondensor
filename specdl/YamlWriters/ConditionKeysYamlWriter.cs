@@ -17,8 +17,8 @@ namespace YamlWriters;
 public static class ConditionKeysYamlWriter
 {
   const string
-    TABLE = "ConditionKeyDefinitions:",
-    HEADINGS = "Headings:",
+    TABLE = "ConditionKeyDefinitions",
+    HEADINGS = "Headings",
     CONDITIONS = "ConditionKeys",
     CK_ENTRY = "ConditionKey",
     ID = "Id",
@@ -51,7 +51,7 @@ public static class ConditionKeysYamlWriter
   )
   {
     yaml.List(headings,
-      (item, yVal) => yVal.Value(item)
+      (item, yVal) => yVal.Quote(item)
     );
   }
 
@@ -75,7 +75,7 @@ public static class ConditionKeysYamlWriter
     YamlFormatter formatter = (YamlFormatter) yVal;
     IYamlHierarchy yaml = formatter;
     yaml
-      .Field(ID, yy => yy.Value(entry.Id))
+      .Field(ID, yy => yy.Quote(entry.Id))
       .Field(LINK, yy => yy.Url(entry.DocLink))
       .Field(NAME, yy => yy.Value(entry.Name))
       .Field(DESCRIPTION, yy => yy.Quote(entry.Description))
