@@ -47,7 +47,7 @@ public static class HtmlPartsUtils
         {
           tagValue = list.ElementAt(HtmlPatterns.TD_ATTRIB_TAG_VALUE_IDX);
         }
-        else
+        else if (list.Count == 1)
         {
           tagValue = list.ElementAt(HtmlPatterns.TD_TAG_VALUE_IDX);
         }

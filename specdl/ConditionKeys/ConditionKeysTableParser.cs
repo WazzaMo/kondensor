@@ -56,10 +56,10 @@ public static class ConditionKeysTableParser
           .Expect(HtmlRules.END_A, ConditionAnnotations.E_AHREF)
         .Expect(HtmlRules.END_TD, ConditionAnnotations.E_TD)
 
-        .Expect(HtmlRules.START_TD, ConditionAnnotations.S_TD_DESC)
+        .Expect(HtmlRules.START_TD_VALUE, ConditionAnnotations.S_TD_DESC)
         .Expect(HtmlRules.END_TD, ConditionAnnotations.E_TD_DESC)
 
-        .Expect(HtmlRules.START_TD, ConditionAnnotations.S_TD_TYPE)
+        .Expect(HtmlRules.START_TD_VALUE, ConditionAnnotations.S_TD_TYPE)
         .Expect(HtmlRules.END_TD, ConditionAnnotations.E_TD_TYPE)
 
       .Expect(HtmlRules.END_TR, ConditionAnnotations.E_TR_DECL)
