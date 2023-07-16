@@ -17,6 +17,8 @@ public struct ConditionKeyEntry
 
   private string _Id;
   private string _DocLink;
+  private string _Name;
+  private string _Description;
   private ConditionKeyType _ValueType;
 
   public string Id => _Id;
@@ -25,6 +27,12 @@ public struct ConditionKeyEntry
   public string DocLink => _DocLink;
   public bool IsDocLinkSet => _DocLink != __EMPTY;
 
+  public string Name => _Name;
+  public bool IsNameSet => _Name != __EMPTY;
+
+  public string Description => _Description;
+  public bool IsDescriptionSet => _Description != __EMPTY;
+
   public ConditionKeyType CkType => _ValueType;
   public bool IsCkTypeSet => _ValueType != ConditionKeyType._Empty;
 
@@ -32,12 +40,18 @@ public struct ConditionKeyEntry
   {
     _Id = __EMPTY;
     _DocLink = __EMPTY;
+    _Name = __EMPTY;
+    _Description = __EMPTY;
     _ValueType = ConditionKeyType._Empty;
   }
 
   public void SetId(string id) => _Id = id;
 
   public void SetDocLink(string link) => _DocLink = link;
+
+  public void SetName(string name) => _Name = name;
+
+  public void SetDescription(string description) => _Description = description;
 
   public void SetCkType(ConditionKeyType ckt) => _ValueType = ckt;
 }

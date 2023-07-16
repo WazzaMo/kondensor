@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Parser;
+using HtmlParse;
 
 namespace ConditionKeys;
 
@@ -15,11 +17,13 @@ public struct ConditionKeysTable
 {
   internal class InternalData
   {
-    internal List<ConditionKeyEntry> _Entries;
+    internal List<string> Headings;
+    internal List<ConditionKeyEntry> Entries;
 
     internal InternalData()
     {
-      _Entries = new List<ConditionKeyEntry>();
+      Headings = new List<string>();
+      Entries = new List<ConditionKeyEntry>();
     }
   }
 
@@ -34,11 +38,92 @@ public struct ConditionKeysTable
   {
     parser
       .Expect(ConditionKeysTableParser.Parser)
-      .AllMatchThen( (list, writer) => {
-        //
-        Console.WriteLine($"{list.Count} annotations found");
-      });
+      .AllMatchThen( CollectValuesFromMatchings );
     return parser;
   }
 
+  private void CollectValuesFromMatchings(LinkedList<Matching> list, IPipeWriter writer)
+  {
+    CollectHeadings(list);
+    CollectEntries(list);
+  }
+
+  private void CollectHeadings(LinkedList<Matching> list)
+  {
+    var query = from node in list
+      where node.Annotation == ConditionAnnotations.S_TH_VALUE
+      select node;
+    query.ForEach( GetHeading );
+  }
+
+  private void CollectEntries(LinkedList<Matching> list)
+  {
+    IEnumerable<Matching> matchings = FilterNodes(list);
+    Matching aId, aHref, tdDesc, tdType;
+
+    var step = matchings.GetEnumerator();
+    while(step.MoveNext())
+    {
+      aId = step.Current;
+      if (step.MoveNext())
+      {
+        aHref = step.Current;
+        if (step.MoveNext())
+        {
+          tdDesc = step.Current;
+          if (step.MoveNext())
+          {
+            tdType = step.Current;
+            AddEntry(aId, aHref, tdDesc, tdType);
+          }
+        }
+      }
+    }
+  }
+
+  private void AddEntry(
+    Matching aId,
+    Matching aHref,
+    Matching tdDesc,
+    Matching tdType
+  )
+  {
+    ConditionKeyEntry entry = new ConditionKeyEntry();
+    var id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
+    entry.SetId(id);
+    var url = HtmlPartsUtils.GetAHrefAttribValue(aHref.Parts);
+    var name = HtmlPartsUtils.GetAHrefTagValue(aHref.Parts);
+    entry.SetDocLink(url);
+    entry.SetName(name);
+    var description = HtmlPartsUtils.GetTdTagValue(tdDesc.Parts);
+    entry.SetDescription(description);
+    var typeInfo = HtmlPartsUtils.GetTdTagValue(tdType.Parts);
+    ConditionKeyType ckType = GetType(typeInfo);
+    entry.SetCkType(ckType);
+    _Data.Entries.Add(entry);
+  }
+
+  private IEnumerable<Matching> FilterNodes(LinkedList<Matching> list)
+    => from node in list
+      where (node.Annotation == ConditionAnnotations.S_AID
+        || node.Annotation == ConditionAnnotations.S_AHREF
+        || node.Annotation == ConditionAnnotations.S_TD_DESC
+        || node.Annotation == ConditionAnnotations.S_TD_TYPE
+      ) select node;
+
+  private ConditionKeyType GetType(string value)
+  {
+    ConditionKeyType _type;
+    if (! Enum.TryParse<ConditionKeyType>(value, ignoreCase: true, out _type))
+    {
+      _type = ConditionKeyType._Unknown;
+    }
+    return _type;
+  }
+
+  private void GetHeading(Matching match, int id)
+  {
+    string heading = HtmlPartsUtils.GetThTagValue(match.Parts);
+    _Data.Headings.Add( heading );
+  }
 }
