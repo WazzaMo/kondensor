@@ -122,6 +122,13 @@ public static class HtmlPartsUtils
     return tagValue;
   }
 
+  public static string GetH6Value(Option<LinkedList<string>> Parts)
+  {
+    string tagValue = EMPTY_STRING;
+    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.H6_TAG_VALUE).Trim());
+    return tagValue;
+  }
+
   public static bool IsEmptyPartsValue(this string value)
     => value == EMPTY_STRING;
   

@@ -36,5 +36,11 @@ public static class HtmlRules
     END_CODE = Utils.SingularMatchRule(HtmlPatterns.END_CODE, name: "end:code"),
     START_SPAN = Utils.SingularMatchRule(HtmlPatterns.SPAN, name: "start:span"),
     END_SPAN = Utils.SingularMatchRule(HtmlPatterns.END_SPAN, name: "end:span"),
-    BODY_CODE_TEXT = Utils.SingularMatchRule(HtmlPatterns.CODE_TEXT, name: "body:code-text");
+    BODY_CODE_TEXT = Utils.SingularMatchRule(HtmlPatterns.CODE_TEXT, name: "body:code-text"),
+    START_H6_VALUE = Utils.SingularMatchRule(HtmlPatterns.H6, name: "start:h6:value"),
+    END_H6 = Utils.SingularMatchRule(HtmlPatterns.END_H6, name: "end:h6"),
+    START_UL = Utils.SingularMatchRule(HtmlPatterns.UL, name: "start:ul"),
+    END_UL = Utils.SingularMatchRule(HtmlPatterns.END_UL, "end:ul"),
+    START_LI = Utils.SingularMatchRule(HtmlPatterns.LI, name: "start:li"),
+    END_LI = Utils.SingularMatchRule(HtmlPatterns.END_LI, name: "end:li");
 }

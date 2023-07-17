@@ -35,7 +35,13 @@ public static class HtmlPatterns
     END_CODE = new Regex(pattern: @"\<\/code\>"),
     CODE_TEXT = new Regex(pattern: @"([*:${/}\-*\w\s\(\*\)]*)"),
     SPAN = new Regex(pattern: @"\<span\>{"),
-    END_SPAN = new Regex(pattern: @"\<\/span\>")
+    END_SPAN = new Regex(pattern: @"\<\/span\>"),
+    H6 = new Regex(pattern: @"\<h6\>([\w\s\(\*\)]*)"),
+    END_H6 = new Regex(pattern: @"\<\/h6\>"),
+    UL = new Regex(pattern: @"\<ul\>"),
+    END_UL = new Regex(pattern: @"\<\/ul\>"),
+    LI = new Regex(pattern: @"\<li\>"),
+    END_LI = new Regex(pattern: @"\<\/li\>")
     ;
 
   public const int
@@ -50,6 +56,7 @@ public static class HtmlPatterns
     A_HREF_ATTRIB_VALUE_IDX = 0,
     A_HREF_TAG_VALUE_IDX = 1,
     PARA_VALUE_IDX = 0,
-    CODE_TAG_VALUE = 2;
+    CODE_TAG_VALUE = 2,
+    H6_TAG_VALUE = 0;
 
 }
