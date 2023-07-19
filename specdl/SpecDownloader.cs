@@ -112,7 +112,6 @@ public struct SpecDownloader
     string? baseUrl = null;
 
     Action<HttpRequestHeaders> setHeaders = PopulateHeaders;
-    // Action<HttpRequestMessage> showMsg = DumpHeaders;
 
     _Url.MatchSome( url => baseUrl = url);
     if (baseUrl != null && _BaseClient.HasValue)

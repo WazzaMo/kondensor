@@ -6,6 +6,8 @@
 
 using Spec;
 
+/*
+
 const string
   BASE_URL = "https://docs.aws.amazon.com",
   // ROOT_DOC = "/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html",
@@ -24,3 +26,7 @@ downloader.SetProcessor( docProcessor );
 downloader.DownloadSource( ACCT_MGT_DOC );
 downloader.Process(BASE_URL + "/" + ACCT_MGT_DOC);
 
+*/
+
+DocumentIterator _DocIterator = new DocumentIterator();
+_DocIterator.LoadDocList();

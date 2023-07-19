@@ -13,14 +13,24 @@ using HtmlParse;
 
 namespace RootDoc;
 
-public struct RootDoc
+/// <summary>
+/// Parses and builds a list of the policy
+/// documents for different AWS services.
+/// </summary>
+public struct RootDocList
 {
   private List<SubDoc> _Docs;
 
-  public RootDoc()
+  public RootDocList()
   {
     _Docs = new List<SubDoc>();
   }
+
+  /// <summary>
+  /// Provides access to the sub-documents for each service type.
+  /// </summary>
+  /// <returns>Enumerator instance for <see cref="SubDoc"/> </returns>
+  public IEnumerator<SubDoc> EnumerateDocs() => _Docs.GetEnumerator();
 
   public ParseAction ParseRootDoc(ParseAction parser)
   {
