@@ -30,3 +30,5 @@ downloader.Process(BASE_URL + "/" + ACCT_MGT_DOC);
 
 DocumentIterator _DocIterator = new DocumentIterator();
 _DocIterator.LoadDocList();
+Console.WriteLine("Docs...");
+_DocIterator.IterateDocs();

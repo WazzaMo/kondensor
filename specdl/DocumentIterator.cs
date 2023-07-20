@@ -10,26 +10,39 @@ using RootDoc;
 public ref struct DocumentIterator
 {
   const string
-    BASE_URL = "https://docs.aws.amazon.com/service-authorization/latest/reference",
+    DOMAIN = "https://docs.aws.amazon.com",
+    REL_PATH = "service-authorization/latest/reference/",
     ROOT_DOC = "reference_policies_actions-resources-contextkeys.html";
 
-  private RootDocList _Root;
   private SpecDownloader _Downloader;
-  private RootDocProcessor _Processor;
+  private RootDocProcessor _RootProcessor;
 
   public DocumentIterator()
   {
     _Downloader = new SpecDownloader();
-    _Processor = new RootDocProcessor();
-    _Root = new RootDocList();
+    _RootProcessor = new RootDocProcessor();
   }
 
   public void LoadDocList()
   {
     _Downloader.SetDestination(Console.Out);
-    _Downloader.SetUrl(BASE_URL);
-    _Downloader.SetProcessor(_Processor);
-    _Downloader.DownloadSource(ROOT_DOC);
-    _Downloader.Process(BASE_URL + "/" + ROOT_DOC);
+    _Downloader.SetUrl(DOMAIN);
+    _Downloader.SetProcessor(_RootProcessor);
+    _Downloader.DownloadSource( SourceOf(ROOT_DOC) );
+    _Downloader.Process(DOMAIN + "/" + SourceOf(ROOT_DOC));
   }
+
+  public void IterateDocs()
+  {
+    var iterator = _RootProcessor.GetEnumerator();
+    SubDoc doc;
+    while(iterator.MoveNext())
+    {
+      doc = iterator.Current;
+      Console.WriteLine($"Doc: {doc.Title} => {doc.Path}");
+    }
+  }
+
+  private string SourceOf(string doc)
+    => REL_PATH + doc;
 }

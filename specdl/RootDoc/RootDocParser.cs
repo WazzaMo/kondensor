@@ -24,7 +24,9 @@ public static class RootDocParser
     parser
       .SkipUntil(HtmlRules.START_H6_VALUE)
       .Expect(HtmlRules.START_H6_VALUE, RootAnnotations.START_LIST_HEADING)
-      .Expect(HtmlRules.END_H6, RootAnnotations.END_LIST_HEADING);
+      .Expect(HtmlRules.END_H6, RootAnnotations.END_LIST_HEADING)
+      .Expect(PageListProd)
+      ;
     return parser;
   }
 
