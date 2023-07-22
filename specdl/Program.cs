@@ -6,6 +6,8 @@
 
 using Spec;
 
+using System.IO;
+
 /*
 
 const string
@@ -27,6 +29,10 @@ downloader.DownloadSource( ACCT_MGT_DOC );
 downloader.Process(BASE_URL + "/" + ACCT_MGT_DOC);
 
 */
+
+string currentDir = Directory.GetCurrentDirectory();
+
+Console.WriteLine(value: $"SPECDL running in: {currentDir}");
 
 DocumentIterator _DocIterator = new DocumentIterator();
 _DocIterator.LoadDocList();

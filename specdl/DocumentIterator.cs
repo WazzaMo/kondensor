@@ -14,17 +14,17 @@ public ref struct DocumentIterator
     REL_PATH = "service-authorization/latest/reference/",
     ROOT_DOC = "reference_policies_actions-resources-contextkeys.html";
 
-  private SpecDownloader _Downloader;
   private RootDocProcessor _RootProcessor;
 
   public DocumentIterator()
   {
-    _Downloader = new SpecDownloader();
     _RootProcessor = new RootDocProcessor();
   }
 
   public void LoadDocList()
   {
+    SpecDownloader _Downloader;
+    _Downloader = new SpecDownloader();
     _Downloader.SetDestination(Console.Out);
     _Downloader.SetUrl(DOMAIN);
     _Downloader.SetProcessor(_RootProcessor);
