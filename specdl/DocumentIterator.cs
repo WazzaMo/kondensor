@@ -15,10 +15,12 @@ public ref struct DocumentIterator
     ROOT_DOC = "reference_policies_actions-resources-contextkeys.html";
 
   private RootDocProcessor _RootProcessor;
+  private SpecFileManager _SpecManager;
 
   public DocumentIterator()
   {
     _RootProcessor = new RootDocProcessor();
+    _SpecManager = new SpecFileManager();
   }
 
   public void LoadDocList()
@@ -39,8 +41,25 @@ public ref struct DocumentIterator
     while(iterator.MoveNext())
     {
       doc = iterator.Current;
-      Console.WriteLine($"Doc: {doc.Title} => {doc.Path}");
+      Console.WriteLine($"Writing: {doc.Title} => {doc.Path}");
+      ReadAndGenerateSpec(doc);
     }
+  }
+
+  private void ReadAndGenerateSpec(SubDoc doc)
+  {
+    DocProcessor docProcessor;
+    SpecDownloader downloader;
+    StreamWriter fileWriter = _SpecManager.GetOutputStreamFor(doc);
+
+    downloader = new SpecDownloader();
+    docProcessor = new DocProcessor();
+    downloader.SetDestination( fileWriter );
+    downloader.SetUrl(DOMAIN);
+    downloader.SetProcessor(docProcessor);
+    downloader.DownloadSource( SourceOf(doc.Path) );
+    downloader.Process( DOMAIN + '/' + SourceOf(doc.Path));
+    fileWriter.Close();
   }
 
   private string SourceOf(string doc)
