@@ -346,12 +346,16 @@ public struct ActionTable
   private ParseAction ResourceType(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_TD_RESOURCETYPE)
-        .MayExpect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-          .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
-          .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
-        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_TD_RESOURCETYPE)
-    ;
+      .ExpectProductionUntil(ResourcePara,
+        HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_RESOURCETYPE
+      );
+  
+  private ParseAction ResourcePara(ParseAction parser)
+    => parser
+      .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
+        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
+        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
+      .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
   private ParseAction ConditionKeys(ParseAction parser)
     => parser
