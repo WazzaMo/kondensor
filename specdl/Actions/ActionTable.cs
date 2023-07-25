@@ -142,14 +142,7 @@ public struct ActionTable
       processResource = ProcessResoureValues;
 
     parser
-      .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
-        .Expect( ActionDeclaration )  
-        .Expect( ActionDescription )
-        .Expect( ActionAccessLevelProduction )
-        .Expect( ResourceType )
-        .Expect( ConditionKeys )
-        .Expect( DependendActions )
-      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
+      .Expect(ActionTableParser.RowData)
       .AllMatchThen( (list,writer) => {
         processActionInfo(list);
         //
@@ -177,7 +170,7 @@ public struct ActionTable
           for(int index = 0; index < countResources; index++)
           {
             parser
-              .Expect(RepeatRowData)
+              .Expect(ActionTableParser.RepeatRowData)
               .AllMatchThen( (list, writer) => processResource(list));
           }
         }
@@ -305,85 +298,4 @@ public struct ActionTable
     }
   }
 
-  private ParseAction ActionDeclaration(ParseAction parser)
-  {
-    parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_CELL_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_ID, annotation: ActionAnnotations.START_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_HREF, annotation: ActionAnnotations.START_HREF_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_HREF_ACTION_ANNOTATION)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
-      ;
-
-    if (! parser.IsAllMatched)
-    {
-      parser
-        .MismatchesThen( (list, writer) =>{
-          var query = from node in list where node.MatchResult == MatchKind.Mismatch
-            select node;
-          query.ForEach( (m, idx) => Console.WriteLine(value:$"ActionDecl {idx}: token {m.MismatchToken}"));
-        })
-        .SkipUntil(HtmlRules.END_TD)
-        .Expect(HtmlRules.END_TD, annotation:"end:tr:skipped-ActionDeclaration")
-      ;
-    }
-    return parser;
-  }
-
-  private ParseAction ActionDescription(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
-      ;
-
-  private ParseAction ActionAccessLevelProduction(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
-      ;
-  
-  private ParseAction ResourceType(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_TD_RESOURCETYPE)
-      .ExpectProductionUntil(ResourcePara,
-        HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_RESOURCETYPE
-      );
-  
-  private ParseAction ResourcePara(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
-        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
-      .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
-
-  private ParseAction ConditionKeys(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_CONDKEY)
-        .MayExpect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-          .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_CONDKEY)
-          .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
-        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_CONDKEY)
-    ;
-
-  private ParseAction DependendActions(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_DEPACT)
-        .MayExpect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEENDENT)
-        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_DEPACT)
-    ;
-
-
-  private ParseAction RepeatRowData(ParseAction parser)
-  {
-    parser
-      .Expect(HtmlRules.START_TR, ActionAnnotations.START_ROW_ANNOTATION)
-        .Expect( ResourceType )
-        .Expect( ConditionKeys )
-        .Expect( DependendActions )
-      .Expect(HtmlRules.END_TR, ActionAnnotations.END_ROW_ANNOTATION);
-    return parser;
-  }
 }
