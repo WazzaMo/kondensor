@@ -139,7 +139,7 @@ public struct ActionTable
     InternalData data = _Data;
     Action<LinkedList<Matching>>
       processActionInfo = ProcessActionDeclaration,
-      processResource = ProcessResoureValues;
+      processResource = CollectResourceValues;//ProcessResoureValues;
 
     parser
       .Expect(ActionTableParser.RowData)
@@ -242,6 +242,7 @@ public struct ActionTable
     }
   }
 
+  // REPLACING this with CollectResourceValues
   private void ProcessResoureValues(LinkedList<Matching> list)
   {
     var resIdAndName = from node in list
@@ -297,5 +298,60 @@ public struct ActionTable
       }
     }
   }
+
+  private void CollectResourceValues(LinkedList<Matching> list)
+  {
+    ActionResourceType resType;
+
+    if (_Data._CurrentAccessLevel.HasValue)
+    {
+      ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+      IEnumerator<Matching> nodesToCollect = FilterRepeatedRow(list).GetEnumerator();
+      while(nodesToCollect.MoveNext())
+      {
+        Matching aHrefResource = nodesToCollect.Current;
+        string resourceId, resourceName;
+        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
+        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
+        resType = new ActionResourceType();
+        resType.SetTypeIdAndName(resourceId, resourceName);
+
+        if (nodesToCollect.MoveNext())
+        {
+          Matching aHrefConditionKey = nodesToCollect.Current;
+          string ckId, ckName;
+
+          ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
+          ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
+          resType.AddConditionKeyId(ckId);
+
+          if (nodesToCollect.MoveNext())
+          {
+            Matching tdDependency = nodesToCollect.Current;
+            string depId = HtmlPartsUtils.GetAHrefAttribValue(tdDependency.Parts);
+
+            if (! depId.IsEmptyPartsValue())
+              resType.AddDependentActionId(depId);
+
+            _Data.CurrentAction.MapAccessToResourceType(level, resType);
+          }
+        }
+      }
+    }
+  }
+
+  private IEnumerable<Matching> FilterRepeatedRow(LinkedList<Matching> list)
+  {
+    Func<string, bool> isNeededNode = IsResourceConditionKeyOrDependency;
+
+    var startNodes = from node in list
+      where isNeededNode(node.Annotation) select node;
+    return startNodes;
+  }
+
+  private static bool IsResourceConditionKeyOrDependency(string annotation)
+    => annotation == ActionAnnotations.A_HREF_RESOURCE
+      || annotation == ActionAnnotations.A_HREF_CONDKEY
+      || annotation == ActionAnnotations.START_TD_DEPACT;
 
 }
