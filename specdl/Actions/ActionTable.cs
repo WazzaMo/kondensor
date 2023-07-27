@@ -309,31 +309,37 @@ public struct ActionTable
       IEnumerator<Matching> nodesToCollect = FilterRepeatedRow(list).GetEnumerator();
       while(nodesToCollect.MoveNext())
       {
-        Matching aHrefResource = nodesToCollect.Current;
-        string resourceId, resourceName;
-        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
-        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
-        resType = new ActionResourceType();
-        resType.SetTypeIdAndName(resourceId, resourceName);
-
-        if (nodesToCollect.MoveNext())
+        if (nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
         {
-          Matching aHrefConditionKey = nodesToCollect.Current;
-          string ckId, ckName;
+          Matching aHrefResource = nodesToCollect.Current;
+          string resourceId, resourceName;
+          resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
+          resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
+          resType = new ActionResourceType();
+          resType.SetTypeIdAndName(resourceId, resourceName);
+          _Data.CurrentAction.MapAccessToResourceType(level, resType);
 
-          ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
-          ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
-          resType.AddConditionKeyId(ckId);
-
-          if (nodesToCollect.MoveNext())
+          if (nodesToCollect.MoveNext()
+              && nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY
+            )
           {
-            Matching tdDependency = nodesToCollect.Current;
-            string depId = HtmlPartsUtils.GetAHrefAttribValue(tdDependency.Parts);
+            Matching aHrefConditionKey = nodesToCollect.Current;
+            string ckId, ckName;
 
-            if (! depId.IsEmptyPartsValue())
-              resType.AddDependentActionId(depId);
+            ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
+            ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
+            resType.AddConditionKeyId(ckId);
 
-            _Data.CurrentAction.MapAccessToResourceType(level, resType);
+            if (nodesToCollect.MoveNext()
+              && nodesToCollect.Current.Annotation == ActionAnnotations.START_TD_DEPACT
+            )
+            {
+              Matching tdDependency = nodesToCollect.Current;
+              string depId = HtmlPartsUtils.GetTdAttribValue(tdDependency.Parts);
+
+              if (! depId.IsEmptyPartsValue())
+                resType.AddDependentActionId(depId);
+            }
           }
         }
       }
