@@ -242,63 +242,6 @@ public struct ActionTable
     }
   }
 
-  // REPLACING this with CollectResourceValues
-  private void ProcessResoureValues(LinkedList<Matching> list)
-  {
-    var resIdAndName = from node in list
-      where node.Annotation == ActionAnnotations.A_HREF_RESOURCE select node;
-    var ckIdAndName = from node in list
-      where node.Annotation == ActionAnnotations.A_HREF_CONDKEY select node;
-    var depActions = from node in list
-      where node.Annotation == ActionAnnotations.START_TD_DEPACT select node;
-    
-    ActionResourceType resType;
-    ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
-
-
-    if (level == ActionAccessLevel.Unknown)
-      throw new Exception(message: "Access level not defined for action: " + _Data.CurrentAction.Name);
-
-    if (resIdAndName.Count() > 0)
-    {
-      ActionResourceType rType = new ActionResourceType();
-      Matching nodeIdAndName = resIdAndName.Last();
-      string idAttribValue, nameTagValue;
-      idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeIdAndName.Parts);
-      nameTagValue = HtmlPartsUtils.GetAHrefTagValue(nodeIdAndName.Parts);
-      rType.SetTypeIdAndName(idAttribValue, nameTagValue);
-      if (level != ActionAccessLevel.Unknown)
-        _Data.CurrentAction.MapAccessToResourceType(level, rType);
-    }
-
-    if (ckIdAndName.Count() > 0
-        && level != ActionAccessLevel.Unknown
-        && _Data.CurrentAction.IsResourceMapListAvailableForLevel(level))
-    {
-      resType = _Data.CurrentAction.GetResourceFor(level);
-
-      Matching nodeCondKey = ckIdAndName.Last();
-      string idAttribValue, nameTagValue;
-      idAttribValue = HtmlPartsUtils.GetAHrefAttribValue(nodeCondKey.Parts);
-      nameTagValue = HtmlPartsUtils.GetAHrefTagValue(nodeCondKey.Parts);
-      resType.AddConditionKeyId(idAttribValue);
-    }
-
-    if (depActions.Count() > 0 
-      && level != ActionAccessLevel.Unknown
-      && _Data.CurrentAction.IsResourceMapListAvailableForLevel(level))
-    {
-      resType = _Data.CurrentAction.GetResourceFor(level);
-
-      Matching nodeDepActions = depActions.Last();
-      string id = HtmlPartsUtils.GetAHrefAttribValue(nodeDepActions.Parts);
-      if (! id.IsEmptyPartsValue())
-      {
-        resType.AddDependentActionId(id);
-      }
-    }
-  }
-
   private void CollectResourceValues(LinkedList<Matching> list)
   {
     ActionResourceType resType;
