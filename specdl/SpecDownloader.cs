@@ -58,7 +58,8 @@ public struct SpecDownloader
     => _Processor = Option.Some(processor);
 
   /// <summary>
-  /// Sets the source from downloaded content.
+  /// Sets the source path for the content to be downloaded,
+  /// excluding the base domain (path only). 
   /// </summary>
   /// <param name="path">Path from base URL to download</param>
   public void DownloadSource(string path)

@@ -20,7 +20,7 @@ public struct SpecFileManager
   const string
     PATH_SPEP = "/",
     SPEC_EXTENSION = "yaml",
-    SPEC_DIRECTORY = "specs_downloaded";
+    SPEC_DIRECTORY = "downloaded_specs";
 
   private string _DownloadsPath;
 
