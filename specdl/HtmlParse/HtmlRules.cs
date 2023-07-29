@@ -27,7 +27,12 @@ public static class HtmlRules
     START_TD_ATTRIB_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-attrib-value"),
     END_TD = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td"),
     START_A_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "start:a-id"),
-    START_A_HREF = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "start:a-href"),
+    // START_A_HREF = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "start:a-href"),
+    START_A_HREF = Utils.ShortLongMatchRules(
+      HtmlPatterns.A_HREF,
+      HtmlPatterns.A_HREF_LONG, // covers cases where other attributes were given
+      name: "start:a-href"
+    ),
     END_A = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:a"),
     START_PARA = Utils.SingularMatchRule(HtmlPatterns.PARA,name: "start:p"),
     START_PARA_VALUE = Utils.SingularMatchRule(HtmlPatterns.PARA_VALUE, name: "start:p-value"),

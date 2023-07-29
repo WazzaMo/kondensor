@@ -139,7 +139,7 @@ public struct ActionTable
     InternalData data = _Data;
     Action<LinkedList<Matching>>
       processActionInfo = ProcessActionDeclaration,
-      processResource = CollectResourceValues;//ProcessResoureValues;
+      processResource = CollectResourceValues;
 
     parser
       .Expect(ActionTableParser.RowData)
@@ -224,17 +224,23 @@ public struct ActionTable
       Matching desc = descNode.Last();
 
       foundAction.SetActionId(HtmlPartsUtils.GetAIdAttribValue(id.Parts));
-      foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValue(href.Parts));
+      foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValueLongShort( href ));
       foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
       foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
       _Data._Actions.Add(foundAction);
 
       Matching levelNode = accessLevel.Last();
       string level = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
-      ActionAccessLevel levelValue = Enum.Parse<ActionAccessLevel>(level);
-      _Data._CurrentAccessLevel = Option.Some( levelValue );
+      ActionAccessLevel _level = level.GetLevelFrom();
+      if ( _level != ActionAccessLevel.Unknown )
+      {
+        _Data._CurrentAccessLevel = Option.Some( _level );
+      }
+      else {
+        Console.Error.WriteLine($"Cannot describe '{level}' using {nameof(ActionAccessLevel)}");
+      }
 
-      if (levelValue == Actions.ActionAccessLevel.Unknown)
+      if (_level == ActionAccessLevel.Unknown )
         Console.Error.WriteLine(value: $"Unknown resource type for {foundAction.Name}");
     }
     else{
@@ -250,40 +256,40 @@ public struct ActionTable
     {
       ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
       IEnumerator<Matching> nodesToCollect = FilterRepeatedRow(list).GetEnumerator();
+
+      Matching aHrefResource;
+      resType = new ActionResourceType();
+      
+      if (nodesToCollect.MoveNext() &&
+        nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
+      {
+        aHrefResource = nodesToCollect.Current;
+        string resourceId, resourceName;
+        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
+        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
+        resType.SetTypeIdAndName(resourceId, resourceName);
+        _Data.CurrentAction.MapAccessToResourceType(level, resType);
+      }
+
       while(nodesToCollect.MoveNext())
       {
-        if (nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
+        if (nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY)
         {
-          Matching aHrefResource = nodesToCollect.Current;
-          string resourceId, resourceName;
-          resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
-          resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
-          resType = new ActionResourceType();
-          resType.SetTypeIdAndName(resourceId, resourceName);
-          _Data.CurrentAction.MapAccessToResourceType(level, resType);
+          Matching aHrefConditionKey = nodesToCollect.Current;
+          string ckId, ckName;
 
-          if (nodesToCollect.MoveNext()
-              && nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY
-            )
-          {
-            Matching aHrefConditionKey = nodesToCollect.Current;
-            string ckId, ckName;
+          ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
+          ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
+          resType.AddConditionKeyId(ckId);
+        }
 
-            ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
-            ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
-            resType.AddConditionKeyId(ckId);
+        if (nodesToCollect.Current.Annotation == ActionAnnotations.START_PARA_DEENDENT )
+        {
+          Matching tdDependency = nodesToCollect.Current;
+          string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
 
-            if (nodesToCollect.MoveNext()
-              && nodesToCollect.Current.Annotation == ActionAnnotations.START_TD_DEPACT
-            )
-            {
-              Matching tdDependency = nodesToCollect.Current;
-              string depId = HtmlPartsUtils.GetTdAttribValue(tdDependency.Parts);
-
-              if (! depId.IsEmptyPartsValue())
-                resType.AddDependentActionId(depId);
-            }
-          }
+          if (! depId.IsEmptyPartsValue())
+            resType.AddDependentActionId(depId);
         }
       }
     }
@@ -301,6 +307,8 @@ public struct ActionTable
   private static bool IsResourceConditionKeyOrDependency(string annotation)
     => annotation == ActionAnnotations.A_HREF_RESOURCE
       || annotation == ActionAnnotations.A_HREF_CONDKEY
-      || annotation == ActionAnnotations.START_TD_DEPACT;
+      || annotation == ActionAnnotations.START_PARA_DEENDENT
+      // || annotation == ActionAnnotations.START_TD_DEPACT
+      ;
 
 }

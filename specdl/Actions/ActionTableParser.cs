@@ -122,10 +122,15 @@ public static class ActionTableParser
   private static ParseAction DependendActions(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_DEPACT)
-        .MayExpect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEENDENT)
-        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_DEPACT)
+        .ExpectProductionUntil(
+          RepeatableDependentActionParagraphs,
+      HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_DEPACT)
     ;
+  
+  private static ParseAction RepeatableDependentActionParagraphs(ParseAction parser)
+    => parser
+        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEENDENT)
+        .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
 
   internal static ParseAction RepeatRowData(ParseAction parser)

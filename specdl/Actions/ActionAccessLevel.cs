@@ -19,5 +19,19 @@ public enum ActionAccessLevel
   List,
   ArrayOfString,
   Tagging,
-  Write
+  Write,
+  PermissionsManagement
 }
+
+  public static class ExtActionAccessLevel
+  {
+    public static ActionAccessLevel GetLevelFrom(this string value)
+    {
+      return value switch {
+        "Permissions management" => ActionAccessLevel.PermissionsManagement,
+        _ => Enum.TryParse<ActionAccessLevel>(value, out ActionAccessLevel _level)
+          ? _level
+          : ActionAccessLevel.Unknown
+      };
+    }
+  }

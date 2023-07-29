@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using Optional;
+using Parser;
 
 namespace HtmlParse;
 
@@ -70,7 +71,11 @@ public static class HtmlPartsUtils
   public static string GetTdAttribValue(Option<LinkedList<string>> Parts)
   {
     string attribValue = EMPTY_STRING;
-    Parts.MatchSome(list => attribValue = list.ElementAt(HtmlPatterns.TD_ATTRIB_VALUE_IDX));
+    Parts.MatchSome(
+      list => attribValue = list.Count > 0
+       ? list.ElementAt(HtmlPatterns.TD_ATTRIB_VALUE_IDX)
+       : EMPTY_STRING
+    );
     return attribValue;
   }
 
@@ -105,6 +110,24 @@ public static class HtmlPartsUtils
   {
     string tagValue = EMPTY_STRING;
     Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.A_HREF_TAG_VALUE_IDX));
+    return tagValue;
+  }
+
+  public static string GetAHrefTagValueLongShort(Matching matching)
+  {
+    string tagValue = EMPTY_STRING;
+    if (matching.MatchResult == MatchKind.LongMatch && matching.Parts.HasValue)
+    {
+      matching.Parts.MatchSome(
+        list => tagValue = list.ElementAt(HtmlPatterns.A_HREF_LONG_TAG_VALUE_IDX)
+      );
+    }
+    else
+    {
+      matching.Parts.MatchSome(
+        list => tagValue = list.ElementAt(HtmlPatterns.A_HREF_TAG_VALUE_IDX)
+      );
+    }
     return tagValue;
   }
 
