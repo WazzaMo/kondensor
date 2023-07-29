@@ -25,7 +25,7 @@ public static class HtmlPatterns
     END_TD = new Regex(pattern: @"\<\/td\>"),
     TR = new Regex(pattern: @"\<tr\>"),
     END_TR = new Regex(pattern: @"\<\/tr\>"),
-    A_ID = new Regex(pattern: @"\<a id=\""([\-\w\s]+)\""\>$"),
+    A_ID = new Regex(pattern: @"\<a id=\""([*-.*\w\s]+)\""\>$"),
     A_HREF = new Regex(pattern: @"\<a href=""([*:\-_./#*\w\s]+)""\>(.*)"),
     A_HREF_LONG = new Regex(pattern: @"\<a href=""([*:\-_./#${}*\w\s]+)"" (.*)\>(.*)"),
     END_A = new Regex(pattern: @"\<\/a\>"),
