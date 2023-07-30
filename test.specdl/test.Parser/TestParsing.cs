@@ -251,6 +251,103 @@ public class TestParsing
   }
 
   [Fact]
+  public void ParseAction_EitherProduction_matches_when_first_matches()
+  {
+    HtmlPipe pipe = new HtmlPipe(PipeValues.TABLE_ONLY_PAGE, Console.Out);
+    _Pipe = new ReplayWrapPipe(pipe);
+
+    Production first, second;
+    first = parser =>
+      parser
+        .SkipUntil(TABLE)
+        .Expect(TABLE, annotation: "start:table")
+        .SkipUntil(END_TABLE)
+        .Expect(END_TABLE, annotation: "end:table");
+    
+    second = parser =>
+      parser
+        .SkipUntil(PARA)
+        .Expect(PARA, annotation: "start:p")
+        .SkipUntil(END_PARA)
+        .Expect(END_PARA, annotation: "end:p");
+
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .EitherProduction(first, second)
+      .AllMatchThen( (list, writer) => list.ForEach(
+        (item, idx) => Annotations.Add(item.Annotation)
+      ));
+    Assert.True(parser.IsAllMatched);
+    Assert.Collection(Annotations,
+      x => Assert.Equal("start:table", x),
+      x => Assert.Equal(expected: "end:table", x)
+    );
+  }
+
+  [Fact]
+  public void ParseAction_EitherProduction_matches_when_second_matches()
+  {
+    HtmlPipe pipe = new HtmlPipe(PipeValues.PARA_ONLY_PAGE, Console.Out);
+    _Pipe = new ReplayWrapPipe(pipe);
+
+    Production first, second;
+    first = parser =>
+      parser
+        .SkipUntil(TABLE)
+        .Expect(TABLE, annotation: "start:table")
+        .SkipUntil(END_TABLE)
+        .Expect(END_TABLE, annotation: "end:table");
+    
+    second = parser =>
+      parser
+        .SkipUntil(PARA)
+        .Expect(PARA, annotation: "start:p")
+        .SkipUntil(END_PARA)
+        .Expect(END_PARA, annotation: "end:p");
+
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .EitherProduction(first, second)
+      .AllMatchThen( (list, writer) => list.ForEach(
+        (item, idx) => Annotations.Add(item.Annotation)
+      ));
+    Assert.True(parser.IsAllMatched);
+    Assert.Collection(Annotations,
+      x => Assert.Equal("start:p", x),
+      x => Assert.Equal(expected: "end:p", x)
+    );
+  }
+
+  [Fact]
+  public void ParseAction_EitherProduction_mismatched_when_neither_matches()
+  {
+    HtmlPipe pipe = new HtmlPipe(PipeValues.PARA_ONLY_PAGE, Console.Out);
+    _Pipe = new ReplayWrapPipe(pipe);
+
+    bool isMisMatched = false;
+
+    Production first;
+    first = parser =>
+      parser
+        .SkipUntil(TABLE)
+        .Expect(TABLE, annotation: "start:table")
+        .SkipUntil(END_TABLE)
+        .Expect(END_TABLE, annotation: "end:table");
+    
+    List<string> Annotations = new List<string>();
+    var parser = Parsing.Group(_Pipe)
+      .EitherProduction(first, first)
+      .AllMatchThen( (list, writer) => list.ForEach(
+        (item, idx) => Annotations.Add(item.Annotation)
+      ))
+      .MismatchesThen((list,writer) => isMisMatched = true)
+      ;
+    
+    Assert.True(isMisMatched);
+    Assert.Empty(Annotations);
+  }
+
+  [Fact]
   public void ParseAction_If_trueCondition_doesBranchedParsing()
   {
     bool isIfClauseDone = false;

@@ -96,6 +96,17 @@ public struct ParseAction
       // Capture match history with modifications to the matching
       _MatchHistory.AddLast(matching);
     }
+    else
+    {
+      Matching endInputMatching = new Matching()
+      {
+        Annotation = annotation != null ? annotation : "End of pipe",
+        MatchResult = MatchKind.Mismatch,
+        MismatchToken = "END-OF-FILE",
+        Parts = Option.None<LinkedList<string>>()
+      };
+      _MatchHistory.AddLast(endInputMatching);
+    }
     return this;
   }
 
@@ -241,6 +252,22 @@ public struct ParseAction
     return this;
   }
 
+  public ParseAction EitherProduction(
+    Production first,
+    Production second
+  )
+  {
+    int checkpoint = _Pipe.GetCheckPoint();
+    var savedHistory = SaveMatchHistory();
+    if (! IsProductionMatched(first))
+    {
+      _Pipe.ReturnToCheckPoint(checkpoint);
+      RestoreMatchHistory(savedHistory);
+      Expect(second);
+    }
+    return this;
+  }
+
   /// <summary>
   /// Rollback to try a different set of expects and optionally report errors.
   /// </summary>
@@ -264,6 +291,18 @@ public struct ParseAction
   {
     _MatchHistory.Clear();
     _CountMatched = 0;
+  }
+
+  private int SaveMatchHistory()
+    => _MatchHistory.Count;
+  
+  private void RestoreMatchHistory(int savedHistory)
+  {
+    while(_MatchHistory.Count > savedHistory && savedHistory >= 0)
+    {
+      _MatchHistory.RemoveLast();
+    }
+    _CountMatched = _MatchHistory.Count;
   }
 
   /// <summary>
@@ -325,4 +364,9 @@ public struct ParseAction
     isProdMatch = _CountMatched == _MatchHistory.Count;
   }
 
+  private bool IsProductionMatched(Production production)
+  {
+    CheckProduction(production, out bool productionMatched);
+    return productionMatched;
+  }
 }

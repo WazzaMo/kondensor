@@ -40,16 +40,33 @@ public static class ActionTableParser
   {
     parser
       .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
+        .EitherProduction(
+          ActionDeclarationAndDefinitionProduction,
+          NewDescriptionForSameActionProduction
+        )
+      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
+      ;
+    return parser;
+  }
+
+  private static ParseAction ActionDeclarationAndDefinitionProduction(ParseAction parser)
+    => parser
         .Expect( ActionDeclaration )  
         .Expect( ActionDescription )
         .Expect( ActionAccessLevelProduction )
         .Expect( ResourceType )
         .Expect( ConditionKeys )
         .Expect( DependendActions )
-      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
       ;
-    return parser;
-  }
+
+  private static ParseAction NewDescriptionForSameActionProduction(ParseAction parser)
+    => parser
+        .Expect(NewDescriptionSameAction)
+        .Expect(ActionAccessLevelProduction )
+        .Expect(ResourceType)
+        .Expect(ConditionKeys)
+        .Expect(DependendActions)
+        ;
 
   private static ParseAction ActionDeclaration(ParseAction parser)
   {
@@ -61,19 +78,6 @@ public static class ActionTableParser
         .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_HREF_ACTION_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
-
-    if (! parser.IsAllMatched)
-    {
-      parser
-        .MismatchesThen( (list, writer) =>{
-          var query = from node in list where node.MatchResult == MatchKind.Mismatch
-            select node;
-          query.ForEach( (m, idx) => Console.WriteLine(value:$"ActionDecl {idx}: token {m.MismatchToken}"));
-        })
-        .SkipUntil(HtmlRules.END_TD)
-        .Expect(HtmlRules.END_TD, annotation:"end:tr:skipped-ActionDeclaration")
-      ;
-    }
     return parser;
   }
 
@@ -82,6 +86,18 @@ public static class ActionTableParser
       .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
+
+  private static ParseAction NewDescriptionSameAction(ParseAction parser)
+    => parser
+      .Expect(HtmlRules.START_TD_VALUE, ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION)
+        .MayExpect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
+          .MayExpect(HtmlRules.START_BOLD, ActionAnnotations.START_NEWDECL_BOLD)
+            .MayExpect(HtmlRules.TEXT, ActionAnnotations.NEWDECL_TEXT)
+          .MayExpect(HtmlRules.END_BOLD, ActionAnnotations.END_NEWDECL_BOLD)
+        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
+      .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
+      ;
+
 
   private static ParseAction ActionAccessLevelProduction(ParseAction parser)
     => parser

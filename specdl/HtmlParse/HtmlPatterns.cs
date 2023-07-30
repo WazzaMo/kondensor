@@ -42,7 +42,10 @@ public static class HtmlPatterns
     UL = new Regex(pattern: @"\<ul\>"),
     END_UL = new Regex(pattern: @"\<\/ul\>"),
     LI = new Regex(pattern: @"\<li\>"),
-    END_LI = new Regex(pattern: @"\<\/li\>")
+    END_LI = new Regex(pattern: @"\<\/li\>"),
+    BOLD_VALUE = new Regex(pattern: @"\<b\>([*:*\w\s\(\*\)]*)"),
+    END_BOLD = new Regex(pattern: @"\<\/b\>"),
+    TEXT = new Regex(pattern: @"([*\-*\w\s]+)")
     ;
 
   public const int

@@ -27,7 +27,6 @@ public static class HtmlRules
     START_TD_ATTRIB_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-attrib-value"),
     END_TD = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td"),
     START_A_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "start:a-id"),
-    // START_A_HREF = Utils.SingularMatchRule(HtmlPatterns.A_HREF, name: "start:a-href"),
     START_A_HREF = Utils.ShortLongMatchRules(
       HtmlPatterns.A_HREF,
       HtmlPatterns.A_HREF_LONG, // covers cases where other attributes were given
@@ -47,5 +46,9 @@ public static class HtmlRules
     START_UL = Utils.SingularMatchRule(HtmlPatterns.UL, name: "start:ul"),
     END_UL = Utils.SingularMatchRule(HtmlPatterns.END_UL, "end:ul"),
     START_LI = Utils.SingularMatchRule(HtmlPatterns.LI, name: "start:li"),
-    END_LI = Utils.SingularMatchRule(HtmlPatterns.END_LI, name: "end:li");
+    END_LI = Utils.SingularMatchRule(HtmlPatterns.END_LI, name: "end:li"),
+    START_BOLD = Utils.SingularMatchRule(HtmlPatterns.BOLD_VALUE, name: "start:bold"),
+    END_BOLD = Utils.SingularMatchRule(HtmlPatterns.END_BOLD, name: "end:bold"),
+    TEXT = Utils.SingularMatchRule(HtmlPatterns.TEXT, name: "text-data")
+    ;
 }

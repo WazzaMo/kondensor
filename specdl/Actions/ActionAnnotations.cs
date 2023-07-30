@@ -38,6 +38,7 @@ public static class ActionAnnotations
     END_HREF_ACTION_ANNOTATION = "end:a-href:action",
     END_CELL_ACTION_ANNOTATION = "end:td:action",
     START_CELL_ACTIONDESC_ANNOTATION = "start:td:description",
+    START_CELL_ACTION_NEWDESC_ANNOTATION = "start:td:new-description",
     END_CELL_ACTIONDESC_ANNOTATION = "end:td:description",
     START_ACCESSLEVEL_ANNOTATION = "start:td:accesslevel",
     END_ACCESSLEVEL_ANNOTATION = "end:td:accesslevel",
@@ -54,6 +55,10 @@ public static class ActionAnnotations
     END_A = "end:a",
     START_PARA = "start:p",
     END_PARA = "end:p",
-    START_PARA_DEENDENT = "p:dependentaction";
+    START_PARA_DEENDENT = "p:dependentaction",
+    START_NEWDECL_BOLD = "start:b:value",
+    END_NEWDECL_BOLD = "end:b",
+    NEWDECL_TEXT = "text-description"
+    ;
 
 }

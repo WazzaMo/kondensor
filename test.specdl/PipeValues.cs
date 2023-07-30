@@ -25,6 +25,24 @@ public static class PipeValues
         </td>"
     );
 
+    public static StringReader TABLE_ONLY_PAGE => new StringReader(
+        s: @"
+<html>
+  <table>
+  <div>test text</div>
+  </table>
+</html>"
+);
+
+    public static StringReader PARA_ONLY_PAGE => new StringReader(
+        @"
+<html>
+  <p>
+    test text
+  </p>
+</html>"
+);
+
     /// <summary>Subset of HTML</summary>
     /// 
     public static StringReader HTML => new StringReader(
@@ -502,6 +520,7 @@ public static class PipeValues
                     </tr>
                 </table></div></div>
      
-");  
+");
+
 }
 
