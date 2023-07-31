@@ -90,11 +90,8 @@ public static class ActionTableParser
   private static ParseAction NewDescriptionSameAction(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_VALUE, ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION)
-        .MayExpect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-          .MayExpect(HtmlRules.START_BOLD, ActionAnnotations.START_NEWDECL_BOLD)
-            .MayExpect(HtmlRules.TEXT, ActionAnnotations.NEWDECL_TEXT)
-          .MayExpect(HtmlRules.END_BOLD, ActionAnnotations.END_NEWDECL_BOLD)
-        .MayExpect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
+        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_NEWDECL_PARA)
+        .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
@@ -145,7 +142,7 @@ public static class ActionTableParser
   
   private static ParseAction RepeatableDependentActionParagraphs(ParseAction parser)
     => parser
-        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEENDENT)
+        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEPENDENT)
         .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
 

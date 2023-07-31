@@ -283,7 +283,7 @@ public struct ActionTable
           resType.AddConditionKeyId(ckId);
         }
 
-        if (nodesToCollect.Current.Annotation == ActionAnnotations.START_PARA_DEENDENT )
+        if (nodesToCollect.Current.Annotation == ActionAnnotations.START_PARA_DEPENDENT )
         {
           Matching tdDependency = nodesToCollect.Current;
           string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
@@ -307,7 +307,7 @@ public struct ActionTable
   private static bool IsResourceConditionKeyOrDependency(string annotation)
     => annotation == ActionAnnotations.A_HREF_RESOURCE
       || annotation == ActionAnnotations.A_HREF_CONDKEY
-      || annotation == ActionAnnotations.START_PARA_DEENDENT
+      || annotation == ActionAnnotations.START_PARA_DEPENDENT
       // || annotation == ActionAnnotations.START_TD_DEPACT
       ;
 

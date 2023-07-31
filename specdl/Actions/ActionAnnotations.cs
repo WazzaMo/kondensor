@@ -55,10 +55,8 @@ public static class ActionAnnotations
     END_A = "end:a",
     START_PARA = "start:p",
     END_PARA = "end:p",
-    START_PARA_DEENDENT = "p:dependentaction",
-    START_NEWDECL_BOLD = "start:b:value",
-    END_NEWDECL_BOLD = "end:b",
-    NEWDECL_TEXT = "text-description"
+    START_PARA_DEPENDENT = "p:dependentaction",
+    START_NEWDECL_PARA = "start:p:value:declaration"
     ;
 
 }
