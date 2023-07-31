@@ -15,7 +15,7 @@ public struct ActionBoldPreprocessor : IPreprocessor
   private static readonly char[]
     SEARCH_START = "<b>".ToCharArray(),
     SEARCH_END = "</b>".ToCharArray(),
-    REPLACE = "1".ToCharArray();
+    REPLACE = "!".ToCharArray();
 
   public bool IsMatch(char[] textToMatch)
   {
@@ -41,7 +41,12 @@ public struct ActionBoldPreprocessor : IPreprocessor
       PreprocessorUtils.FindNextMatch(text, start, startIndex:0, out int matchStart)
       && PreprocessorUtils.FindNextMatch(text, end, startIndex: 0, out int matchEnd);
     if (hasStartAndEnd)
-    {}
+    {
+      Span<char> replacement = new Span<char>(REPLACE);
+      var processedStart = PreprocessorUtils.ReplaceFull(text, start, replacement);
+      var processedEnd = PreprocessorUtils.ReplaceFull(processedStart, end, replacement);
+      processedText = processedEnd.ToArray();
+    }
     else
       processedText = new char[0];
     return hasStartAndEnd;

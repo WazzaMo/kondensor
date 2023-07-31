@@ -14,6 +14,7 @@ using Spec;
 using Parser;
 using HtmlParse;
 using Resources;
+using Actions;
 
 public struct SpecDownloader
 {
@@ -83,6 +84,7 @@ public struct SpecDownloader
     ReplayWrapPipe thePipe;
 
     IPreprocessor arnPreprocessor = new ArnSpecPreprocessor();
+    IPreprocessor boldPreprocessor = new ActionBoldPreprocessor();
 
     _Processor.Match(
       processor => {
@@ -92,6 +94,7 @@ public struct SpecDownloader
               destination => {
                 htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
                 htmlPipe.AddPreprocessor( arnPreprocessor );
+                htmlPipe.AddPreprocessor( boldPreprocessor );
                 thePipe = new ReplayWrapPipe(htmlPipe);
                 processor.ProcessAllLines(path, thePipe);
                 processor.WriteOutput(thePipe);
