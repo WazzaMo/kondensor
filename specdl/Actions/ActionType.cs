@@ -21,20 +21,17 @@ public struct ActionType
   private string _ActionId;
   private string _AwsApiDocumentLink;
   private string _Name;
-  private string _Description;
   private Dictionary<ActionAccessLevel,List<ActionResourceType>> _AccessLevelToResourceTypeMappings;
 
   public string ActionId => _ActionId;
   public string Name => _Name;
   public string ApiLink => _AwsApiDocumentLink;
-  public string Description => _Description;
 
   public ActionType()
   {
     _ActionId = UNSET_STRING;
     _AwsApiDocumentLink = UNSET_STRING;
     _Name = UNSET_STRING;
-    _Description = UNSET_STRING;
     _AccessLevelToResourceTypeMappings = new Dictionary<ActionAccessLevel, List<ActionResourceType>>();
   }
 
@@ -50,11 +47,6 @@ public struct ActionType
     => _Name = name;
     
   public bool IsApiDocLinkSet => _AwsApiDocumentLink != UNSET_STRING;
-
-  public void SetDescription(string desc)
-    => _Description = desc;
-  
-  public bool IsDescriptionSet => _Description != UNSET_STRING;
 
   public void MapAccessToResourceType(ActionAccessLevel access, ActionResourceType resourceType)
   {

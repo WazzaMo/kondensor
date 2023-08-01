@@ -66,7 +66,6 @@ public static class ActionsYamlWriter
             yActs
               .FieldAndValue(ID, act.ActionId)
               .FieldAndValue(ACTION_NAME, act.Name)
-              .FieldAndValue(DESCRIPTION, act.Description)
               .FieldAndValue(API_URL, act.ApiLink)
               .DeclarationLine(RESOURCE_LIST, yRes => 
                 yRes.List(
@@ -76,6 +75,7 @@ public static class ActionsYamlWriter
                       act.GetResourceTypesForLevel(accessLevel),
                       (resource, _)=> yVal.ObjectListItem(RESOURCE_DEF, () => {
                       yRes
+                        .FieldAndValue(DESCRIPTION, resource.Description)
                         .Field(ID, yy => yy.Quote(resource.ResourceTypeDefId))
                         .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
                     if (resource.ConditionKeyIds().Count() > 0)

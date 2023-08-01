@@ -248,6 +248,46 @@ public struct ActionTable
     }
   }
 
+  private void CollectActionDeclarations(LinkedList<Matching> list)
+  {
+    var declarationNodes = FilterActionDeclaration(list).GetEnumerator();
+    ActionType actionDecl;
+
+    while( declarationNodes.MoveNext())
+    {
+      if (IsStartActionAnnotation(declarationNodes.Current.Annotation) )
+      {}
+      else if (IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation))
+      {
+        // reuse actionDecl to create ActionResourceType(s) with new description.
+      }
+    }
+  }
+
+  private IEnumerable<Matching> FilterActionDeclaration(LinkedList<Matching> list)
+  {
+    Func<string, bool> filter = IsActionDeclarationAnnotation;
+    var query = from node in list where filter(node.Annotation) select node;
+    return query;
+  }
+
+  private bool IsActionDeclarationAnnotation(string annotation)
+    => IsStartActionAnnotation(annotation) 
+    || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
+    || annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION
+    || IsSameActionNewDescriptionAnnotation(annotation)
+    || annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
+    || annotation == ActionAnnotations.A_HREF_RESOURCE
+    || annotation == ActionAnnotations.A_HREF_CONDKEY
+    || annotation == ActionAnnotations.START_PARA_DEPENDENT
+    ;
+
+  private bool IsStartActionAnnotation(string annotation)
+    => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
+  
+  private bool IsSameActionNewDescriptionAnnotation(string annotation)
+    => annotation == ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION;
+
   private void CollectResourceValues(LinkedList<Matching> list)
   {
     ActionResourceType resType;
@@ -308,7 +348,6 @@ public struct ActionTable
     => annotation == ActionAnnotations.A_HREF_RESOURCE
       || annotation == ActionAnnotations.A_HREF_CONDKEY
       || annotation == ActionAnnotations.START_PARA_DEPENDENT
-      // || annotation == ActionAnnotations.START_TD_DEPACT
       ;
 
 }
