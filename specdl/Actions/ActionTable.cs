@@ -251,17 +251,122 @@ public struct ActionTable
   private void CollectActionDeclarations(LinkedList<Matching> list)
   {
     var declarationNodes = FilterActionDeclaration(list).GetEnumerator();
-    ActionType actionDecl;
+    ActionType actionDecl = new ActionType();
+    ActionAccessLevel level;
+    ActionResourceType resourceType;
 
     while( declarationNodes.MoveNext())
     {
       if (IsStartActionAnnotation(declarationNodes.Current.Annotation) )
-      {}
-      else if (IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation))
+      {
+        Matching aId = declarationNodes.Current;
+        declarationNodes.MoveNext();
+        if (
+          declarationNodes.Current.Annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
+        )
+        {
+          Matching aHref = declarationNodes.Current;
+          declarationNodes.MoveNext();
+
+          string id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
+          string actionName = HtmlPartsUtils.GetAHrefTagValue(aHref.Parts);
+          string apiLink = HtmlPartsUtils.GetAHrefAttribValue(aHref.Parts);
+          actionDecl = new ActionType();
+          actionDecl.SetActionId(id);
+          actionDecl.SetActionName(actionName);
+          actionDecl.SetApiDocLink(apiLink);
+          _Data._Actions.Add( actionDecl );
+
+          if ( IsFirstActionDescription(declarationNodes.Current.Annotation) )
+          {
+            Matching desc = declarationNodes.Current;
+            declarationNodes.MoveNext();
+            
+            string description = HtmlPartsUtils.GetTdTagValue(desc.Parts);
+            if (
+              HasCollectedActionProperties(
+                declarationNodes,
+                description,
+                out level,
+                out resourceType
+              )
+            )
+            {
+              _Data._CurrentAccessLevel = Option.Some( level );
+              _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
+            }
+          }
+
+        }
+      }
+      else if (
+        IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
+        && actionDecl.IsActionIdSet)
       {
         // reuse actionDecl to create ActionResourceType(s) with new description.
       }
     }
+  }
+
+  private bool HasCollectedActionProperties(
+    IEnumerator<Matching> nodes,
+    string description,
+    out ActionAccessLevel level,
+    out ActionResourceType resourceType
+  )
+  {
+    bool result = false;
+
+    level = ActionAccessLevel.Unknown;
+    resourceType = new ActionResourceType();
+
+    bool isOk = nodes.Current.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION;
+    if (isOk)
+    {
+      Matching levelNode = nodes.Current;
+      nodes.MoveNext();
+
+      string levelTxt = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
+      level = levelTxt.GetLevelFrom();
+      if (level != ActionAccessLevel.Unknown)
+      {
+        if (nodes.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
+        {
+          Matching aHrefResource = nodes.Current;
+
+          resourceType = new ActionResourceType();
+          string resourceId, resourceName;
+          resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
+          resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
+          resourceType.SetTypeIdAndName(resourceId, resourceName);
+          resourceType.SetDescription(description);
+
+          while(nodes.MoveNext())
+          {
+            if (nodes.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY)
+            {
+              Matching aHrefConditionKey = nodes.Current;
+              string ckId, ckName;
+
+              ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
+              ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
+              resourceType.AddConditionKeyId(ckId);
+            }
+
+            if (nodes.Current.Annotation == ActionAnnotations.START_PARA_DEPENDENT )
+            {
+              Matching tdDependency = nodes.Current;
+              string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
+
+              if (! depId.IsEmptyPartsValue())
+                resourceType.AddDependentActionId(depId);
+            }
+          }
+          result = true;
+        }
+      }
+    }
+    return result;
   }
 
   private IEnumerable<Matching> FilterActionDeclaration(LinkedList<Matching> list)
@@ -272,9 +377,11 @@ public struct ActionTable
   }
 
   private bool IsActionDeclarationAnnotation(string annotation)
-    => IsStartActionAnnotation(annotation) 
+    => IsRowStart(annotation)
+    || IsRowEnd(annotation)
+    || IsStartActionAnnotation(annotation) 
     || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
-    || annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION
+    || IsFirstActionDescription(annotation)
     || IsSameActionNewDescriptionAnnotation(annotation)
     || annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
     || annotation == ActionAnnotations.A_HREF_RESOURCE
@@ -282,12 +389,25 @@ public struct ActionTable
     || annotation == ActionAnnotations.START_PARA_DEPENDENT
     ;
 
+  private bool IsRowStart(string annotation)
+    => annotation == ActionAnnotations.START_ROW_ANNOTATION;
+  
+  private bool IsRowEnd(string annotation)
+    => annotation == ActionAnnotations.END_ROW_ANNOTATION;
+
   private bool IsStartActionAnnotation(string annotation)
     => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
+
+  private bool IsFirstActionDescription(string annotation)
+    => annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION;
   
   private bool IsSameActionNewDescriptionAnnotation(string annotation)
     => annotation == ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION;
 
+  /// <summary>
+  /// Condemned code
+  /// </summary>
+  /// <param name="list"></param>
   private void CollectResourceValues(LinkedList<Matching> list)
   {
     ActionResourceType resType;
