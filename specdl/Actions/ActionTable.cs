@@ -206,61 +206,6 @@ public struct ActionTable
     return parser;
   }
 
-  //---- CONDEMNED CODE
-  private void ProcessActionDeclaration(LinkedList<Matching> list)
-  {
-    ActionType foundAction = new ActionType();
-    bool hasData = false;
-
-    var idNode = 
-      from node in list where node.Annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION
-      select node;
-    var hrefNode =
-      from node in list where node.Annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
-      select node;
-    var descNode =
-      from node in list where node.Annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION
-      select node;
-    var accessLevel =
-      from node in list where node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
-      select node;
-
-    hasData = idNode.Count() > 0
-      && hrefNode.Count() > 0
-      && descNode.Count() > 0
-      && accessLevel.Count() > 0;
-
-    if (hasData)
-    {
-      Matching id = idNode.Last();
-      Matching href = hrefNode.Last();
-      Matching desc = descNode.Last();
-
-      foundAction.SetActionId(HtmlPartsUtils.GetAIdAttribValue(id.Parts));
-      foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValueLongShort( href ));
-      foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
-      // foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
-      _Data._Actions.Add(foundAction);
-
-      Matching levelNode = accessLevel.Last();
-      string level = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
-      ActionAccessLevel _level = level.GetLevelFrom();
-      if ( _level != ActionAccessLevel.Unknown )
-      {
-        _Data._CurrentAccessLevel = Option.Some( _level );
-      }
-      else {
-        Console.Error.WriteLine($"Cannot describe '{level}' using {nameof(ActionAccessLevel)}");
-      }
-
-      if (_level == ActionAccessLevel.Unknown )
-        Console.Error.WriteLine(value: $"Unknown resource type for {foundAction.Name}");
-    }
-    else{
-      Console.Error.WriteLine(value: "Missing some details");
-    }
-  }
-
   private void CollectActionDeclarations(LinkedList<Matching> list)
   {
     var declarationNodes = FilterActionDeclaration(list).GetEnumerator();
@@ -429,64 +374,7 @@ public struct ActionTable
     => annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION;
   
   private bool IsSameActionNewDescriptionAnnotation(string annotation)
-    => annotation == ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION;
-
-  //-- Condemned code
-  private void CollectResourceValues(LinkedList<Matching> list)
-  {
-    ActionResourceType resType;
-
-    if (_Data._CurrentAccessLevel.HasValue)
-    {
-      ActionAccessLevel level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
-      IEnumerator<Matching> nodesToCollect = FilterRepeatedRow(list).GetEnumerator();
-
-      Matching aHrefResource;
-      resType = new ActionResourceType();
-      
-      if (nodesToCollect.MoveNext() &&
-        nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
-      {
-        aHrefResource = nodesToCollect.Current;
-        string resourceId, resourceName;
-        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
-        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
-        resType.SetTypeIdAndName(resourceId, resourceName);
-        _Data.CurrentAction.MapAccessToResourceType(level, resType);
-      }
-
-      while(nodesToCollect.MoveNext())
-      {
-        if (nodesToCollect.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY)
-        {
-          Matching aHrefConditionKey = nodesToCollect.Current;
-          string ckId, ckName;
-
-          ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
-          ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
-          resType.AddConditionKeyId(ckId);
-        }
-
-        if (nodesToCollect.Current.Annotation == ActionAnnotations.START_PARA_DEPENDENT )
-        {
-          Matching tdDependency = nodesToCollect.Current;
-          string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
-
-          if (! depId.IsEmptyPartsValue())
-            resType.AddDependentActionId(depId);
-        }
-      }
-    }
-  }
-
-  private IEnumerable<Matching> FilterRepeatedRow(LinkedList<Matching> list)
-  {
-    Func<string, bool> isNeededNode = IsResourceConditionKeyOrDependency;
-
-    var startNodes = from node in list
-      where isNeededNode(node.Annotation) select node;
-    return startNodes;
-  }
+    => annotation == ActionAnnotations.START_NEWDECL_PARA;
 
   private static bool IsResourceConditionKeyOrDependency(string annotation)
     => annotation == ActionAnnotations.A_HREF_RESOURCE
