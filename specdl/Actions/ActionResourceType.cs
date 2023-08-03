@@ -52,6 +52,10 @@ public struct ActionResourceType
     _ResourceTypeName = name;
   }
 
+  public bool IsIdAndNameSet
+    => _ResourceTypeDefinitionId != EMPTY_STRING
+    && _ResourceTypeName != EMPTY_STRING;
+
   public void AddConditionKeyId(string id)
     => _SpecificConditionKeyIds.Add(id);
 

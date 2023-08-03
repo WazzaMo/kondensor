@@ -134,35 +134,46 @@ public struct ActionTable
 
   private ParseAction RowData(ParseAction parser)
   {
-    int countResources = -1;
+    // int countResources = -1;
     ActionType foundAction = new ActionType();
     InternalData data = _Data;
     Action<LinkedList<Matching>>
-      processActionInfo = ProcessActionDeclaration,
-      processResource = CollectResourceValues;
+      //processActionInfo = ProcessActionDeclaration,
+      processActionInfo = CollectActionDeclarations;
+      // processResource = CollectResourceValues;
 
     parser
       .Expect(ActionTableParser.RowData)
       .AllMatchThen( (list,writer) => {
         processActionInfo(list);
         //
-        var query = from node in list
-          where (node.HasAnnotation
-            && node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
-          select node;
-        Matching match = query.Last();
-        string attribName = HtmlPartsUtils.GetTdAttribName(match.Parts);
-        if (attribName == "rowspan")
-        {
-          int rowSpan = HtmlPartsUtils.GetTdAttribIntValue(match.Parts);
-          countResources = rowSpan - 1;
-        }
-        else
-          countResources = 0;
+        // var query = from node in list
+        //   where (node.HasAnnotation
+        //     && node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
+        //   select node;
+        // Matching match = query.Last();
+        // string attribName = HtmlPartsUtils.GetTdAttribName(match.Parts);
+        // if (attribName == "rowspan")
+        // {
+        //   int rowSpan = HtmlPartsUtils.GetTdAttribIntValue(match.Parts);
+        //   countResources = rowSpan - 1;
+        // }
+        // else
+        //   countResources = 0;
         
-        processResource(list);
+        // processResource(list);
+      })
+      .MismatchesThen( (list,wr) => {
+          var query = from node in list where node.MatchResult == MatchKind.Mismatch
+            select node;
+          query.ForEach( (node, idx) => {
+            Console.Error.WriteLine(
+              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
+            );
+          });
       });
 
+/*
       if (parser.IsAllMatched)
       {
         if (countResources > 0)
@@ -191,9 +202,11 @@ public struct ActionTable
           .Expect(HtmlRules.END_TR, annotation: "end:tr:SKIPPED-ROW")
         ;
       }
+      */
     return parser;
   }
 
+  //---- CONDEMNED CODE
   private void ProcessActionDeclaration(LinkedList<Matching> list)
   {
     ActionType foundAction = new ActionType();
@@ -226,7 +239,7 @@ public struct ActionTable
       foundAction.SetActionId(HtmlPartsUtils.GetAIdAttribValue(id.Parts));
       foundAction.SetActionName(HtmlPartsUtils.GetAHrefTagValueLongShort( href ));
       foundAction.SetApiDocLink(HtmlPartsUtils.GetAHrefAttribValue(href.Parts));
-      foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
+      // foundAction.SetDescription(HtmlPartsUtils.GetTdTagValue(desc.Parts));
       _Data._Actions.Add(foundAction);
 
       Matching levelNode = accessLevel.Last();
@@ -283,18 +296,19 @@ public struct ActionTable
             declarationNodes.MoveNext();
             
             string description = HtmlPartsUtils.GetTdTagValue(desc.Parts);
-            if (
-              HasCollectedActionProperties(
+            bool hasResourceType = HasCollectedActionProperties(
                 declarationNodes,
                 description,
                 out level,
                 out resourceType
-              )
-            )
+              );
+            if (hasResourceType)
             {
               _Data._CurrentAccessLevel = Option.Some( level );
               _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
             }
+            else if (level != ActionAccessLevel.Unknown)
+            {}
           }
 
         }
@@ -304,6 +318,18 @@ public struct ActionTable
         && actionDecl.IsActionIdSet)
       {
         // reuse actionDecl to create ActionResourceType(s) with new description.
+        Matching descNode = declarationNodes.Current;
+        string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
+        if (HasCollectedActionProperties(
+          declarationNodes,
+          description,
+          out level,
+          out resourceType
+        ))
+        {
+          _Data._CurrentAccessLevel = Option.Some(level);
+          _Data.CurrentAction.MapAccessToResourceType(level, resourceType);
+        }
       }
     }
   }
@@ -330,16 +356,18 @@ public struct ActionTable
       level = levelTxt.GetLevelFrom();
       if (level != ActionAccessLevel.Unknown)
       {
+        resourceType = new ActionResourceType();
+        resourceType.SetDescription(description);
+        result = true; // Resource Type is configured and ready, minimally.
+
         if (nodes.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
         {
           Matching aHrefResource = nodes.Current;
 
-          resourceType = new ActionResourceType();
           string resourceId, resourceName;
           resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
           resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
           resourceType.SetTypeIdAndName(resourceId, resourceName);
-          resourceType.SetDescription(description);
 
           while(nodes.MoveNext())
           {
@@ -362,7 +390,6 @@ public struct ActionTable
                 resourceType.AddDependentActionId(depId);
             }
           }
-          result = true;
         }
       }
     }
@@ -404,10 +431,7 @@ public struct ActionTable
   private bool IsSameActionNewDescriptionAnnotation(string annotation)
     => annotation == ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION;
 
-  /// <summary>
-  /// Condemned code
-  /// </summary>
-  /// <param name="list"></param>
+  //-- Condemned code
   private void CollectResourceValues(LinkedList<Matching> list)
   {
     ActionResourceType resType;
