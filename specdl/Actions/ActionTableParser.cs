@@ -40,50 +40,92 @@ public static class ActionTableParser
   {
     parser
       .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
-        .EitherProduction(
-          ActionDeclarationAndDefinitionProduction,
-          NewDescriptionForSameActionProduction
-        )
+        .Expect(ActionDeclarationProduction)
       .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
       ;
     return parser;
   }
 
-  private static ParseAction ActionDeclarationAndDefinitionProduction(ParseAction parser)
+
+  private static ParseAction ActionDeclarationProduction(ParseAction parser)
     => parser
-        .Expect( ActionDeclaration )  
-        .Expect( ActionDescription )
-        .Expect( ActionAccessLevelProduction )
+        .EitherProduction( ActionDeclarationRowspan, ActionDeclarationNoRowspan )
+        .IfThenProduction(
+          x => x.Annotation == ActionAnnotations.START_CELL_ACTION_ANNOTATION,
+          ActionPropertiesOneRowProd
+        )
+        .IfThenProduction(
+          x => x.Annotation == ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION,
+          ActionPropsRowspan
+        )
+      ;
+
+  private static ParseAction ActionPropertiesOneRowProd(ParseAction parser)
+    => parser
+        .Expect( ActionDescriptionOneRowProd )
+        .Expect( ActionAccessLevelOneRowProd )
         .Expect( ResourceType )
         .Expect( ConditionKeys )
         .Expect( DependendActions )
       ;
 
-  private static ParseAction NewDescriptionForSameActionProduction(ParseAction parser)
+  private static ParseAction ActionPropsRowspan(ParseAction parser)
     => parser
-        .Expect(NewDescriptionSameAction)
-        .Expect(ActionAccessLevelProduction )
-        .Expect(ResourceType)
-        .Expect(ConditionKeys)
-        .Expect(DependendActions)
-        ;
+        .Expect( ActionDescriptionRowspanProd )
+        .Expect( ActionAccessLevelRowspanProd )
+        .Expect( ResourceType )
+        .Expect( ConditionKeys )
+        .Expect( DependendActions )
+      ;
 
-  private static ParseAction ActionDeclaration(ParseAction parser)
+  private static ParseAction ActionDeclarationNoRowspan(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_CELL_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_ID, annotation: ActionAnnotations.START_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_HREF, annotation: ActionAnnotations.START_HREF_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_HREF_ACTION_ANNOTATION)
+      .Expect(HtmlRules.START_TD, annotation: ActionAnnotations.START_CELL_ACTION_ANNOTATION)
+        .Expect(ActionIdAndRefProd)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
     return parser;
   }
 
-  private static ParseAction ActionDescription(ParseAction parser)
+  private static ParseAction ActionDeclarationRowspan(ParseAction parser)
+  {
+    parser
+      .Expect(HtmlRules.START_TD_ROWSPAN, annotation: ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION)
+        .Expect(ActionIdAndRefProd)
+      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
+      ;
+    return parser;
+  }
+
+  private static ParseAction ActionIdAndRefProd(ParseAction parser)
+    => parser
+        .Expect(HtmlRules.START_A_ID, annotation: ActionAnnotations.START_ID_ACTION_ANNOTATION)
+        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_ID_ACTION_ANNOTATION)
+        .Expect(HtmlRules.START_A_HREF, annotation: ActionAnnotations.START_HREF_ACTION_ANNOTATION)
+        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_HREF_ACTION_ANNOTATION)
+        ;
+
+  // --- SPECIAL CASE
+  private static ParseAction NewDescriptionForSameActionProduction(ParseAction parser)
+    => parser
+        .Expect(NewDescriptionSameAction)
+        .Expect(ActionAccessLevelOneRowProd )
+        .Expect(ResourceType)
+        .Expect(ConditionKeys)
+        .Expect(DependendActions)
+        ;
+
+
+  private static ParseAction ActionDescriptionOneRowProd(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
+      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
+      ;
+
+  private static ParseAction ActionDescriptionRowspanProd(ParseAction parser)
+    => parser
+      .Expect(HtmlRules.START_TD_ROWSPAN, ActionAnnotations.START_CELL_ACTIONDESC_ROWSPAN_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
@@ -96,12 +138,18 @@ public static class ActionTableParser
       ;
 
 
-  private static ParseAction ActionAccessLevelProduction(ParseAction parser)
+  private static ParseAction ActionAccessLevelOneRowProd(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
       ;
-  
+
+  private static ParseAction ActionAccessLevelRowspanProd(ParseAction parser)
+    => parser
+      .Expect(HtmlRules.START_TD_ROWSPAN, annotation: ActionAnnotations.START_ACCESSLEVEL_ROWSPAN_ANNOTATION)
+      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
+      ;
+
   private static ParseAction ResourceType(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_TD_RESOURCETYPE)
@@ -112,8 +160,8 @@ public static class ActionTableParser
   private static ParseAction ResourcePara(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-        .Expect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
-        .Expect(HtmlRules.END_A, ActionAnnotations.END_A)
+        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
+        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
       .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
   private static ParseAction ConditionKeys(ParseAction parser)
@@ -127,8 +175,8 @@ public static class ActionTableParser
   private static ParseAction ConditionKeyEntry(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-          .Expect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_CONDKEY)
-          .Expect(HtmlRules.END_A, ActionAnnotations.END_A)
+        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_CONDKEY)
+        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
       .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
       ;
 
