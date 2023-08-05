@@ -145,6 +145,25 @@ public struct ParseAction
   public ImmutableList<Matching> QueryHistory() => _MatchHistory.ToImmutableList();
 
   /// <summary>
+  /// Attempts to match the production iff the condition is matched by > 0
+  /// matches in the match history.
+  /// </summary>
+  /// <param name="condition">Condition to test for in match history.</param>
+  /// <param name="production">Conditional production.</param>
+  /// <returns>Same parseAction</returns>
+  public ParseAction IfThenProduction(
+    ParseCondition condition,
+    Production production
+  )
+  {
+    IEnumerable<Matching> matches = _MatchHistory.Where( node => condition(node));
+    ParseAction resultParser = (matches.Count() > 0)
+      ? Expect(production)
+      : this;
+    return resultParser;
+  }
+
+  /// <summary>
   /// Conditional parsering If() where condition can describe a pattern of Matching possibilities.
   /// </summary>
   /// <param name="condition">boolean test on Matching fields, typically based on annotations.</param>

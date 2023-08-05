@@ -43,6 +43,68 @@ public static class PipeValues
 </html>"
 );
 
+    public static StringReader ONE_ROW_DATA => new StringReader
+(
+@"  <table id=""w43aab5b9c19c11c11"">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Description</th>
+                    <th>Access level</th>
+                    <th>Resource types (*required)</th>
+                    <th>Condition keys</th>
+                    <th>Dependent actions</th>
+                </tr>
+            </thead>
+            <tr>
+                <td>
+                    <a id=""awsaccountmanagement-CloseAccount""></a>
+                    <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">CloseAccount</a> [permission only]</td>
+                <td>Grants permission to close an account</td>
+                <td>Write</td>
+                <td>1
+                    <p>
+                        <a href=""#awsaccountmanagement-account"">account</a>
+                    </p>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>"
+);
+
+    public static StringReader MULT_ROW_DATA => new StringReader
+(
+@"  <table id=""w43aab5b9c19c11c11"">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Description</th>
+                    <th>Access level</th>
+                    <th>Resource types (*required)</th>
+                    <th>Condition keys</th>
+                    <th>Dependent actions</th>
+                </tr>
+            </thead>
+                <tr>
+                    <td rowspan=""3"">
+                        <a id=""awsaccountmanagement-DeleteAlternateContact""></a>
+                        <a href=""https://docs.aws.amazon.com/accounts/latest/reference/API_DeleteAlternateContact.html"">DeleteAlternateContact</a>
+                    </td>
+                    <td rowspan=""3"">Grants permission to delete the alternate contacts for an account</td>
+                    <td rowspan=""3"">Write</td>
+                    <td>
+                        <p>
+                            <a href=""#awsaccountmanagement-account"">account</a>
+                        </p>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+        </table>
+" 
+);
+
     /// <summary>Subset of HTML</summary>
     /// 
     public static StringReader HTML => new StringReader(

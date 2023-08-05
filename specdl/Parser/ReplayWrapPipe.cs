@@ -83,7 +83,7 @@ namespace Parser
 
     public void ReturnToCheckPoint(int checkPoint)
     {
-      if (checkPoint < _TokenHistory.Count)
+      if (checkPoint <= _TokenHistory.Count)
       {
         ReadIndex = checkPoint;
       }
