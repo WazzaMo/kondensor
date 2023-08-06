@@ -74,15 +74,6 @@ public class Test_ProductionWhileMatch
       .Expect(HtmlRules.START_TD_ROWSPAN, TD_ROWSPAN).Expect(HtmlRules.END_TD, END_TD)
       // end declaration
       .Expect(ResourceCondKeyDepProd)
-      // resource, condkey, dependent action
-      // .Expect(HtmlRules.START_TD, TD_EMPTY)
-      //   .Expect(HtmlRules.START_PARA, START_P)
-      //     .Expect(HtmlRules.START_A_HREF, START_AHREF)
-      //     .Expect(HtmlRules.END_A, END_A)
-      //   .Expect(HtmlRules.END_PARA, END_P)
-      // .Expect(HtmlRules.END_TD, END_TD)
-      // .Expect(HtmlRules.START_TD, TD_EMPTY).Expect(HtmlRules.END_TD, END_TD)
-      // .Expect(HtmlRules.START_TD, TD_EMPTY).Expect(HtmlRules.END_TD, END_TD)
       ;
 
   private IEnumerable<string> FilterStarts(LinkedList<Matching> list)
