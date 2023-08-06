@@ -253,6 +253,21 @@ public struct ParseAction
     return this;
   }
 
+  public ParseAction ProductionWhileMatch(Production production)
+  {
+    var savedHistory = SaveMatchHistory();
+    int checkpoint = _Pipe.GetCheckPoint();
+
+    while( IsAllMatched && IsProductionMatched(production))
+    {
+      savedHistory = SaveMatchHistory();
+      checkpoint = _Pipe.GetCheckPoint();
+    }
+    _Pipe.ReturnToCheckPoint(checkpoint);
+    RestoreMatchHistory(savedHistory);
+    return this;
+  }
+
   /// <summary>
   /// Expect the same production to parse and match N times over.
   /// </summary>
