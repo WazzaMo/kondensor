@@ -44,6 +44,7 @@ public static class ActionAnnotations
     END_CELL_ACTIONDESC_ANNOTATION = "end:td:description",
     START_ACCESSLEVEL_ANNOTATION = "start:td:accesslevel",
     START_ACCESSLEVEL_ROWSPAN_ANNOTATION = "start:td:rowspan:accesslevel",
+    START_ACCESSLEVEL_EMPTY_ANNOTATION = "start:td:accesslevel:empty",
     END_ACCESSLEVEL_ANNOTATION = "end:td:accesslevel",
     
     START_TD_RESOURCETYPE = "start:td:resourcetype",
