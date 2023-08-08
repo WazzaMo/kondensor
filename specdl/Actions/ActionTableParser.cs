@@ -26,12 +26,12 @@ public static class ActionTableParser
   /// <returns>Same parser returned for fluid API.</returns>
   private static ParseAction ActionDeclarationProduction(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ROW_ANNOTATION)
+      .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ACTION_ROW_ANNOTATION)
         .EitherProduction( ActionDeclarationRowspan, ActionDeclarationNoRowspan )
         .EitherProduction( ActionDescriptionOneRowProd, ActionDescriptionRowspanProd)
         .EitherProduction( ActionAccessLevelOneRowProd, ActionAccessLevelRowspanProd)
         .Expect(ActionInitialResourceCondKeyDepProd)
-      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ANNOTATION)
+      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION)
       .ProductionWhileMatch(ActionRowsResourceCondKeyDependentsProd)
       .ProductionWhileMatch(ActionNewDescriptionResourceCondKeyDependentProd)
       ;
@@ -45,21 +45,21 @@ public static class ActionTableParser
 
   private static ParseAction ActionRowsResourceCondKeyDependentsProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, ActionAnnotations.START_ROW_ANNOTATION)
+      .Expect(HtmlRules.START_TR, ActionAnnotations.START_ACTION_PROP_ROW_ANNOTATION)
         .Expect( ResourceType )
         .Expect( ConditionKeys )
         .Expect( DependendActions )
-      .Expect(HtmlRules.END_TR, ActionAnnotations.END_ROW_ANNOTATION)
+      .Expect(HtmlRules.END_TR, ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION)
       ;
 
   // --- SPECIAL CASE
   private static ParseAction ActionNewDescriptionResourceCondKeyDependentProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, ActionAnnotations.START_ROW_ANNOTATION)
+      .Expect(HtmlRules.START_TR, ActionAnnotations.START_ACTION_PROP_ROW_ANNOTATION)
         .Expect(NewDescriptionSameAction)
         .Expect(EmptyAccessLevelProd )
         .Expect(ActionInitialResourceCondKeyDepProd)
-      .Expect(HtmlRules.END_TR, ActionAnnotations.END_ROW_ANNOTATION)
+      .Expect(HtmlRules.END_TR, ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION)
       ;
 
   private static ParseAction ActionDeclarationNoRowspan(ParseAction parser)
@@ -130,7 +130,7 @@ public static class ActionTableParser
 
   private static ParseAction ResourceType(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: ActionAnnotations.START_TD_RESOURCETYPE)
+      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
       .ExpectProductionUntil(ResourcePara,
         HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_RESOURCETYPE
       );

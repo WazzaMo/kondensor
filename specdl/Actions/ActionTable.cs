@@ -12,6 +12,7 @@ using Parser;
 using HtmlParse;
 
 using YamlWriters;
+using System.Globalization;
 
 namespace Actions;
 
@@ -211,17 +212,15 @@ public struct ActionTable
     var declarationNodes = FilterActionDeclaration(list).GetEnumerator();
     ActionType actionDecl = new ActionType();
     ActionAccessLevel level;
-    ActionResourceType resourceType;
+    ActionResourceType resourceType = new ActionResourceType();
 
     while( declarationNodes.MoveNext())
     {
-      if (IsStartActionAnnotation(declarationNodes.Current.Annotation) )
+      if (IsStartActionIdAnnotation(declarationNodes.Current.Annotation) )
       {
         Matching aId = declarationNodes.Current;
         declarationNodes.MoveNext();
-        if (
-          declarationNodes.Current.Annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
-        )
+        if ( IsStartActionNameAndRef(declarationNodes.Current.Annotation) )
         {
           Matching aHref = declarationNodes.Current;
           declarationNodes.MoveNext();
@@ -252,10 +251,48 @@ public struct ActionTable
               _Data._CurrentAccessLevel = Option.Some( level );
               _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
             }
-            else if (level != ActionAccessLevel.Unknown)
-            {}
           }
+        }
+      }
+      else if (IsActionPropertyRowStart(declarationNodes.Current.Annotation) )
+      {
+        declarationNodes.MoveNext();
+        if ( IsResourceConditionKeyOrDependency( declarationNodes.Current.Annotation)
+          && resourceType.IsDescriptionSet)
+        {
+          bool isNew = CollectActionPropertyRow(declarationNodes, ref resourceType);
+          if (isNew)
+          {
+            var _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+            if (_level != ActionAccessLevel.Unknown)
+            {
+              _Data.CurrentAction.MapAccessToResourceType(
+                _level, resourceType
+              );
+            }
+          }
+        }
+        
+        if (
+          IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
+          && actionDecl.IsActionIdSet && resourceType.IsIdAndNameSet
+        )
+        {
+          // reuse actionDecl to create ActionResourceType(s) with new description.
+          Matching descNode = declarationNodes.Current;
+          declarationNodes.MoveNext();
 
+          string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
+          ActionResourceType nextDescResourceType = new ActionResourceType();
+          nextDescResourceType.SetTypeIdAndName(
+            resourceType.ResourceTypeDefId, resourceType.ResourceTypeName
+          );
+          nextDescResourceType.SetDescription(description);
+          CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
+
+          ActionAccessLevel _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
+          if (_level != ActionAccessLevel.Unknown)
+            _Data.CurrentAction.MapAccessToResourceType(_level, resourceType);
         }
       }
       else if (
@@ -305,7 +342,7 @@ public struct ActionTable
         resourceType.SetDescription(description);
         result = true; // Resource Type is configured and ready, minimally.
 
-        if (nodes.Current.Annotation == ActionAnnotations.A_HREF_RESOURCE)
+        if (IsResourceIdAndName(nodes.Current.Annotation) )
         {
           Matching aHrefResource = nodes.Current;
 
@@ -314,9 +351,9 @@ public struct ActionTable
           resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
           resourceType.SetTypeIdAndName(resourceId, resourceName);
 
-          while(nodes.MoveNext())
+          while(nodes.MoveNext() && ! IsActionPropertyRowEnd(nodes.Current.Annotation))
           {
-            if (nodes.Current.Annotation == ActionAnnotations.A_HREF_CONDKEY)
+            if (IsCondKeyIdAndName(nodes.Current.Annotation) )
             {
               Matching aHrefConditionKey = nodes.Current;
               string ckId, ckName;
@@ -326,7 +363,7 @@ public struct ActionTable
               resourceType.AddConditionKeyId(ckId);
             }
 
-            if (nodes.Current.Annotation == ActionAnnotations.START_PARA_DEPENDENT )
+            if ( IsDependentKey(nodes.Current.Annotation) )
             {
               Matching tdDependency = nodes.Current;
               string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
@@ -341,6 +378,50 @@ public struct ActionTable
     return result;
   }
 
+  private bool CollectActionPropertyRow(
+    IEnumerator<Matching> nodes,
+    ref ActionResourceType resourceType
+  )
+  {
+    bool isResourceTypeNew = false;
+
+    while(nodes.MoveNext() && ! IsActionPropertyRowEnd(nodes.Current.Annotation))
+    {
+      if (IsResourceIdAndName(nodes.Current.Annotation))
+      {
+        Matching aHrefResource = nodes.Current;
+
+        string resourceId, resourceName;
+
+        resourceType = new ActionResourceType();
+        isResourceTypeNew = true;
+
+        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
+        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
+        resourceType.SetTypeIdAndName(resourceId, resourceName);
+      }
+      if (IsCondKeyIdAndName(nodes.Current.Annotation) )
+      {
+        Matching aHrefConditionKey = nodes.Current;
+        string ckId, ckName;
+
+        ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
+        ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
+        resourceType.AddConditionKeyId(ckId);
+      }
+
+      if ( IsDependentKey(nodes.Current.Annotation) )
+      {
+        Matching tdDependency = nodes.Current;
+        string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
+
+        if (! depId.IsEmptyPartsValue())
+          resourceType.AddDependentActionId(depId);
+      }
+    }
+    return isResourceTypeNew;
+  }
+
   private IEnumerable<Matching> FilterActionDeclaration(LinkedList<Matching> list)
   {
     Func<string, bool> filter = IsActionDeclarationAnnotation;
@@ -349,9 +430,10 @@ public struct ActionTable
   }
 
   private bool IsActionDeclarationAnnotation(string annotation)
-    => IsRowStart(annotation)
-    || IsRowEnd(annotation)
-    || IsStartActionAnnotation(annotation) 
+    => IsActionDeclRowStart(annotation)
+    || IsActionPropertyRowStart(annotation)
+    || IsActionPropertyRowEnd(annotation)
+    || IsStartActionIdAnnotation(annotation) 
     || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
     || IsFirstActionDescription(annotation)
     || IsSameActionNewDescriptionAnnotation(annotation)
@@ -361,14 +443,20 @@ public struct ActionTable
     || annotation == ActionAnnotations.START_PARA_DEPENDENT
     ;
 
-  private bool IsRowStart(string annotation)
-    => annotation == ActionAnnotations.START_ROW_ANNOTATION;
+  private bool IsActionDeclRowStart(string annotation)
+    => annotation == ActionAnnotations.START_ACTION_ROW_ANNOTATION;
   
-  private bool IsRowEnd(string annotation)
-    => annotation == ActionAnnotations.END_ROW_ANNOTATION;
+  private bool IsActionPropertyRowStart(string annotation)
+    => annotation == ActionAnnotations.START_ACTION_PROP_ROW_ANNOTATION;
 
-  private bool IsStartActionAnnotation(string annotation)
+  private bool IsActionPropertyRowEnd(string annotation)
+    => annotation == ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION;
+
+  private bool IsStartActionIdAnnotation(string annotation)
     => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
+
+  private bool IsStartActionNameAndRef(string annotation)
+    => annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION;
 
   private bool IsFirstActionDescription(string annotation)
     => annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION;
@@ -377,9 +465,17 @@ public struct ActionTable
     => annotation == ActionAnnotations.START_NEWDECL_PARA;
 
   private static bool IsResourceConditionKeyOrDependency(string annotation)
-    => annotation == ActionAnnotations.A_HREF_RESOURCE
-      || annotation == ActionAnnotations.A_HREF_CONDKEY
-      || annotation == ActionAnnotations.START_PARA_DEPENDENT
-      ;
+    => IsResourceIdAndName(annotation)
+    || IsCondKeyIdAndName(annotation)
+    || IsDependentKey(annotation)
+    ;
 
+  private static bool IsResourceIdAndName(string annotation)
+    => annotation == ActionAnnotations.A_HREF_RESOURCE;
+  
+  private static bool IsCondKeyIdAndName(string annotation)
+    => annotation == ActionAnnotations.A_HREF_CONDKEY;
+  
+  private static bool IsDependentKey(string annotation)
+    => annotation == ActionAnnotations.START_PARA_DEPENDENT;
 }

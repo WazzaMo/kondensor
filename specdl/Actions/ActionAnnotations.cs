@@ -30,6 +30,9 @@ public static class ActionAnnotations
     END_HEADING_ANNOTATION = "end:th:heading",
     START_ROW_ANNOTATION = "start:tr:row",
     END_ROW_ANNOTATION = "end:tr:row",
+    START_ACTION_ROW_ANNOTATION = "start:tr:action:row",
+    START_ACTION_PROP_ROW_ANNOTATION = "start:tr:action-prop:row",
+    END_ACTION_PROP_ROW_ANNOTATION = "end:tr:action-prop:row",
 
     START_CELL_ACTION_ANNOTATION = "start:td:action:decl",
     START_ID_ACTION_ANNOTATION = "start:a-id:action",
