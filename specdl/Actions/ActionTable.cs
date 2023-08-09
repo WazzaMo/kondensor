@@ -288,7 +288,11 @@ public struct ActionTable
             resourceType.ResourceTypeDefId, resourceType.ResourceTypeName
           );
           nextDescResourceType.SetDescription(description);
-          CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
+          bool isNew = CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
+          if (isNew)
+          {
+            nextDescResourceType.SetDescription(description);
+          }
 
           ActionAccessLevel _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
           if (_level != ActionAccessLevel.Unknown)
@@ -384,8 +388,7 @@ public struct ActionTable
   )
   {
     bool isResourceTypeNew = false;
-
-    while(nodes.MoveNext() && ! IsActionPropertyRowEnd(nodes.Current.Annotation))
+    do
     {
       if (IsResourceIdAndName(nodes.Current.Annotation))
       {
@@ -419,6 +422,8 @@ public struct ActionTable
           resourceType.AddDependentActionId(depId);
       }
     }
+    while(nodes.MoveNext() && ! IsActionPropertyRowEnd(nodes.Current.Annotation));
+
     return isResourceTypeNew;
   }
 
