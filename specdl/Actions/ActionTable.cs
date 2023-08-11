@@ -287,16 +287,12 @@ public struct ActionTable
           nextDescResourceType.SetTypeIdAndName(
             resourceType.ResourceTypeDefId, resourceType.ResourceTypeName
           );
-          nextDescResourceType.SetDescription(description);
           bool isNew = CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
-          if (isNew)
-          {
-            nextDescResourceType.SetDescription(description);
-          }
+          nextDescResourceType.SetDescription(description);
 
           ActionAccessLevel _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
           if (_level != ActionAccessLevel.Unknown)
-            _Data.CurrentAction.MapAccessToResourceType(_level, resourceType);
+            _Data.CurrentAction.MapAccessToResourceType(_level, nextDescResourceType);
         }
       }
       else if (
