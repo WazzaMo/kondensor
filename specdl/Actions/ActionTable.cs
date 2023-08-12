@@ -23,14 +23,22 @@ public struct ActionTable
 {
   private class InternalData{
     private bool _CanBeWritten;
+    private string _SavedDescription;
 
     public string _SourceUrl = "";
-    public List<string> _HeadingNames = new List<string>();
-    public List<ActionType> _Actions = new List<ActionType>();
+    public List<string> _HeadingNames;
+    public List<ActionType> _Actions;
     public Option<ActionAccessLevel> _CurrentAccessLevel;
 
     public bool IsReadyToWrite => _CanBeWritten;
     public void SignalReadyToWrite() => _CanBeWritten = true;
+    public bool HaveSavedDescription()
+      => ! String.IsNullOrEmpty(_SavedDescription);
+    
+    public string SavedDescription {
+      get => _SavedDescription;
+      set => _SavedDescription = value;
+    }
 
     public ActionType CurrentAction {
       get {
@@ -52,7 +60,11 @@ public struct ActionTable
 
     public InternalData()
     {
+      _SavedDescription = "";
       _CanBeWritten = false;
+      _HeadingNames = new List<string>();
+      _Actions = new List<ActionType>();
+      _CurrentAccessLevel = Option.None<ActionAccessLevel>();
     }
   } // -- Internal Data
 
@@ -135,34 +147,14 @@ public struct ActionTable
 
   private ParseAction RowData(ParseAction parser)
   {
-    // int countResources = -1;
     ActionType foundAction = new ActionType();
     InternalData data = _Data;
-    Action<LinkedList<Matching>>
-      //processActionInfo = ProcessActionDeclaration,
-      processActionInfo = CollectActionDeclarations;
-      // processResource = CollectResourceValues;
+    Action<LinkedList<Matching>> processActionInfo = CollectActionDeclarations;
 
     parser
       .Expect(ActionTableParser.RowData)
       .AllMatchThen( (list,writer) => {
         processActionInfo(list);
-        //
-        // var query = from node in list
-        //   where (node.HasAnnotation
-        //     && node.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
-        //   select node;
-        // Matching match = query.Last();
-        // string attribName = HtmlPartsUtils.GetTdAttribName(match.Parts);
-        // if (attribName == "rowspan")
-        // {
-        //   int rowSpan = HtmlPartsUtils.GetTdAttribIntValue(match.Parts);
-        //   countResources = rowSpan - 1;
-        // }
-        // else
-        //   countResources = 0;
-        
-        // processResource(list);
       })
       .MismatchesThen( (list,wr) => {
           var query = from node in list where node.MatchResult == MatchKind.Mismatch
@@ -174,36 +166,6 @@ public struct ActionTable
           });
       });
 
-/*
-      if (parser.IsAllMatched)
-      {
-        if (countResources > 0)
-        {
-          for(int index = 0; index < countResources; index++)
-          {
-            parser
-              .Expect(ActionTableParser.RepeatRowData)
-              .AllMatchThen( (list, writer) => processResource(list));
-          }
-        }
-      }
-      else
-      {
-        parser
-          .MismatchesThen( (list,wr) => {
-          var query = from node in list where node.MatchResult == MatchKind.Mismatch
-            select node;
-          query.ForEach( (node, idx) => {
-            Console.Error.WriteLine(
-              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-            );
-          });
-        })
-          .SkipUntil(HtmlRules.END_TR)
-          .Expect(HtmlRules.END_TR, annotation: "end:tr:SKIPPED-ROW")
-        ;
-      }
-      */
     return parser;
   }
 
@@ -240,6 +202,7 @@ public struct ActionTable
             declarationNodes.MoveNext();
             
             string description = HtmlPartsUtils.GetTdTagValue(desc.Parts);
+            _Data.SavedDescription = description;
             bool hasResourceType = HasCollectedActionProperties(
                 declarationNodes,
                 description,
@@ -248,6 +211,10 @@ public struct ActionTable
               );
             if (hasResourceType)
             {
+              if (resourceType.Description.IsEmptyPartsValue())
+              {
+                resourceType.SetDescription(description);
+              }
               _Data._CurrentAccessLevel = Option.Some( level );
               _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
             }
@@ -260,14 +227,21 @@ public struct ActionTable
         if ( IsResourceConditionKeyOrDependency( declarationNodes.Current.Annotation)
           && resourceType.IsDescriptionSet)
         {
-          bool isNew = CollectActionPropertyRow(declarationNodes, ref resourceType);
+          ActionResourceType nextResourceType = CopyResourceType(resourceType);
+          bool isNew = CollectActionPropertyRow(declarationNodes, ref nextResourceType);
           if (isNew)
           {
             var _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
             if (_level != ActionAccessLevel.Unknown)
             {
+              if (nextResourceType.Description.IsEmptyPartsValue()
+                && _Data.HaveSavedDescription()
+              )
+              {
+                nextResourceType.SetDescription(_Data.SavedDescription);
+              }
               _Data.CurrentAction.MapAccessToResourceType(
-                _level, resourceType
+                _level, nextResourceType
               );
             }
           }
@@ -283,10 +257,7 @@ public struct ActionTable
           declarationNodes.MoveNext();
 
           string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
-          ActionResourceType nextDescResourceType = new ActionResourceType();
-          nextDescResourceType.SetTypeIdAndName(
-            resourceType.ResourceTypeDefId, resourceType.ResourceTypeName
-          );
+          ActionResourceType nextDescResourceType = CopyResourceType(resourceType);
           bool isNew = CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
           nextDescResourceType.SetDescription(description);
 
@@ -300,20 +271,34 @@ public struct ActionTable
         && actionDecl.IsActionIdSet)
       {
         // reuse actionDecl to create ActionResourceType(s) with new description.
-        Matching descNode = declarationNodes.Current;
-        string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
-        if (HasCollectedActionProperties(
-          declarationNodes,
-          description,
-          out level,
-          out resourceType
-        ))
-        {
-          _Data._CurrentAccessLevel = Option.Some(level);
-          _Data.CurrentAction.MapAccessToResourceType(level, resourceType);
-        }
+        // Matching descNode = declarationNodes.Current;
+        // string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
+        // if (HasCollectedActionProperties(
+        //   declarationNodes,
+        //   description,
+        //   out level,
+        //   out resourceType
+        // ))
+        // {
+        //   _Data._CurrentAccessLevel = Option.Some(level);
+        //   _Data.CurrentAction.MapAccessToResourceType(level, resourceType);
+        // }
+
+        // CONDEMNED CODE
+        throw new Exception("Hit condemned code!!");
       }
     }
+  }
+
+  private ActionResourceType CopyResourceType(ActionResourceType resourceType)
+  {
+    ActionResourceType copy = new ActionResourceType();
+    copy.SetTypeIdAndName(
+      resourceType.ResourceTypeDefId,
+      resourceType.ResourceTypeName
+    );
+    copy.SetDescription(resourceType.Description);
+    return copy;
   }
 
   private bool HasCollectedActionProperties(
@@ -392,7 +377,6 @@ public struct ActionTable
 
         string resourceId, resourceName;
 
-        resourceType = new ActionResourceType();
         isResourceTypeNew = true;
 
         resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
