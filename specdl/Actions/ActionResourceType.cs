@@ -8,6 +8,8 @@ using System.Collections.Generic;
 
 using Optional;
 
+using Spec;
+
 namespace Actions;
 
 /// <summary>
@@ -35,6 +37,9 @@ public struct ActionResourceType
   public string ResourceTypeName => _ResourceTypeName;
 
   public string Description => _Description;
+
+  public bool IsScenarioAndShouldBeCommented
+    => ValueValidators.IsScenarioActionDescription( _Description );
 
   public IEnumerable<string> ConditionKeyIds() => _SpecificConditionKeyIds.AsEnumerable();
 

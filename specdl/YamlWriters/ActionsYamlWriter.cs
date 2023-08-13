@@ -74,35 +74,47 @@ public static class ActionsYamlWriter
                     yAL.ObjectListItem(accessLevel.ToString(),() =>{
                       yRes.List(
                         act.GetResourceTypesForLevel(accessLevel),
-                        (resource, _)=> yVal.ObjectListItem(RESOURCE_DEF, () => {
-                        yRes
-                          .FieldAndValue(DESCRIPTION, resource.Description);
-                        if (resource.IsIdAndNameSet)
-                        {
-                          yRes
-                            .Field(ID, yy => yy.Quote(resource.ResourceTypeDefId))
-                            .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
-                        }
-                      if (resource.ConditionKeyIds().Count() > 0)
-                      {
-                        yRes.DeclarationLine(
-                          CONDITION_KEYS,
-                          yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Quote(ck))
-                        );
+                        (resource, _)=> {
+                          yVal.ObjectListItem(RESOURCE_DEF, () => {
+                            if (resource.IsScenarioAndShouldBeCommented)
+                            {
+                              yRes.Comment( resource.Description.Trim() );
+                            }
+                            else
+                            {
+                              yRes
+                                .FieldAndValue(DESCRIPTION, resource.Description);
+                              if (resource.IsIdAndNameSet)
+                              {
+                                yRes
+                                  .Field(ID, yy => yy.Quote(resource.ResourceTypeDefId))
+                                  .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
+                              }
+                              if (resource.ConditionKeyIds().Count() > 0)
+                              {
+                                yRes.DeclarationLine(
+                                  CONDITION_KEYS,
+                                  yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Quote(ck))
+                                );
+                              }
+                              if (resource.DependendActionIds().Count() > 0)
+                              {
+                                yRes.DeclarationLine(
+                                  DEPENDENT_ACTIONS,
+                                  yDep => yDep.List(resource.DependendActionIds(), (daId,yV)=>yV.Value(daId))
+                                );
+                              }
+                            }
+                          });
+                        });
                       }
-                      if (resource.DependendActionIds().Count() > 0)
-                      {
-                        yRes.DeclarationLine(
-                          DEPENDENT_ACTIONS,
-                          yDep => yDep.List(resource.DependendActionIds(), (daId,yV)=>yV.Value(daId))
-                        );
-                      }
-                    }));
-                  })
-                ))
-              ;
-          }));
-        });
-      });
+                    )
+                )
+              );
+            })
+          );
+          });
+        }
+    );
   }
 }

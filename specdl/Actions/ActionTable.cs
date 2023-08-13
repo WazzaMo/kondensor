@@ -275,27 +275,6 @@ public struct ActionTable
             _Data.CurrentAction.MapAccessToResourceType(_level, nextDescResourceType);
         }
       }
-      else if (
-        IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
-        && actionDecl.IsActionIdSet)
-      {
-        // reuse actionDecl to create ActionResourceType(s) with new description.
-        // Matching descNode = declarationNodes.Current;
-        // string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
-        // if (HasCollectedActionProperties(
-        //   declarationNodes,
-        //   description,
-        //   out level,
-        //   out resourceType
-        // ))
-        // {
-        //   _Data._CurrentAccessLevel = Option.Some(level);
-        //   _Data.CurrentAction.MapAccessToResourceType(level, resourceType);
-        // }
-
-        // CONDEMNED CODE
-        throw new Exception("Hit condemned code!!");
-      }
     }
   }
 
@@ -335,18 +314,19 @@ public struct ActionTable
         resourceType = new ActionResourceType();
         resourceType.SetDescription(description);
         result = true;
-        
-        do
-        {
-          CollectActionPropertyRow(
-            nodes,
-            ref resourceType
-          );
-        }
-        while(
-          nodes.MoveNext()
-          && ! IsActionPropertyRowEnd(nodes.Current.Annotation)
+
+        CollectActionPropertyRow(
+          nodes,
+          ref resourceType
         );
+
+        // do
+        // {
+        // }
+        // while(
+        //   nodes.MoveNext()
+        //   && ! IsActionPropertyRowEnd(nodes.Current.Annotation)
+        // );
       }
     }
     return result;
