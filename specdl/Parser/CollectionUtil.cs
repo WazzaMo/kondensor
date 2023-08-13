@@ -32,4 +32,23 @@ public static class CollectionUtil
     }
     return collection;
   }
+
+  /// <summary>
+  /// Extension method for List<T> to support replacing an element at a given index.
+  /// </summary>
+  /// <param name="original">original list</param>
+  /// <param name="atIndex">Index (int) </param>
+  /// <param name="replacement">Value to use in replacing indexed element</param>
+  /// <typeparam name="T">Valuetype of the list.</typeparam>
+  /// <returns>True if successful, false on failure</returns>
+  public static bool TryReplace<T>(this List<T> original, int atIndex, T replacement)
+  {
+    bool result = atIndex >= 0 && atIndex < original.Count;
+    if (result)
+    {
+      original.Insert(atIndex, replacement);
+      original.RemoveAt(atIndex + 1);
+    }
+    return result;
+  }
 }
