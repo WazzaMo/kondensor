@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Parser;
 
 namespace Actions;
 
@@ -48,7 +50,10 @@ public struct ActionType
     
   public bool IsApiDocLinkSet => _AwsApiDocumentLink != UNSET_STRING;
 
-  public void MapAccessToResourceType(ActionAccessLevel access, ActionResourceType resourceType)
+  public void MapAccessToResourceType(
+    ActionAccessLevel access,
+    ActionResourceType resourceType
+  )
   {
     var list = _AccessLevelToResourceTypeMappings.ContainsKey(access)
       ? _AccessLevelToResourceTypeMappings[access]
@@ -56,6 +61,25 @@ public struct ActionType
     list.Add(resourceType);
 
     _AccessLevelToResourceTypeMappings[access] = list;
+  }
+
+  public bool TryMapUpdateAccessAndResourceType(
+    ActionAccessLevel access,
+    ActionResourceType resourceType
+  )
+  {
+    var list = _AccessLevelToResourceTypeMappings.ContainsKey(access)
+      ? _AccessLevelToResourceTypeMappings[access]
+      : new List<ActionResourceType>();
+
+    
+
+    int index = list.FindIndex( x => x.Description.Equals(resourceType.Description));
+    if (index > -1)
+    {
+      return list.TryReplace(index, resourceType);
+    }
+    return false;
   }
 
   public IEnumerable<ActionAccessLevel> GetMappedAccessLevels()
