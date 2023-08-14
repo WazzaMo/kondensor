@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 using Parser;
 using Actions;
+using YamlWriters;
 
 namespace YamlWriters;
 
@@ -75,37 +76,13 @@ public static class ActionsYamlWriter
                       yRes.List(
                         act.GetResourceTypesForLevel(accessLevel),
                         (resource, _)=> {
-                          yVal.ObjectListItem(RESOURCE_DEF, () => {
-                            if (resource.IsScenarioAndShouldBeCommented)
-                            {
-                              yRes.Comment( resource.Description.Trim() );
-                            }
-                            else
-                            {
-                              yRes
-                                .FieldAndValue(DESCRIPTION, resource.Description);
-                              if (resource.IsIdAndNameSet)
-                              {
-                                yRes
-                                  .Field(ID, yy => yy.Quote(resource.ResourceTypeDefId))
-                                  .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
-                              }
-                              if (resource.ConditionKeyIds().Count() > 0)
-                              {
-                                yRes.DeclarationLine(
-                                  CONDITION_KEYS,
-                                  yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Quote(ck))
-                                );
-                              }
-                              if (resource.DependendActionIds().Count() > 0)
-                              {
-                                yRes.DeclarationLine(
-                                  DEPENDENT_ACTIONS,
-                                  yDep => yDep.List(resource.DependendActionIds(), (daId,yV)=>yV.Value(daId))
-                                );
-                              }
-                            }
-                          });
+                          if (resource.IsScenarioAndShouldBeCommented)
+                            WriteResourceTypeComment(yRes, resource);
+                          else
+                            yVal.ObjectListItem(
+                              RESOURCE_DEF,
+                              () => WriteResourceTypeProperties(yRes, resource)
+                            );
                         });
                       }
                     )
@@ -116,5 +93,55 @@ public static class ActionsYamlWriter
           });
         }
     );
+  }
+
+  private static void WriteResourceType(
+    IYamlHierarchy yRes,
+    ActionResourceType resource
+  )
+  {
+    if (resource.IsScenarioAndShouldBeCommented)
+      WriteResourceTypeComment(yRes, resource);
+    else
+    {
+      WriteResourceTypeProperties(yRes, resource);
+    }
+  }
+
+  private static void WriteResourceTypeProperties(
+    IYamlHierarchy yRes,
+    ActionResourceType resource
+  )
+  {
+    yRes
+      .FieldAndValue(DESCRIPTION, resource.Description);
+    if (resource.IsIdAndNameSet)
+    {
+      yRes
+        .Field(ID, yy => yy.Quote(resource.ResourceTypeDefId))
+        .FieldAndValue(RESOURCE_NAME, resource.ResourceTypeName);
+    }
+    if (resource.ConditionKeyIds().Count() > 0)
+    {
+      yRes.DeclarationLine(
+        CONDITION_KEYS,
+        yCK => yCK.List(resource.ConditionKeyIds(), (ck,yV) => yV.Quote(ck))
+      );
+    }
+    if (resource.DependendActionIds().Count() > 0)
+    {
+      yRes.DeclarationLine(
+        DEPENDENT_ACTIONS,
+        yDep => yDep.List(resource.DependendActionIds(), (daId,yV)=>yV.Value(daId))
+      );
+    }
+  }
+
+  private static void WriteResourceTypeComment(
+    IYamlHierarchy yRes,
+    ActionResourceType resource
+  )
+  {
+    yRes.Comment( resource.Description.Trim() );
   }
 }
