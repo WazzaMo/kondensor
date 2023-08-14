@@ -6,10 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+
 
 using Parser;
 using Actions;
 using YamlWriters;
+using System.Security.Cryptography;
 
 namespace YamlWriters;
 
@@ -63,49 +66,87 @@ public static class ActionsYamlWriter
             yy.List(headings, (hdg, y) => y.Value(hdg))
           )
         .DeclarationLine(ACTION_LIST, yActs => {
+
           yActs.List(actions, (act, yVal) => yVal.ObjectListItem(ACTION_DEF,()=> {
             yActs
               .FieldAndValue(ID, act.ActionId)
               .FieldAndValue(ACTION_NAME, act.Name)
               .FieldAndValue(API_URL, act.ApiLink)
               .DeclarationLine(RESOURCE_LIST, yRes => 
-                yRes.List(
-                  act.GetMappedAccessLevels(),
-                  (accessLevel,yAL) =>
-                    yAL.ObjectListItem(accessLevel.ToString(),() =>{
-                      yRes.List(
-                        act.GetResourceTypesForLevel(accessLevel),
-                        (resource, _)=> {
-                          if (resource.IsScenarioAndShouldBeCommented)
-                            WriteResourceTypeComment(yRes, resource);
-                          else
-                            yVal.ObjectListItem(
-                              RESOURCE_DEF,
-                              () => WriteResourceTypeProperties(yRes, resource)
-                            );
-                        });
-                      }
-                    )
-                )
+                WriteActionDeclarationLine(yRes, act)
               );
-            })
+            CommentSkippedResourceProps(yaml, act);
+
+            }) // List
           );
-          });
-        }
+        });
+      }
+    );
+
+  }
+
+  private static void WriteActionDeclarationLine(
+    IYamlHierarchy yRes,
+    ActionType act
+  )
+  {
+    var accessLevels = act.GetMappedAccessLevels();
+
+    yRes.List(
+      accessLevels,
+      (accessLevel,yVal) =>
+        yVal.ObjectListItem(accessLevel.ToString(),() =>{
+          yRes.List(
+            GetValidResourceTypesByAccessLevel(act, accessLevel),
+            (resource, _)=> {
+
+              yVal.ObjectListItem(
+                RESOURCE_DEF,
+                () => WriteResourceTypeProperties(yRes, resource)
+              );
+
+            });
+          }
+        )
     );
   }
 
-  private static void WriteResourceType(
-    IYamlHierarchy yRes,
-    ActionResourceType resource
+  private static void CommentSkippedResourceProps(
+    IYamlHierarchy yaml,
+    ActionType actionType
   )
   {
-    if (resource.IsScenarioAndShouldBeCommented)
-      WriteResourceTypeComment(yRes, resource);
-    else
-    {
-      WriteResourceTypeProperties(yRes, resource);
-    }
+    actionType.GetMappedAccessLevels().ForEach( (level, idx) => {
+      var resources = FilterScenarios(actionType.GetResourceTypesForLevel(level));
+
+      resources.ForEach( (resource, _) =>{
+        yaml.Comment(message: $"Action resources skipped for: {level}");
+        WriteResourceTypeComment(yaml, resource);
+      }); // resources
+    });
+  }
+
+  private static IEnumerable<ActionResourceType> GetValidResourceTypesByAccessLevel(
+    ActionType act,
+    ActionAccessLevel access
+  )
+    => FilterResourceDetailsForNonScenarioProperties(act.GetResourceTypesForLevel(access));
+
+  private static IEnumerable<ActionResourceType> FilterResourceDetailsForNonScenarioProperties(
+    IEnumerable<ActionResourceType> resourceTypes
+  )
+  {
+    var query = from resource in resourceTypes
+      where ! resource.IsScenarioAndShouldBeCommented
+      select resource;
+    return query;
+  }
+
+  private static IEnumerable<ActionResourceType> FilterScenarios(IEnumerable<ActionResourceType> resourceTypes)
+  {
+    var query = from resource in resourceTypes
+      where resource.IsScenarioAndShouldBeCommented select resource;
+    return query;
   }
 
   private static void WriteResourceTypeProperties(
@@ -142,6 +183,11 @@ public static class ActionsYamlWriter
     ActionResourceType resource
   )
   {
-    yRes.Comment( resource.Description.Trim() );
+    string[] parts = resource.Description.Split(SCENARIO_PARTITION);
+    string neededDescription = parts.Last().Trim();
+    string descriptionComment = $"  -> {neededDescription}";
+    yRes.Comment( descriptionComment );
   }
+
+  const char SCENARIO_PARTITION = '\n';
 }
