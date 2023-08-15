@@ -51,7 +51,7 @@ public static class PreprocessorUtils
     if (longText.Length > startIndex && search.Length > 0)
     {
       matchIndex = startIndex;
-      while(! result && matchIndex < longText.Length)
+      while( matchIndex > -1 && ! result && matchIndex < longText.Length)
       {
         var section = longText.Slice(matchIndex);
         result = IsContentEqual(section, search);
@@ -193,7 +193,41 @@ public static class PreprocessorUtils
     if (search.Length == 0 ) throw new ArgumentException("search too short");
   }
 
-  private static void Replace(Span<char> text, int sourceLen, Span<char> replacement, int cutIndex, int cutLength, Span<char> target, out int destLen)
+  private static void Remove(
+    Span<char> text,
+    int sourceLen,
+    int cutIndex,
+    int cutLength,
+    Span<char> target,
+    out int destLen
+  )
+  {
+    destLen = ComputeTargetLengthForSingleReplacement(
+      sourceLen, cutLength, replacementLen: 0
+    );
+    var source = text.Slice(0, sourceLen);
+    var destination = target.Slice(0, destLen);
+
+    var passThrough = source.Slice(0, cutIndex);
+    passThrough.CopyTo(destination);
+
+    var destReplacement = destination.Slice(cutIndex, replacement.Length);
+    replacement.CopyTo(destReplacement);
+
+    var destRemaining = destination.Slice(cutIndex + replacement.Length);
+    var sourceRemainingAfterCut = source.Slice(cutIndex + cutLength);
+    sourceRemainingAfterCut.CopyTo(destRemaining);
+  }
+
+  private static void Replace(
+    Span<char> text,
+    int sourceLen,
+    Span<char> replacement,
+    int cutIndex,
+    int cutLength,
+    Span<char> target,
+    out int destLen
+  )
   {
     destLen = ComputeTargetLengthForSingleReplacement(sourceLen, cutLength, replacement.Length);
     var source = text.Slice(0, sourceLen);
