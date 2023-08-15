@@ -85,6 +85,7 @@ public struct SpecDownloader
 
     IPreprocessor arnPreprocessor = new ArnSpecPreprocessor();
     IPreprocessor boldPreprocessor = new ActionBoldPreprocessor();
+    IPreprocessor spanPreprocessor = new ActionSpanPreprocessor();
 
     _Processor.Match(
       processor => {
@@ -95,6 +96,7 @@ public struct SpecDownloader
                 htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
                 htmlPipe.AddPreprocessor( arnPreprocessor );
                 htmlPipe.AddPreprocessor( boldPreprocessor );
+                htmlPipe.AddPreprocessor( spanPreprocessor );
                 thePipe = new ReplayWrapPipe(htmlPipe);
                 processor.ProcessAllLines(path, thePipe);
                 processor.WriteOutput(thePipe);

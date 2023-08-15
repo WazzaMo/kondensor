@@ -65,9 +65,9 @@ public static class ActionTableParser
   private static ParseAction ActionDeclarationNoRowspan(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TD, annotation: ActionAnnotations.START_CELL_ACTION_ANNOTATION)
+      .Expect(HtmlRules.START_TD, ActionAnnotations.START_CELL_ACTION_ANNOTATION)
         .Expect(ActionIdAndRefProd)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
+      .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
     return parser;
   }
@@ -75,19 +75,19 @@ public static class ActionTableParser
   private static ParseAction ActionDeclarationRowspan(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TD_ROWSPAN, annotation: ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION)
+      .Expect(HtmlRules.START_TD_ROWSPAN, ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION)
         .Expect(ActionIdAndRefProd)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_CELL_ACTION_ANNOTATION)
+      .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
     return parser;
   }
 
   private static ParseAction ActionIdAndRefProd(ParseAction parser)
     => parser
-        .Expect(HtmlRules.START_A_ID, annotation: ActionAnnotations.START_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_HREF, annotation: ActionAnnotations.START_HREF_ACTION_ANNOTATION)
-        .Expect(HtmlRules.END_A, annotation: ActionAnnotations.END_HREF_ACTION_ANNOTATION)
+        .Expect(HtmlRules.START_A_ID, ActionAnnotations.START_ID_ACTION_ANNOTATION)
+        .Expect(HtmlRules.END_A, ActionAnnotations.END_ID_ACTION_ANNOTATION)
+        .Expect(HtmlRules.START_A_HREF, ActionAnnotations.START_HREF_ACTION_ANNOTATION)
+        .Expect(HtmlRules.END_A, ActionAnnotations.END_HREF_ACTION_ANNOTATION)
         ;
 
   private static ParseAction ActionDescriptionOneRowProd(ParseAction parser)
