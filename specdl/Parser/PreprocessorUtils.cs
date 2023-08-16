@@ -186,6 +186,28 @@ public static class PreprocessorUtils
     return text.Length + numMatches * (replacement.Length - search.Length);
   }
 
+  public static Span<char> Remove(Span<char> text, Span<char> search)
+  {
+    int finalLength = ComputeTargetLengthForSingleReplacement(text.Length, search.Length, replacementLen:0);
+
+    int workingBufferLength = text.Length;
+    int targetLength = workingBufferLength;
+    int sourceLength = text.Length;
+
+    Span<char> source = new Span<char>( new char[workingBufferLength]);
+    Span<char> target = new Span<char>( new char[workingBufferLength]);
+    text.CopyTo(source);
+
+    int countReplacements = CountMatches(text, search);
+    for(int index = -1, count = 0; count < countReplacements && FindNextMatch(source, search, index + 1, out index); count++)
+    {
+      RemoveByCut(source, sourceLength, index, search.Length, target, out targetLength);
+      target.Slice(start: 0,targetLength).CopyTo(source);
+      sourceLength = targetLength;
+    }
+    return target.Slice(start: 0, length: targetLength);
+  }
+
   private static void AssertValidLengths(Span<char> text, Span<char> search, Span<char> replacement)
   {
     if (text.Length == 0) throw new ArgumentException("inText too short");
@@ -193,7 +215,7 @@ public static class PreprocessorUtils
     if (search.Length == 0 ) throw new ArgumentException("search too short");
   }
 
-  private static void Remove(
+  private static void RemoveByCut(
     Span<char> text,
     int sourceLen,
     int cutIndex,
@@ -202,20 +224,23 @@ public static class PreprocessorUtils
     out int destLen
   )
   {
+    // Calculate new length
     destLen = ComputeTargetLengthForSingleReplacement(
       sourceLen, cutLength, replacementLen: 0
     );
+
+    // prepare source and destinatin buffers
     var source = text.Slice(0, sourceLen);
     var destination = target.Slice(0, destLen);
 
+    // prepare pass through buffer for section before cut
     var passThrough = source.Slice(0, cutIndex);
     passThrough.CopyTo(destination);
 
-    var destReplacement = destination.Slice(cutIndex, replacement.Length);
-    replacement.CopyTo(destReplacement);
-
-    var destRemaining = destination.Slice(cutIndex + replacement.Length);
+    // prepare buffer for remainder in destination
+    var destRemaining = destination.Slice(cutIndex);
     var sourceRemainingAfterCut = source.Slice(cutIndex + cutLength);
+    // copy in remainder
     sourceRemainingAfterCut.CopyTo(destRemaining);
   }
 

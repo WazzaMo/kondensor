@@ -38,8 +38,8 @@ public struct ActionSpanPreprocessor : IPreprocessor
       Span<char> searchStart = new Span<char>(SEARCH_START);
       Span<char> searchEnd = new Span<char>(SEARCH_END);
 
-      var processedStart = PreprocessorUtils.ReplaceFull(text, searchStart, replace);
-      var processedEnd = PreprocessorUtils.ReplaceFull(processedStart, searchEnd, replace);
+      var processedStart = PreprocessorUtils.Remove(text, searchStart);
+      var processedEnd = PreprocessorUtils.Remove(processedStart, searchEnd);
       processedText = processedEnd.ToArray();
     }
     else
