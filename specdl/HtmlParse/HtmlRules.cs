@@ -52,6 +52,7 @@ public static class HtmlRules
     END_LI = Utils.SingularMatchRule(HtmlPatterns.END_LI, name: "end:li"),
     START_BOLD = Utils.SingularMatchRule(HtmlPatterns.BOLD_VALUE, name: "start:bold"),
     END_BOLD = Utils.SingularMatchRule(HtmlPatterns.END_BOLD, name: "end:bold"),
-    TEXT = Utils.SingularMatchRule(HtmlPatterns.TEXT, name: "text-data")
+    START_AWSUIICON = Utils.SingularMatchRule(HtmlPatterns.AWSUIICON, name: "start:awsui-icon"),
+    END_AWSUIICON = Utils.SingularMatchRule(HtmlPatterns.END_AWSUIICON, name: "end:awsui-icon")
     ;
 }

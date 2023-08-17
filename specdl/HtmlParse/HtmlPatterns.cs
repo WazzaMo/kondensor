@@ -22,7 +22,7 @@ public static class HtmlPatterns
     TD = new Regex(pattern: @"\<td\>"),
     TD_ROWSPAN_VALUE = new Regex(pattern: @"\<td rowspan=?\""(\d+)\""?\>([\w\s\(\*\)]*)"),
     TD_ATTRIB_VALUE = new Regex(pattern: @"\<td\s?(\w+)=?\""(\d+)\""?\>([\w\s\(\*\)]*)"),
-    TD_VALUE = new Regex(pattern: @"\<td\>([*\-,*\w\s\(\*\)]*)"),
+    TD_VALUE = new Regex(pattern: @"\<td\>([*\-,/*\w\s\(\*\)]*)"),
     END_TD = new Regex(pattern: @"\<\/td\>"),
     TR = new Regex(pattern: @"\<tr\>"),
     END_TR = new Regex(pattern: @"\<\/tr\>"),
@@ -46,7 +46,8 @@ public static class HtmlPatterns
     END_LI = new Regex(pattern: @"\<\/li\>"),
     BOLD_VALUE = new Regex(pattern: @"\<b\>([*:*\w\s\(\*\)]*)"),
     END_BOLD = new Regex(pattern: @"\<\/b\>"),
-    TEXT = new Regex(pattern: @"([*\-*\w\s]+)")
+    AWSUIICON = new Regex(pattern: @"\<awsui-icon .*\>"),
+    END_AWSUIICON = new Regex(pattern: @"\<\/awsui-icon\>")
     ;
 
   public const int

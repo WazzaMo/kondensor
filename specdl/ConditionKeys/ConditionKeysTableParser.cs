@@ -53,6 +53,8 @@ public static class ConditionKeysTableParser
           .Expect(HtmlRules.START_A_ID, ConditionAnnotations.S_AID)
           .Expect(HtmlRules.END_A, ConditionAnnotations.E_AID)
           .Expect(HtmlRules.START_A_HREF, ConditionAnnotations.S_AHREF)
+            .MayExpect(HtmlRules.START_AWSUIICON, ConditionAnnotations.S_AWSICON)
+            .MayExpect(HtmlRules.END_AWSUIICON, ConditionAnnotations.E_AWSICON)
           .Expect(HtmlRules.END_A, ConditionAnnotations.E_AHREF)
         .Expect(HtmlRules.END_TD, ConditionAnnotations.E_TD)
 

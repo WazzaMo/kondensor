@@ -87,6 +87,8 @@ public static class ActionTableParser
         .Expect(HtmlRules.START_A_ID, ActionAnnotations.START_ID_ACTION_ANNOTATION)
         .Expect(HtmlRules.END_A, ActionAnnotations.END_ID_ACTION_ANNOTATION)
         .Expect(HtmlRules.START_A_HREF, ActionAnnotations.START_HREF_ACTION_ANNOTATION)
+        .MayExpect(HtmlRules.START_AWSUIICON, ActionAnnotations.START_AWSICON)
+        .MayExpect(HtmlRules.END_AWSUIICON, ActionAnnotations.END_AWSICON)
         .Expect(HtmlRules.END_A, ActionAnnotations.END_HREF_ACTION_ANNOTATION)
         ;
 

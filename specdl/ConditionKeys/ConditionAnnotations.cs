@@ -31,6 +31,8 @@ public static class ConditionAnnotations
     S_TD_DESC = "start:td-desc:ck",
     E_TD_DESC = "end:td-desc:ck",
     S_TD_TYPE = "start:td-type:ck",
-    E_TD_TYPE = "end:td-type:ck"
+    E_TD_TYPE = "end:td-type:ck",
+    S_AWSICON = "start:awsui-icon:opt",
+    E_AWSICON = "end:awsui-icon:opt"
     ;
 }

@@ -28,9 +28,16 @@ public struct ActionSpanPreprocessor : IPreprocessor
   public bool IsMatch(char[] textToMatch)
     => MatchesStartAndEnd(textToMatch);
 
+  /// <summary>
+  /// Apply the preprocessor by searching and removing the offending
+  /// part of the token text.
+  /// </summary>
+  /// <param name="inputText">Input token text</param>
+  /// <param name="processedText">Output processed text</param>
+  /// <returns>True if updated.</returns>
   public bool ProcessText(char[] inputText, out char[] processedText)
   {
-    bool result = false;
+    bool isTextUpdated = false;
     if (MatchesStartAndEnd(inputText))
     {
       Span<char> replace = new Span<char>(REPLACE);
@@ -41,12 +48,13 @@ public struct ActionSpanPreprocessor : IPreprocessor
       var processedStart = PreprocessorUtils.Remove(text, searchStart);
       var processedEnd = PreprocessorUtils.Remove(processedStart, searchEnd);
       processedText = processedEnd.ToArray();
+      isTextUpdated = true;
     }
     else
     {
       processedText = new char[0];
     }
-    return result;
+    return isTextUpdated;
   }
 
   private bool MatchesStartAndEnd(char[] textToMatch)

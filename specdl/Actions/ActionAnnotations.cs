@@ -63,7 +63,9 @@ public static class ActionAnnotations
     START_PARA = "start:p",
     END_PARA = "end:p",
     START_PARA_DEPENDENT = "p:dependentaction",
-    START_NEWDECL_PARA = "start:p:value:declaration"
+    START_NEWDECL_PARA = "start:p:value:declaration",
+    START_AWSICON = "start:awsicon:optional",
+    END_AWSICON = "start:awsicon:optional"
     ;
 
 }
