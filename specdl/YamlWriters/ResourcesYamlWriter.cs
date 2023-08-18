@@ -45,7 +45,9 @@ public static class ResourcesYamlWriter
             yaml
               .Field(ID, yVal => yVal.Quote(resrc.Id) )
               .Field(NAME, yVal => yVal.Value(resrc.Name))
-              .Field(LINK, yVal => yVal.Url(resrc.ApiLink));
+              .Field(LINK, yVal => yVal.Url(resrc.ApiLink))
+              .Field( ARN, yVal => yVal.Value(resrc.Arn))
+              ;
             resrc.ConditionKey.MatchSome(rCondKey => {
               yaml.DeclarationLine( CONDITION_KEYS, _ => {
                 yaml
