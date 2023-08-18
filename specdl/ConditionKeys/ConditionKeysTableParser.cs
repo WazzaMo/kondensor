@@ -15,13 +15,21 @@ public static class ConditionKeysTableParser
   {
     parser
       .SkipUntil(HtmlRules.START_TABLE)
-      .Expect(HtmlRules.START_TABLE, ConditionAnnotations.S_TABLE_CK)
+      // Allow condition keys table to be optional
+      .MayExpect(HtmlRules.START_TABLE, ConditionAnnotations.S_TABLE_CK)
+      .IfThenProduction(
+        node => node.Annotation == ConditionAnnotations.S_TABLE_CK,
+        ParseConditionKeysTable
+      );
+    return parser;
+  }
+
+  internal static ParseAction ParseConditionKeysTable(ParseAction parser)
+    => parser
       .Expect(HeadingsProd)
       .ExpectProductionUntil(ConditionKeyDefProd,
         HtmlRules.END_TABLE, ConditionAnnotations.E_TABLE_CK)
       ;
-    return parser;
-  }
 
   internal static ParseAction HeadingsProd(ParseAction parser)
   {
