@@ -109,8 +109,9 @@ public static class HtmlPartsUtils
   public static string GetAHrefTagValue(Option<LinkedList<string>> Parts)
   {
     string tagValue = EMPTY_STRING;
-    Parts.MatchSome(list => tagValue = list.Last() );
-    // list.ElementAt(HtmlPatterns.A_HREF_TAG_VALUE_IDX));
+    Parts.MatchSome(
+      list => tagValue = list.Count > 0 ? list.Last() : EMPTY_STRING
+    );
     return tagValue;
   }
 

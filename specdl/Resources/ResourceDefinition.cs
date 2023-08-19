@@ -5,6 +5,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 
 using Optional;
 
@@ -20,7 +21,7 @@ public struct ResourceDefinition
     internal string _ApiDocLink = EMPTY_STRING;
     internal string _Name = EMPTY_STRING;
     internal string _Arn = EMPTY_STRING;
-    internal Option<ResourceConditionKey> _ConditionKey = Option.None<ResourceConditionKey>();
+    internal List<ResourceConditionKey> _ConditionKey = new List<ResourceConditionKey>();
   }
 
   private InternalData _Definition;
@@ -55,8 +56,10 @@ public struct ResourceDefinition
     set => _Definition._Arn = value;
   }
 
-  public Option<ResourceConditionKey> ConditionKey {
+  public List<ResourceConditionKey> ConditionKey {
     get => _Definition._ConditionKey;
-    set => _Definition._ConditionKey = value;
   }
+
+  public void AddConditionKey(ResourceConditionKey key)
+    => _Definition._ConditionKey.Add(key);
 }

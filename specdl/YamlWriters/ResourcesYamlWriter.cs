@@ -24,7 +24,7 @@ public static class ResourcesYamlWriter
     LINK = "Link",
     NAME = "Name",
     ARN = "ArnSpec",
-    CONDITION_KEYS = "ConditionKey",
+    CONDITION_KEY = "ConditionKey",
     CK_TEMPLATE = "Template"
     ;
   public static void WriteTable(
@@ -47,17 +47,25 @@ public static class ResourcesYamlWriter
               .Field(NAME, yVal => yVal.Value(resrc.Name))
               .Field(LINK, yVal => yVal.Url(resrc.ApiLink))
               .Field( ARN, yVal => yVal.Value(resrc.Arn))
+              .List(resrc.ConditionKey, (ck, val) => WriteCondKey(ck, yaml, val))
               ;
-            resrc.ConditionKey.MatchSome(rCondKey => {
-              yaml.DeclarationLine( CONDITION_KEYS, _ => {
-                yaml
-                  .Field(ID, yVal => yVal.Quote( rCondKey.Id ) )
-                  .Field(CK_TEMPLATE, yVal => yVal.Quote( rCondKey.Template));
-              });
-            });
           });
         });
       });
+    });
+  }
+
+  private static void WriteCondKey(
+    ResourceConditionKey conditionKey,
+    IYamlHierarchy yaml,
+    IYamlValues yVal
+  )
+  {
+    yVal.ObjectListItem(CONDITION_KEY, () => {
+      yaml
+        .Field(ID, yVal => yVal.Quote( conditionKey.Id ) )
+        .Field(CK_TEMPLATE, yVal => yVal.Quote( conditionKey.Template))
+        ;
     });
   }
 

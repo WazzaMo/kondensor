@@ -57,11 +57,16 @@ public static class ResourceTableDefinitionParser
   private static ParseAction ConditionKeysProd(ParseAction parser)
     => parser
         .Expect(HtmlRules.START_TD, ResourceAnnotations.S_DATA_ROW_CK)
-          .MayExpect(HtmlRules.START_PARA,ResourceAnnotations.S_P_CONDKEY)
-            .MayExpect(HtmlRules.START_A_HREF,ResourceAnnotations.S_A_CONDKEY_HREF)
-            .MayExpect(HtmlRules.END_A, ResourceAnnotations.E_A_CONDKEY_HREF)
-          .MayExpect(HtmlRules.END_PARA, ResourceAnnotations.E_P_CONDKEY)
+          .ProductionWhileMatch( CkParagraphProd )
         .Expect(HtmlRules.END_TD, ResourceAnnotations.E_DATA_ROW_CK)
+        ;
+
+  private static ParseAction CkParagraphProd(ParseAction parser)
+    => parser
+        .Expect(HtmlRules.START_PARA,ResourceAnnotations.S_P_CONDKEY)
+          .Expect(HtmlRules.START_A_HREF,ResourceAnnotations.S_A_CONDKEY_HREF)
+          .Expect(HtmlRules.END_A, ResourceAnnotations.E_A_CONDKEY_HREF)
+        .Expect(HtmlRules.END_PARA, ResourceAnnotations.E_P_CONDKEY)
         ;
 
   private static ParseAction CodeTextAndSpans(ParseAction parser)

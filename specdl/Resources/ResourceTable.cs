@@ -122,7 +122,7 @@ public struct ResourceTable
 
             resource.Arn = HtmlPartsUtils.GetCodeTagValue(code.Parts);
 
-            if (ResourceCollection.IsCondKeyHref(matchEnum.Current))
+            while (ResourceCollection.IsCondKeyHref(matchEnum.Current))
             {
               var ckNode = matchEnum.Current;
               matchEnum.MoveNext();
@@ -131,7 +131,7 @@ public struct ResourceTable
 
               conditionKey.Id = HtmlPartsUtils.GetAHrefAttribValue(ckNode.Parts);
               conditionKey.Template = HtmlPartsUtils.GetAHrefTagValue(ckNode.Parts);
-              resource.ConditionKey = Option.Some( conditionKey );
+              resource.AddConditionKey( conditionKey );
             }
           }
         }
