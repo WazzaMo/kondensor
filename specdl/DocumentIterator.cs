@@ -16,11 +16,15 @@ public ref struct DocumentIterator
 
   private RootDocProcessor _RootProcessor;
   private SpecFileManager _SpecManager;
+  private int _CountErrors;
+  private int _CountSuccess;
 
   public DocumentIterator()
   {
     _RootProcessor = new RootDocProcessor();
     _SpecManager = new SpecFileManager();
+    _CountErrors = 0;
+    _CountSuccess = 0;
   }
 
   public void LoadDocList()
@@ -41,10 +45,14 @@ public ref struct DocumentIterator
     while(iterator.MoveNext())
     {
       doc = iterator.Current;
-      Console.WriteLine($"Writing: {doc.Title} => {doc.Path}");
+      // Console.WriteLine($"Writing: {doc.Title} => {doc.Path}");
       ReadAndGenerateSpec(doc);
     }
   }
+
+  public int NumSuccesses => _CountSuccess;
+  public int NumErrors => _CountErrors;
+  public int TotalFiles => _CountErrors + _CountSuccess;
 
   private void ReadAndGenerateSpec(SubDoc doc)
   {
@@ -60,8 +68,29 @@ public ref struct DocumentIterator
     downloader.DownloadSource( SourceOf(doc.Path) );
     downloader.Process( DOMAIN + '/' + SourceOf(doc.Path));
     fileWriter.Close();
+    ReportStats(doc, docProcessor.GetStats());
   }
 
   private string SourceOf(string doc)
     => REL_PATH + doc;
+  
+  private void ReportStats(SubDoc doc, DocStats stats)
+  {
+    if (stats.IsParsedOk)
+    {
+      _CountSuccess++;
+      Console.Out.WriteLine(value: $"{doc.Path}: OK");
+    }
+    else
+    {
+      _CountErrors++;
+      string errors = $"Action Table [{stats.ActionTableErrors}]  "
+        + $"Resource Table [{stats.ResourceTableErrors}]  "
+        + $"Condition Key Table [{stats.ConditionKeyTableErrors}]";
+      
+      Console.Error.WriteLine(
+        value: doc.Path + ": " + errors
+      );
+    }
+  }
 }

@@ -15,5 +15,5 @@ using System;
 //   PROBLEM_PAGE = "list_awselasticbeanstalk.html";
 // PageProcessingControl.ProcessSpecificPage(PROBLEM_PAGE, Console.Out);
 
-PageProcessingControl.IterateThroughAllPagesAvailable();
+return PageProcessingControl.IterateThroughAllPagesAvailable();
 

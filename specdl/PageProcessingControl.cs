@@ -33,12 +33,21 @@ public static class PageProcessingControl
   }
 
   /// <summary>
-  /// 
+  /// Process all the pages available to create specification files
+  /// and return the appropriate status code.
   /// </summary>
-  public static void IterateThroughAllPagesAvailable()
+  public static int IterateThroughAllPagesAvailable()
   {
     DocumentIterator _DocIterator = new DocumentIterator();
     _DocIterator.LoadDocList();
     _DocIterator.IterateDocs();
+
+    Console.Out.WriteLine(value: $"Number files processed: {_DocIterator.TotalFiles}");
+
+    int returnCode = _DocIterator.NumErrors > 0
+      ? -1
+      : 0;
+    
+    return returnCode;
   }
 }

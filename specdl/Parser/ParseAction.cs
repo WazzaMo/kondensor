@@ -22,6 +22,7 @@ public struct ParseAction
     get => __CountMatched[0];
     set => __CountMatched[0] = value;
   }
+
   private int _RollbackPoint {
     get => __RollbackPoint[0];
     set => __RollbackPoint[0] = value;
@@ -34,6 +35,13 @@ public struct ParseAction
     __RollbackPoint = new int[1]{pipe.GetCheckPoint()};
     _MatchHistory = new LinkedList<Matching>();
   }
+
+  /// <summary>
+  ///   Number of mismatches during parsing, -ve means match history was lost;
+  ///   +ve means history includes that many mismatches; 0 means all matched.
+  /// </summary>
+  public int NumberOfMismatches
+    => _MatchHistory.Count - _CountMatched;
 
   /// <summary>
   /// Indicates if all tokens in the history were matched by rules.

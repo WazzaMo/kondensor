@@ -40,12 +40,14 @@ public struct DocProcessor : IProcessor
   private ActionTable _Actions;
   private ResourceTable _Resources;
   private ConditionKeysTable _ConditionKeys;
+  private DocStats _Stats;
 
   public DocProcessor()
   {
     _Actions = new ActionTable();
     _Resources = new ResourceTable();
     _ConditionKeys = new ConditionKeysTable();
+    _Stats = new DocStats();
   }
 
   public void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe)
@@ -53,9 +55,14 @@ public struct DocProcessor : IProcessor
     _Actions.SetSourceUrl(sourceUrl);
     var parser = Parsing.Group(pipe)
       .Expect( _Actions.ActionsTable )
+      ;
+      _Stats.ActionStats(parser)
       .Expect(_Resources.ResourcesTable)
+      ;
+      _Stats.ResourceStats(parser)
       .Expect(_ConditionKeys.ParseConditionKeysTable)
       ;
+      _Stats.ConditionKeyStats(parser);
   }
 
   public void WriteOutput(ReplayWrapPipe pipe)
@@ -72,5 +79,7 @@ public struct DocProcessor : IProcessor
       _resources(formatter);
       _conditionKeys(formatter);
     });
-  }  
+  }
+
+  public DocStats GetStats() => _Stats;
 }
