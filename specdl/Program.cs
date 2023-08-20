@@ -21,7 +21,7 @@ using System;
 // https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonsessionmanagermessagegatewayservice.html
 
 const string
-  PROBLEM_PAGE = "list_amazonapigateway.html";
+  PROBLEM_PAGE = "list_awsapplicationdiscoveryservice.html";
 PageProcessingControl.ProcessSpecificPage(PROBLEM_PAGE, Console.Out);
 
 // return PageProcessingControl.IterateThroughAllPagesAvailable();

@@ -9,21 +9,37 @@ using System.Collections.Generic;
 
 using Parser;
 using HtmlParse;
+using System.Web;
 
 namespace Resources;
 
 public static class ResourceTableParser
 {
+  const string FIRST_RESOURCE_TABLE_HEADING = "Resource types";
+
   public static ParseAction ResourceTable(ParseAction parser)
   {
     parser
       .SkipUntil(HtmlRules.START_TABLE)
       .MayExpect(HtmlRules.START_TABLE, annotation:ResourceAnnotations.S_RESOURCE_TABLE)
       .IfThenProduction(
-        node => node.Annotation == ResourceAnnotations.S_RESOURCE_TABLE,
+        // node => node.Annotation == ResourceAnnotations.S_RESOURCE_TABLE,
+        IsResourceHeading,
         ParseTable
       );
     return parser;
+  }
+
+  private static bool IsResourceHeading(Matching node)
+  {
+    bool isOk = false;
+    if (node.Annotation == ResourceAnnotations.S_RESOURCE_TH)
+    {
+      string heading = String.Empty;
+      HtmlPartsUtils.GetThTagValue(node.Parts);
+      isOk = heading == FIRST_RESOURCE_TABLE_HEADING;
+    }
+    return isOk;
   }
 
   private static ParseAction ParseTable(ParseAction parser)

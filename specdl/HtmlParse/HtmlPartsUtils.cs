@@ -35,7 +35,11 @@ public static class HtmlPartsUtils
   public static string GetThTagValue(Option<LinkedList<string>> Parts)
   {
     string tagValue = EMPTY_STRING;
-    Parts.MatchSome(list => tagValue = list.ElementAt(HtmlPatterns.TH_VALUE_INDEX_IDX));
+    Parts.MatchSome(
+      list => tagValue = list.Count > 0
+        ? list.ElementAt(HtmlPatterns.TH_VALUE_INDEX_IDX)
+        : EMPTY_STRING
+    );
     return tagValue;
   }
 
