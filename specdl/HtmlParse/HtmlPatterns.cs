@@ -30,6 +30,7 @@ public static class HtmlPatterns
     A_HREF = new Regex(pattern: @"\<a href=""([*:\-_./#*\w\s]+)""\>(.*)"),
     A_HREF_LONG = new Regex(pattern: @"\<a href=""([*:\-_./#${}*\w\s]+)"" (.*)\>(.*)"),
     END_A = new Regex(pattern: @"\<\/a\>"),
+    END_A_VALUE = new Regex(pattern: @"\<\/a\>\S*([*\-,/*\w\s\(\*\)]*)"),
     PARA = new Regex(pattern: @"\<p\>"),
     PARA_VALUE = new Regex(pattern: @"\<p\>([*:\-!*\w\s\(\*\)]+)"),
     END_PARA = new Regex(pattern: @"\<\/p\>"),

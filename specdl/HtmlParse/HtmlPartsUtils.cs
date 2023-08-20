@@ -106,6 +106,18 @@ public static class HtmlPartsUtils
     return attribValue;
   }
 
+  public static string GetAEndValue(Matching node)
+  {
+    string value = EMPTY_STRING;
+    if (node.MatchResult == MatchKind.SingularMatch)
+    {
+      node.Parts.MatchSome( text => 
+        value = text.Count > 0 ? text.Last().Trim() : EMPTY_STRING
+      );
+    }
+    return value;
+  }
+
   public static string GetAHrefTagValue(Option<LinkedList<string>> Parts)
   {
     string tagValue = EMPTY_STRING;

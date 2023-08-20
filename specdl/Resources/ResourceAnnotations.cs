@@ -39,5 +39,6 @@ internal static class ResourceAnnotations
     S_A_CONDKEY_HREF = "start:a-href:condkey",
     E_A_CONDKEY_HREF = "end:a-href:condkey",
     S_AWSICON = "start:awsui-icon:skip",
-    E_AWSICON = "end:awsui-icon:skip";
+    E_AWSICON = "end:awsui-icon:skip",
+    E_A_ID_TEXT = "end:a:name-text";
 }

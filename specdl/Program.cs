@@ -9,11 +9,20 @@
 using System;
 
 
-// 'https://docs.aws.amazon.com/service-authorization/latest/reference/./list_awselasticbeanstalk.html'
+// 'https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonapigateway.html'
 
-// const string
-//   PROBLEM_PAGE = "list_awselasticbeanstalk.html";
-// PageProcessingControl.ProcessSpecificPage(PROBLEM_PAGE, Console.Out);
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_awsapplicationdiscoveryservice.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazoncloudwatchapplicationinsights.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazoncomprehendmedical.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_awscomputeoptimizer.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_awsmarketplace.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonmessagedeliveryservice.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_awsopsworksconfigurationmanagement.html
+// https://docs.aws.amazon.com/service-authorization/latest/reference/list_amazonsessionmanagermessagegatewayservice.html
 
-return PageProcessingControl.IterateThroughAllPagesAvailable();
+const string
+  PROBLEM_PAGE = "list_amazonapigateway.html";
+PageProcessingControl.ProcessSpecificPage(PROBLEM_PAGE, Console.Out);
+
+// return PageProcessingControl.IterateThroughAllPagesAvailable();
 

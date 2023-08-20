@@ -46,10 +46,14 @@ public struct ResourceDefinition
     set => _Definition._ApiDocLink = value;
   }
 
+  public bool HasApiLink => _Definition._ApiDocLink != EMPTY_STRING;
+
   public string Name {
     get => _Definition._Name;
     set => _Definition._Name = value;
   }
+
+  public bool HasName => _Definition._Name != EMPTY_STRING;
 
   public string Arn {
     get => _Definition._Arn;

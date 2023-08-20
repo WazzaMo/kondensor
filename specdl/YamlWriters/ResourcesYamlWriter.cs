@@ -43,9 +43,14 @@ public static class ResourcesYamlWriter
         yaml.List(resources, (resrc, yVal) => {
           yVal.ObjectListItem(RES_ITEM, () => {
             yaml
-              .Field(ID, yVal => yVal.Quote(resrc.Id) )
-              .Field(NAME, yVal => yVal.Value(resrc.Name))
-              .Field(LINK, yVal => yVal.Url(resrc.ApiLink))
+              .Field(ID, yVal => yVal.Quote(resrc.Id) );
+              
+            if (resrc.HasName)
+              yaml.Field(NAME, yVal => yVal.Value(resrc.Name));
+            if (resrc.HasApiLink)
+              yaml.Field(LINK, yVal => yVal.Url(resrc.ApiLink));
+            
+            yaml
               .Field( ARN, yVal => yVal.Value(resrc.Arn))
               .List(resrc.ConditionKey, (ck, val) => WriteCondKey(ck, yaml, val))
               ;

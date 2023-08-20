@@ -37,13 +37,29 @@ public static class ResourceTableDefinitionParser
   private static ParseAction IdAndRefProd(ParseAction parser)
     => parser
         .Expect(HtmlRules.START_TD, ResourceAnnotations.S_DATA_ROW_TYPE)
-          .Expect(HtmlRules.START_A_ID, ResourceAnnotations.S_A_ID)
-          .Expect(HtmlRules.END_A, ResourceAnnotations.E_A_ID)
-          .Expect(HtmlRules.START_A_HREF, ResourceAnnotations.S_A_HREF_NAME)
-            .Expect(SkipAwsIcon)
-          .Expect(HtmlRules.END_A, ResourceAnnotations.E_A_HREF_NAME)
+          .EitherProduction(IdWithNameProd, IdProd )
+          .Expect( OptHrefNameDocLinkProd )
         .Expect(HtmlRules.END_TD, ResourceAnnotations.E_DATA_ROW_TYPE)
       ;
+  
+  private static ParseAction IdProd(ParseAction parser)
+    => parser
+        .Expect(HtmlRules.START_A_ID, ResourceAnnotations.S_A_ID)
+        .Expect(HtmlRules.END_A, ResourceAnnotations.E_A_ID)
+        ;
+
+  private static ParseAction IdWithNameProd(ParseAction parser)
+    => parser
+        .Expect(HtmlRules.START_A_ID, ResourceAnnotations.S_A_ID)
+        .Expect(HtmlRules.END_A_WITH_TEXT, ResourceAnnotations.E_A_ID_TEXT)
+        ;
+
+  private static ParseAction OptHrefNameDocLinkProd(ParseAction parser)
+    => parser
+        .MayExpect(HtmlRules.START_A_HREF, ResourceAnnotations.S_A_HREF_NAME)
+          .Expect(SkipAwsIcon)
+        .MayExpect(HtmlRules.END_A, ResourceAnnotations.E_A_HREF_NAME)
+        ;
 
   private static ParseAction ResourceTemplateProd(ParseAction parser)
     => parser

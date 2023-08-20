@@ -36,6 +36,7 @@ public static class HtmlRules
       name: "start:a-href"
     ),
     END_A = Utils.SingularMatchRule(HtmlPatterns.END_A, name: "end:a"),
+    END_A_WITH_TEXT = Utils.SingularMatchRule(HtmlPatterns.END_A_VALUE, name: "end:a:text"),
     START_PARA = Utils.SingularMatchRule(HtmlPatterns.PARA,name: "start:p"),
     START_PARA_VALUE = Utils.SingularMatchRule(HtmlPatterns.PARA_VALUE, name: "start:p-value"),
     END_PARA = Utils.SingularMatchRule(HtmlPatterns.END_PARA, name: "end:p"),
@@ -53,6 +54,7 @@ public static class HtmlRules
     START_BOLD = Utils.SingularMatchRule(HtmlPatterns.BOLD_VALUE, name: "start:bold"),
     END_BOLD = Utils.SingularMatchRule(HtmlPatterns.END_BOLD, name: "end:bold"),
     START_AWSUIICON = Utils.SingularMatchRule(HtmlPatterns.AWSUIICON, name: "start:awsui-icon"),
-    END_AWSUIICON = Utils.SingularMatchRule(HtmlPatterns.END_AWSUIICON, name: "end:awsui-icon")
+    END_AWSUIICON = Utils.SingularMatchRule(HtmlPatterns.END_AWSUIICON, name: "end:awsui-icon"),
+    NAME_TEXT = Utils.SingularMatchRule(HtmlPatterns.CODE_TEXT, name: "text:name")
     ;
 }

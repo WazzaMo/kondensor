@@ -107,34 +107,42 @@ public struct ResourceTable
         resource = new ResourceDefinition();
         resource.Id = HtmlPartsUtils.GetAIdAttribValue(id.Parts);
 
-        if (ResourceCollection.IsResHref(matchEnum.Current))
+        if (ResourceCollection.IsResHref(matchEnum.Current)) // optional
         {
           var href = matchEnum.Current;
           matchEnum.MoveNext();
 
           resource.ApiLink = HtmlPartsUtils.GetAHrefAttribValue(href.Parts);
           resource.Name = HtmlPartsUtils.GetAHrefTagValue(href.Parts);
+        }
 
-          if (ResourceCollection.IsResCode(matchEnum.Current))
+        if (ResourceCollection.IsNameText( matchEnum.Current ))
+        {
+          var name = matchEnum.Current;
+          matchEnum.MoveNext();
+          resource.Name = HtmlPartsUtils.GetAEndValue(name);
+        }
+
+        if (ResourceCollection.IsResCode(matchEnum.Current))
+        {
+          var code = matchEnum.Current;
+          matchEnum.MoveNext();
+
+          resource.Arn = HtmlPartsUtils.GetCodeTagValue(code.Parts);
+
+          while (ResourceCollection.IsCondKeyHref(matchEnum.Current))
           {
-            var code = matchEnum.Current;
+            var ckNode = matchEnum.Current;
             matchEnum.MoveNext();
 
-            resource.Arn = HtmlPartsUtils.GetCodeTagValue(code.Parts);
+            ResourceConditionKey conditionKey = new ResourceConditionKey();
 
-            while (ResourceCollection.IsCondKeyHref(matchEnum.Current))
-            {
-              var ckNode = matchEnum.Current;
-              matchEnum.MoveNext();
-
-              ResourceConditionKey conditionKey = new ResourceConditionKey();
-
-              conditionKey.Id = HtmlPartsUtils.GetAHrefAttribValue(ckNode.Parts);
-              conditionKey.Template = HtmlPartsUtils.GetAHrefTagValue(ckNode.Parts);
-              resource.AddConditionKey( conditionKey );
-            }
+            conditionKey.Id = HtmlPartsUtils.GetAHrefAttribValue(ckNode.Parts);
+            conditionKey.Template = HtmlPartsUtils.GetAHrefTagValue(ckNode.Parts);
+            resource.AddConditionKey( conditionKey );
           }
         }
+
         _Data._Resources.Add(resource);
       }
       // Should be resource end row at this point to be skipped in next cycle.
