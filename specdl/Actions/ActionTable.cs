@@ -85,13 +85,13 @@ public struct ActionTable
   {
     parser
       .SkipUntil(HtmlRules.START_TABLE)
-      .Expect(HtmlRules.START_TABLE, annotation: ActionAnnotations.START_ACTION_TABLE_ANNOTATION)
-        .Expect(production: ActionsHeader)
-        .Expect(TableData);
+      .Expect(ActionTableParser.ActionTableStart)
+      ;
       
       if (parser.IsAllMatched)
       {
         _Data.SignalReadyToWrite();
+        parser.AllMatchThen( CollectParsedData );
       }
       else
       {
@@ -113,37 +113,6 @@ public struct ActionTable
   {
     ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, formatter);
   }
-
-  private ParseAction ActionsHeader(ParseAction parser)
-  {
-    var headingList = _Data._HeadingNames;
-
-    parser
-      .Expect(HtmlRules.START_THEAD, annotation: ActionAnnotations.START_ACTION_THEAD_ANNOTATION)
-        .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_HEADER_TR_ANNOTATION)
-          .ExpectProductionUntil(Heading,
-        endRule: HtmlRules.END_TR, endAnnodation: ActionAnnotations.END_HEADER_TR_ANNOTATION)
-      .Expect(HtmlRules.END_THEAD, annotation: ActionAnnotations.END_ACTION_THEAD_ANNOTATION)
-      .AllMatchThen( (list, writer) => {
-        var query = from node in list
-          where node.HasAnnotation && node.Annotation == ActionAnnotations.START_HEADING_ANNOTATION
-          && node.Parts.HasValue
-          select node;
-        query.ForEach( (node, idx) => {
-          headingList.Add( HtmlPartsUtils.GetThTagValue(node.Parts));
-        });
-      });
-    return parser;
-  }
-
-  private ParseAction Heading(ParseAction parser)
-    => parser
-      .Expect(HtmlRules.START_TH_VALUE, annotation: ActionAnnotations.START_HEADING_ANNOTATION)
-      .Expect(HtmlRules.END_TH, annotation: ActionAnnotations.END_HEADING_ANNOTATION);
-
-  private ParseAction TableData(ParseAction parser)
-    => parser
-      .ExpectProductionUntil(RowData, HtmlRules.END_TABLE, ActionAnnotations.END_ACTION_TABLE_ANNOTATION);
 
   private ParseAction RowData(ParseAction parser)
   {
@@ -167,6 +136,26 @@ public struct ActionTable
       });
 
     return parser;
+  }
+
+  private void CollectParsedData(LinkedList<Matching> list, IPipeWriter _)
+  {
+    CollectHeadings(list);
+    CollectActionDeclarations(list);
+  }
+
+  private void CollectHeadings(LinkedList<Matching> list)
+  {
+    var headingList = _Data._HeadingNames;
+
+    var query = from node in list
+      where node.HasAnnotation && node.Annotation == ActionAnnotations.START_HEADING_ANNOTATION
+      && node.Parts.HasValue
+      select node;
+
+    query.ForEach( (node, idx) => {
+      headingList.Add( HtmlPartsUtils.GetThTagValue(node.Parts));
+    });
   }
 
   private void CollectActionDeclarations(LinkedList<Matching> list)

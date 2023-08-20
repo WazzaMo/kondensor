@@ -26,6 +26,8 @@ public static class ActionAnnotations
     START_HEADER_TR_ANNOTATION = "start:tr:header",
     END_HEADER_TR_ANNOTATION = "end:tr:header",
 
+    START_TH_ACTIONS = "start:th:actions",
+
     START_HEADING_ANNOTATION = "start:th:heading",
     END_HEADING_ANNOTATION = "end:th:heading",
     START_ROW_ANNOTATION = "start:tr:row",
