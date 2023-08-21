@@ -46,6 +46,8 @@ public struct ConditionKeysTable
     return parser;
   }
 
+  public bool IsReadyToWrite => _Data.IsParsedSuccessfully;
+
   public void WriteTable(YamlFormatter formatter)
   {
     const string

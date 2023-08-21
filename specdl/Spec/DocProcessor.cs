@@ -37,6 +37,11 @@ namespace Spec;
 /// </summary>
 public struct DocProcessor : IProcessor
 {
+  const string
+    ACTIONS = "start:table:actions",
+    RESOURCES = "start:table:resources",
+    CONDKEYS = "start:table:conditionkeys";
+
   private ActionTable _Actions;
   private ResourceTable _Resources;
   private ConditionKeysTable _ConditionKeys;
@@ -52,16 +57,37 @@ public struct DocProcessor : IProcessor
 
   public void ProcessAllLines(string sourceUrl, ReplayWrapPipe pipe)
   {
+    Production resourcesProd = _Resources.ResourcesTable;
+    Production conditionKeysProd = _ConditionKeys.ParseConditionKeysTable;
+
     _Actions.SetSourceUrl(sourceUrl);
     var parser = Parsing.Group(pipe)
+      .SkipUntil( HtmlRules.START_TABLE)
+      .MayExpect(HtmlRules.START_TABLE, ACTIONS)
       .Expect( _Actions.ActionsTable )
       ;
-      _Stats.ActionStats(parser)
-      .Expect(_Resources.ResourcesTable)
-      ;
-      _Stats.ResourceStats(parser)
-      .Expect(_ConditionKeys.ParseConditionKeysTable)
-      ;
+      
+    if (_Actions.IsReadyToWrite)
+      _Stats.ActionStats(parser);
+
+    parser
+      .SkipUntil(HtmlRules.START_TABLE)
+      .MayExpect( HtmlRules.START_TABLE, RESOURCES)
+      .If( node => node.Annotation == RESOURCES, 
+        (p, _) => p.EitherProduction(resourcesProd, conditionKeysProd)
+      );
+
+    if (_Resources.IsReadyToWrite)
+      _Stats.ResourceStats(parser);
+
+    parser
+      .SkipUntil(HtmlRules.START_TABLE)
+      .MayExpect( HtmlRules.START_TABLE, CONDKEYS)
+      .If( node => node.Annotation == CONDKEYS, 
+        (p, _) => p.EitherProduction(resourcesProd, conditionKeysProd)
+      );
+    
+    if(_ConditionKeys.IsReadyToWrite)
       _Stats.ConditionKeyStats(parser);
   }
 

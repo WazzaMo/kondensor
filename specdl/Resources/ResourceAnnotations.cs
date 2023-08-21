@@ -15,6 +15,7 @@ internal static class ResourceAnnotations
     E_RESOURCE_THEAD = "end:thead:resource",
     S_RESOURCE_TR_HEADING = "start:tr:resource-heading",
     E_RESOURCE_TR_HEADING = "end:tr:resource-heading",
+    S_RESOURCE_RESOURCES_TH = "start:th:resources-heading",
     S_RESOURCE_TH = "start:th:resource",
     E_RESOURCE_TH = "end:th:resource",
     S_RESOURCE_TR = "start:tr:resource",

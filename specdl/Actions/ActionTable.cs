@@ -30,7 +30,6 @@ public struct ActionTable
     public List<ActionType> _Actions;
     public Option<ActionAccessLevel> _CurrentAccessLevel;
 
-    public bool IsReadyToWrite => _CanBeWritten;
     public void SignalReadyToWrite() => _CanBeWritten = true;
     public bool HaveSavedDescription()
       => ! String.IsNullOrEmpty(_SavedDescription);
@@ -47,6 +46,8 @@ public struct ActionTable
         return _action;
       }
     }
+
+    public bool IsReadyToWrite => _CanBeWritten;
 
     public ActionResourceType CurrentResourceType {
       get {
@@ -68,6 +69,8 @@ public struct ActionTable
     }
   } // -- Internal Data
 
+  public bool IsReadyToWrite => _Data.IsReadyToWrite;
+
   private InternalData _Data;
 
   public ActionTable()
@@ -83,29 +86,26 @@ public struct ActionTable
 
   public ParseAction ActionsTable(ParseAction parser)
   {
-    parser
-      .SkipUntil(HtmlRules.START_TABLE)
-      .Expect(ActionTableParser.ActionTableStart)
-      ;
+    parser.Expect(ActionTableParser.ActionTableStart);
       
-      if (parser.IsAllMatched)
-      {
-        _Data.SignalReadyToWrite();
-        parser.AllMatchThen( CollectParsedData );
-      }
-      else
-      {
-        parser
-          .MismatchesThen( (list,wr) => {
-            var query = from node in list where node.MatchResult == MatchKind.Mismatch
-              select node;
-            query.ForEach( (node, idx) => {
-              Console.Error.WriteLine(
-                value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-              );
-            });
+    if (parser.IsAllMatched)
+    {
+      _Data.SignalReadyToWrite();
+      parser.AllMatchThen( CollectParsedData );
+    }
+    else
+    {
+      parser
+        .MismatchesThen( (list,wr) => {
+          var query = from node in list where node.MatchResult == MatchKind.Mismatch
+            select node;
+          query.ForEach( (node, idx) => {
+            Console.Error.WriteLine(
+              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
+            );
           });
-      }
+        });
+    }
     return parser;
   }
 
@@ -308,14 +308,6 @@ public struct ActionTable
           nodes,
           ref resourceType
         );
-
-        // do
-        // {
-        // }
-        // while(
-        //   nodes.MoveNext()
-        //   && ! IsActionPropertyRowEnd(nodes.Current.Annotation)
-        // );
       }
     }
     return result;

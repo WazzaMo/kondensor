@@ -17,7 +17,7 @@ public static class ActionTableParser
 {
   internal static ParseAction ActionTableStart( ParseAction parser )
     => parser
-        .Expect(HtmlRules.START_TABLE, annotation: ActionAnnotations.START_ACTION_TABLE_ANNOTATION)
+        // .Expect(HtmlRules.START_TABLE, annotation: ActionAnnotations.START_ACTION_TABLE_ANNOTATION)
         .Expect(production: ActionsHeader)
         .ExpectProductionUntil(
           RowData,

@@ -65,6 +65,8 @@ public struct ResourceTable
     return parser;
   }
 
+  public bool IsReadyToWrite => _Data.IsReadyToWrite;
+
   public void WriteTable(YamlFormatter formatter)
   {
     IYamlHierarchy yaml = formatter;

@@ -52,7 +52,7 @@ public class DocStats
   public ParseAction ResourceStats(ParseAction parser)
   {
     _IsEmpty = false;
-    _CountOfResourceMismatches = parser.NumberOfMismatches - _CountOfActionMismatches;
+    _CountOfResourceMismatches = parser.NumberOfMismatches;
     return parser;
   }
   
@@ -61,7 +61,7 @@ public class DocStats
   public ParseAction ConditionKeyStats(ParseAction parser)
   {
     _IsEmpty = false;
-    _CountOfConditionKeyMismatches = parser.NumberOfMismatches - _CountOfResourceMismatches;
+    _CountOfConditionKeyMismatches = parser.NumberOfMismatches;
     return parser;
   }
   
