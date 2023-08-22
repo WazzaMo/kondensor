@@ -202,7 +202,7 @@ GetAccessPointPolicyStatus,
 /// point policy
 /// Read objectlambdaaccesspoint*
 /// </summary>
-GetAccessPointPolicyStatusForObjectLambda
+GetAccessPointPolicyStatusForObjectLambda,
 
 /// <summary>
 /// Grants permission to retrieve the PublicAccessBlock configuration for an AWS account
@@ -227,7 +227,7 @@ GetBucketAcl,
 /// Grants permission to return the CORS configuration information set for an Amazon S3 bucket
 /// Read bucket*
 /// </summary>
-GetBucketCORS,
+GetBucketCORS
 
 
   }
