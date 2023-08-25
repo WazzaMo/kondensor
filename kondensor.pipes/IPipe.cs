@@ -4,28 +4,25 @@
  *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
-namespace Parser
+namespace kondensor.Pipes;
+
+/// <summary>
+/// A compiler is a pipe that reads from input and writes generated output.
+/// </summary>
+public interface IPipe : IPipeWriter
 {
-
   /// <summary>
-  /// A compiler is a pipe that reads from input and writes generated output.
+  /// Read a token and indicate if value is valid.
   /// </summary>
-  public interface IPipe : IPipeWriter
-  {
-    /// <summary>
-    /// Read a token and indicate if value is valid.
-    /// </summary>
-    /// <param name="token">token to return</param>
-    /// <returns>True if valid, false if stream ended.</returns>
-    bool ReadToken(out string token);
+  /// <param name="token">token to return</param>
+  /// <returns>True if valid, false if stream ended.</returns>
+  bool ReadToken(out string token);
 
-    bool IsInFlowEnded {get; }
+  bool IsInFlowEnded {get; }
 
-    void ClosePipe();
+  void ClosePipe();
 
-    bool IsPipeOpen();
+  bool IsPipeOpen();
 
-    void AddPreprocessor(IPreprocessor processor);
-  }
-
+  void AddPreprocessor(IPreprocessor processor);
 }
