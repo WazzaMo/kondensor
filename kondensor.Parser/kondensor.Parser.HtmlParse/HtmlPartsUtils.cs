@@ -1,7 +1,7 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
 using System;
@@ -9,9 +9,10 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using Optional;
-using Parser;
 
-namespace HtmlParse;
+using kondensor.Parser;
+
+namespace kondensor.Parser.HtmlParse;
 
 public static class HtmlPartsUtils
 {
