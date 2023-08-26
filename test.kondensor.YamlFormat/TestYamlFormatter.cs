@@ -13,8 +13,6 @@ using Xunit;
 using kondensor.Pipes;
 using kondensor.YamlFormat;
 
-// using YamlWriters;
-// using Parser;
 
 namespace test.kondensor.YamlFormat;
 
