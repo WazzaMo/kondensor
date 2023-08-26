@@ -11,6 +11,12 @@ using kondensor.Pipes;
 namespace test.kondensor.pipes;
 
 
+/// <summary>
+/// A configurable preprocessor that searches for all instances
+/// of a straight text match and replaces it. REGEX is not supported.
+/// This preprocessor implementation demonstrates how to implement
+/// the interface and use the <see cref="PreprocessorUtils" /> class.
+/// </summary>
 public struct ConfigurablePreprocessor : IPreprocessor
 {
   private char[] _Search;

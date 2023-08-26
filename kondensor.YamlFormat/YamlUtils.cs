@@ -1,16 +1,16 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
 using System;
 using System.Text;
 using System.Collections.Generic;
 
-using Parser;
+using kondensor.Pipes;
 
-namespace YamlWriters;
+namespace kondensor.YamlFormat;
 
 public static class YamlUtils
 {
