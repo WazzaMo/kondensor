@@ -81,7 +81,7 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
 
   IYamlHierarchy IYamlHierarchy.FieldAndValue(string field, string value)
   {
-    _Writer.Indent(_Indent).Key(field).WriteFragment(value);
+    _Writer.Indent(_Indent).Key(field).WriteFragmentLine(value);
     return this;
   }
 

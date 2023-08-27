@@ -109,6 +109,7 @@ public class TestYamlFormatter
 @"List:
   - ListItem:
       Name: Cloud
+
 ";
     Tuple<string, string> pair = new Tuple<string, string>(OBJ_KEY1, Name);
     List<Tuple<string,string>> theList = new List<Tuple<string, string>>();
