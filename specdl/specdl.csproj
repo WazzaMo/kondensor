@@ -11,4 +11,10 @@
     <PackageReference Include="Optional" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\kondensor.pipes\kondensor.pipes.csproj" />
+    <ProjectReference Include="..\kondensor.Parser\kondensor.Parser.csproj" />
+    <ProjectReference Include="..\kondensor.YamlFormat\kondensor.YamlFormat.csproj" />
+  </ItemGroup>
+
 </Project>

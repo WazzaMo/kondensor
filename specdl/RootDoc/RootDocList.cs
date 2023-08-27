@@ -8,8 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Parser;
-using HtmlParse;
+using kondensor.Pipes;
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
 
 namespace RootDoc;
 

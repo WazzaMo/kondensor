@@ -4,8 +4,8 @@
  *  Distributed under the Kondensor License.
  */
 
-using Parser;
-using HtmlParse;
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
 
 namespace ConditionKeys;
 

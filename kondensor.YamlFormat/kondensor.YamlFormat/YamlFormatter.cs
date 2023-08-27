@@ -116,7 +116,7 @@ public struct YamlFormatter : IYamlHierarchy, IYamlValues
     int indent = _Indent;
     IncIndent();
 
-    items.ForEach( (item,_) => {
+    items.ForEach( item => {
       writer.Indent(indent).WriteFragment(YamlUtils.SEQUENCE);
       handler(item, yaml);
       end();

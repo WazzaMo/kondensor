@@ -8,8 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Parser;
-using HtmlParse;
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
+using kondensor.Pipes;
+
+using kondensor.YamlFormat;
+
 using YamlWriters;
 
 namespace ConditionKeys;

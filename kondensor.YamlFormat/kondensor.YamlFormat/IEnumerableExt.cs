@@ -15,11 +15,11 @@ namespace kondensor.YamlFormat;
 
 public static class IEnumerableExt
 {
-  public static void ForEach<T>( this IEnumerable<T> collection, Action<T,int> action)
+  public static void ForEach<T>( this IEnumerable<T> collection, Action<T> action)
   {
     for(int index = 0; index < collection.Count(); index++)
     {
-      action(collection.ElementAt(index), index);
+      action(collection.ElementAt(index) );
     }
   }
 }

@@ -6,7 +6,8 @@
 
 using System;
 
-using Parser;
+using kondensor.Parser;
+using kondensor.Pipes;
 
 namespace Actions;
 

@@ -8,8 +8,8 @@
 using System.Collections.Generic;
 using Optional;
 
-using Parser;
-using HtmlParse;
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
 
 namespace Actions;
 

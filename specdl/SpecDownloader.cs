@@ -1,7 +1,7 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Public License v3.0
  */
 
 using System.IO;
@@ -11,8 +11,11 @@ using System.Net.Http.Headers;
 using Optional;
 
 using Spec;
-using Parser;
-using HtmlParse;
+
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
+using kondensor.Pipes;
+
 using Resources;
 using Actions;
 

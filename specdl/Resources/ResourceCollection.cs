@@ -9,9 +9,8 @@ using System.Collections.Generic;
 
 using Optional;
 
-using Parser;
-using HtmlParse;
-using YamlWriters;
+using kondensor.Parser;
+
 
 namespace Resources;
 

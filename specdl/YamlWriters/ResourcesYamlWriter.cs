@@ -7,7 +7,9 @@
 using System;
 using System.Collections.Generic;
 
-using Parser;
+using kondensor.Parser;
+using kondensor.YamlFormat;
+
 using Actions;
 using Resources;
 

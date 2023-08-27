@@ -4,7 +4,6 @@
  *  Distributed under the Kondensor License.
  */
 
-using Parser;
 
 namespace RootDoc;
 

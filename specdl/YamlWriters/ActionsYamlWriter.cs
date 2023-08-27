@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-using Parser;
+using kondensor.Parser;
+using kondensor.YamlFormat;
+
 using Actions;
 using YamlWriters;
 using System.Security.Cryptography;

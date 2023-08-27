@@ -6,7 +6,8 @@
 
 using System;
 
-using Parser;
+using kondensor.Pipes;
+using kondensor.Parser;
 
 namespace Resources;
 

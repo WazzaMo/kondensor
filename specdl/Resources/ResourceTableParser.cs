@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 
-using Parser;
-using HtmlParse;
+using kondensor.Parser;
+using kondensor.Parser.HtmlParse;
 using System.Web;
 
 namespace Resources;

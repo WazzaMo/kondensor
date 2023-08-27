@@ -7,7 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Parser;
+
+using kondensor.Parser;
 
 namespace Actions;
 
