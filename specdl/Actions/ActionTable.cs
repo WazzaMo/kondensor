@@ -116,30 +116,6 @@ public struct ActionTable
     ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, formatter);
   }
 
-  private ParseAction RowData(ParseAction parser)
-  {
-    ActionType foundAction = new ActionType();
-    InternalData data = _Data;
-    Action<LinkedList<Matching>> processActionInfo = CollectActionDeclarations;
-
-    parser
-      .Expect(ActionTableParser.RowData)
-      .AllMatchThen( (list,writer) => {
-        processActionInfo(list);
-      })
-      .MismatchesThen( (list,wr) => {
-          var query = from node in list where node.MatchResult == MatchKind.Mismatch
-            select node;
-          query.ForEach( (node, idx) => {
-            Console.Error.WriteLine(
-              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-            );
-          });
-      });
-
-    return parser;
-  }
-
   private void CollectParsedData(LinkedList<Matching> list, IPipeWriter _)
   {
     CollectHeadings(list);
