@@ -35,6 +35,9 @@ public struct Matching
   public string Annotation;
   public string MismatchToken;
 
+  /// <summary>Used for REGEX patterns with named groups.</summary>
+  private Dictionary<string,string> _NamedGroups;
+
   public Matching()
   {
     MatchResult = MatchKind.NoMatchAttempted;
@@ -42,5 +45,33 @@ public struct Matching
     MatcherName = UNDEFINED_NAME;
     Annotation = UNDEFINED_ANNOTATION;
     MismatchToken = UNDEFINED_MISMATCH;
+    _NamedGroups = new Dictionary<string, string>();
+  }
+
+  /// <summary>Property indicates if REGEX had named groups</summary>
+  public bool HasNamedGroups => _NamedGroups.Count > 0;
+
+  public bool TryGetNamedPart(string key, out string value)
+  {
+    bool result = false;
+    if (HasNamedGroups && _NamedGroups.ContainsKey(key))
+    {
+      value = _NamedGroups[key];
+      result = true;
+    }
+    else
+      value = "";
+    return result;
+  }
+
+  /// <summary>Used to add a named group value.</summary>
+  /// <param name="key">REGEX group (key) name</param>
+  /// <param name="part">Text matched by REGEX to store.</param>
+  public void AddNamedPart(string key, string part)
+  {
+    if ( ! String.IsNullOrEmpty(part))
+    {
+      _NamedGroups.Add(key, part);
+    }
   }
 }

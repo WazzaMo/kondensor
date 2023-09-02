@@ -85,6 +85,46 @@ public static class Utils
     return matcher;
   }
 
+  /// <summary>Creates matcher for REGEX with named groups.</summary>
+  /// <param name="rule">Regex object to use (with named groups)</param>
+  /// <param name="name">Name for matching rule</param>
+  /// <param name="annotation">Default annotation to apply (opt)</param>
+  /// <returns>Matcher function</returns>
+  public static Matcher NamedGroupRule(
+    Regex rule,
+    string name,
+    string? annotation = null
+  )
+  {
+    Matcher matcher = (string token) => {
+      Matching result = Utils.NoMatch();
+
+      var match = rule.Match(token);
+      GroupCollection groups = match.Groups;
+
+      if (groups.Keys.Count() > 0)
+      {
+        result = new Matching()
+        {
+          MatcherName = name,
+          MatchResult = MatchKind.NamedGroupMatch,
+        };
+        if (annotation != null)
+          result.Annotation = annotation;
+        
+        var keys = match.Groups.Keys.ForEach(
+          (key, idx) => result.AddNamedPart(key, groups[key].Value)
+        );
+      }
+      else
+        throw new ArgumentException(
+          message: $"Not a {nameof(NamedGroupRule)}: {rule}"
+        );
+      return result;
+    };
+    return matcher;
+  }
+
   /// <summary>
   /// Create a short/long matcher that can handle a tag or tag with attribs.
   /// </summary>

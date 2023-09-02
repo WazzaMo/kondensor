@@ -62,6 +62,43 @@ public static class HtmlPartsUtils
     return tagValue;
   }
 
+  /// <summary>Get rowspan value from START_TD_RS_VAL</summary>
+  /// <param name="node">Matching node.</param>
+  /// <returns>"" or string value</returns>
+  public static string GetTdRowspan(Matching node)
+  {
+    string result = "";
+    if (
+      node.MatcherName == HtmlRules.MATCHER_START_TD_RS_VAL
+      && node.MatchResult == MatchKind.NamedGroupMatch)
+    {
+      if (node.TryGetNamedPart(HtmlPatterns.GRP_ROWSPAN, out string text))
+      {
+        var parts = text.Split(separator: '=');
+        if (parts != null && parts.Length == 2)
+        {
+          result = parts[1];
+        }
+      }
+    }
+    return result;
+  }
+
+  /// <summary>Get tag value for START_TD_RS_VAL tag</summary>
+  /// <param name="node">Matching node</param>
+  /// <returns>"" or tag value.</returns>
+  public static string GetTdValue(Matching node)
+  {
+    string result = "";
+    if (
+      node.MatchResult == MatchKind.NamedGroupMatch
+    )
+    {
+      node.TryGetNamedPart(HtmlPatterns.GRP_TAGVAL, out result);
+    }
+    return result;
+  }
+
   public static string GetTdAttribName(Option<LinkedList<string>> Parts)
   {
     string attribName = EMPTY_STRING;

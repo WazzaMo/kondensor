@@ -12,7 +12,9 @@ using kondensor.Parser;
 namespace kondensor.Parser.AwsHtmlParse;
 
 public static class HtmlRules
-{  
+{
+  public const string MATCHER_START_TD_RS_VAL = "start:td:rs:val";
+
   public static readonly Matcher
     START_TABLE = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, name:"start:table"),
     END_TABLE = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table"),
@@ -30,6 +32,9 @@ public static class HtmlRules
     /// <summary>Matches (td rowspan="nnn")yyy where nnn = digits and yyy is text.</summary>
     START_TD_ROWSPAN = Utils.SingularMatchRule(HtmlPatterns.TD_ROWSPAN_VALUE, name: "start:td:rowspan"),
     START_TD_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD_VALUE, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-value"),
+
+    /// <summary>Smarter TD tag with named rs and val groups.</summary>
+    START_TD_RS_VALUE = Utils.NamedGroupRule(HtmlPatterns.TD_RS_VAL, MATCHER_START_TD_RS_VAL),
     START_TD_ATTRIB_VALUE = Utils.ShortLongMatchRules(HtmlPatterns.TD, HtmlPatterns.TD_ATTRIB_VALUE, name: "start:td-attrib-value"),
     END_TD = Utils.SingularMatchRule(HtmlPatterns.END_TD, name: "end:td"),
     START_A_ID = Utils.SingularMatchRule(HtmlPatterns.A_ID, name: "start:a-id"),

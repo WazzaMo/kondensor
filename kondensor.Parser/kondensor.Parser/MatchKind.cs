@@ -18,6 +18,9 @@ namespace kondensor.Parser;
   /// <summary>Matcher has only one regex and it matched the token.</summary>
   SingularMatch,
 
+  ///<summary>REGEX has named match groups.</summary>
+  NamedGroupMatch,
+
   /// <summary>Matcher had a short and long regex and short matched.</summary>
   ShortMatch,
 

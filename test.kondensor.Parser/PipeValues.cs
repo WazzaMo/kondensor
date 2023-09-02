@@ -62,7 +62,7 @@ public static class PipeValues
                     <a href=""https://docs.aws.amazon.com/accounts/latest/reference/security_account-permissions-ref.html"">CloseAccount</a> [permission only]</td>
                 <td>Grants permission to close an account</td>
                 <td>Write</td>
-                <td>1
+                <td>
                     <p>
                         <a href=""#awsaccountmanagement-account"">account</a>
                     </p>
@@ -73,7 +73,33 @@ public static class PipeValues
         </table>"
 );
 
-    public static StringReader MULT_ROW_DATA => new StringReader
+  public static StringReader ONE_ROW_DATA_WITH_ODD_ATTIBS => new StringReader
+(
+@"  <table id=""w43aab5b9c19c11c11"">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Description</th>
+                    <th>Access level</th>
+                    <th>Resource types (*required)</th>
+                    <th>Condition keys</th>
+                    <th>Dependent actions</th>
+                </tr>
+            </thead>
+            <tr>
+                <td tabindex=""1"">tabindex=1
+                </td>
+                <td borked=""aigoo"" rowspan=""1"">rowspan=1</td>
+                <td rowspan=""2"" tabindex=""3"">rowspan=2</td>
+                <td>Empty</td>
+                <td rowspan=""text"" later=""stuff"">rowspan=text</td>
+                <td nonsense=""always"">nonsense</td>
+            </tr>
+        </table>"
+);
+
+
+  public static StringReader MULT_ROW_DATA => new StringReader
 (
 @"  <table id=""w43aab5b9c19c11c11"">
             <thead>
