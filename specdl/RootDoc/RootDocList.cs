@@ -10,7 +10,7 @@ using System.Linq;
 
 using kondensor.Pipes;
 using kondensor.Parser;
-using kondensor.Parser.HtmlParse;
+using kondensor.Parser.AwsHtmlParse;
 
 namespace RootDoc;
 

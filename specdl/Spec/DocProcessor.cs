@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 using kondensor.Pipes;
 using kondensor.Parser;
-using kondensor.Parser.HtmlParse;
+using kondensor.Parser.AwsHtmlParse;
 using kondensor.YamlFormat;
 
 using Actions;

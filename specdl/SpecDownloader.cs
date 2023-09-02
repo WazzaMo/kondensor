@@ -13,7 +13,7 @@ using Optional;
 using Spec;
 
 using kondensor.Parser;
-using kondensor.Parser.HtmlParse;
+using kondensor.Parser.AwsHtmlParse;
 using kondensor.Pipes;
 
 using Resources;

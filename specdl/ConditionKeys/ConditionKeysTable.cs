@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using kondensor.Parser;
-using kondensor.Parser.HtmlParse;
+using kondensor.Parser.AwsHtmlParse;
 using kondensor.Pipes;
 
 using kondensor.YamlFormat;
