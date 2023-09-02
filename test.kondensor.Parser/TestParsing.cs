@@ -50,7 +50,7 @@ public class TestParsing
   public TestParsing()
   {
     Console.Out.Flush();
-    _HtmlPipe = new HtmlPipe(PipeValues.HTML, Console.Out);
+    _HtmlPipe = new HtmlPipe(ParserPipeValues.HTML, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
   }
 
@@ -254,7 +254,7 @@ public class TestParsing
   [Fact]
   public void ParseAction_EitherProduction_matches_when_first_matches()
   {
-    HtmlPipe pipe = new HtmlPipe(PipeValues.TABLE_ONLY_PAGE, Console.Out);
+    HtmlPipe pipe = new HtmlPipe(ParserPipeValues.TABLE_ONLY_PAGE, Console.Out);
     _Pipe = new ReplayWrapPipe(pipe);
 
     Production first, second;
@@ -288,7 +288,7 @@ public class TestParsing
   [Fact]
   public void ParseAction_EitherProduction_matches_when_second_matches()
   {
-    HtmlPipe pipe = new HtmlPipe(PipeValues.PARA_ONLY_PAGE, Console.Out);
+    HtmlPipe pipe = new HtmlPipe(ParserPipeValues.PARA_ONLY_PAGE, Console.Out);
     _Pipe = new ReplayWrapPipe(pipe);
 
     Production first, second;
@@ -322,7 +322,7 @@ public class TestParsing
   [Fact]
   public void ParseAction_EitherProduction_mismatched_when_neither_matches()
   {
-    HtmlPipe pipe = new HtmlPipe(PipeValues.PARA_ONLY_PAGE, Console.Out);
+    HtmlPipe pipe = new HtmlPipe(ParserPipeValues.PARA_ONLY_PAGE, Console.Out);
     _Pipe = new ReplayWrapPipe(pipe);
 
     bool isMisMatched = false;

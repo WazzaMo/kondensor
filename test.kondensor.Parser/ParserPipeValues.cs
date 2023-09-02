@@ -9,7 +9,7 @@ using System.IO;
 namespace test.kondensor.Parser;
 
 
-public static class PipeValues
+public static class ParserPipeValues
 {
     public static StringReader REPEAT => new StringReader(
       @"<td>

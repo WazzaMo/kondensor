@@ -24,7 +24,7 @@ public class Test_ProductionWhileMatch
 {
   private ReplayWrapPipe GetPipe()
   {
-    HtmlPipe _base = new HtmlPipe(PipeValues.MULT_ROW_DATA_WITH_REPEAT, Console.Out);
+    HtmlPipe _base = new HtmlPipe(ParserPipeValues.MULT_ROW_DATA_WITH_REPEAT, Console.Out);
     return new ReplayWrapPipe(_base);
   }
 

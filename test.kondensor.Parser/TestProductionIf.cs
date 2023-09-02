@@ -97,7 +97,7 @@ public class TestProductionIf
   [Fact]
   public void SingleRowAction_matches_as_singleRow()
   {
-    ReplayWrapPipe pipe = GetPipe(PipeValues.ONE_ROW_DATA);
+    ReplayWrapPipe pipe = GetPipe(ParserPipeValues.ONE_ROW_DATA);
 
     var parser = Parsing.Group(pipe);
     bool isMatched = false;
@@ -122,7 +122,7 @@ public class TestProductionIf
   [Fact]
   public void MultiRowAction_does_not_match_as_SingleRow()
   {
-    ReplayWrapPipe pipe = GetPipe(PipeValues.MULT_ROW_DATA);
+    ReplayWrapPipe pipe = GetPipe(ParserPipeValues.MULT_ROW_DATA);
 
     var parser = Parsing.Group(pipe);
     bool isParsedOk = false;
@@ -146,7 +146,7 @@ public class TestProductionIf
   [Fact]
   public void MultiRowAction_matches_as_mutltiRow()
   {
-    var pipe = GetPipe(PipeValues.MULT_ROW_DATA);
+    var pipe = GetPipe(ParserPipeValues.MULT_ROW_DATA);
 
     var parser = Parsing.Group(pipe);
     bool isParsedOk = false;
@@ -172,7 +172,7 @@ public class TestProductionIf
   [Fact]
   public void SingleRowAction_does_not_match_as_mutltiRow()
   {
-    var pipe = GetPipe(PipeValues.ONE_ROW_DATA);
+    var pipe = GetPipe(ParserPipeValues.ONE_ROW_DATA);
 
     var parser = Parsing.Group(pipe);
     bool isParsedOk = false;

@@ -54,7 +54,7 @@ public class TestProduction
   public TestProduction()
   {
     Console.Out.Flush();
-    _Content = new HtmlPipe(PipeValues.HTML, Console.Out);
+    _Content = new HtmlPipe(ParserPipeValues.HTML, Console.Out);
     _Pipe = new ReplayWrapPipe(_Content);
     _Table = Utils.ShortLongMatchRules(HtmlPatterns.TABLE, HtmlPatterns.TABLE_ATTRIB, name: "table");
     _endTable = Utils.SingularMatchRule(HtmlPatterns.END_TABLE, name: "end:table");

@@ -26,7 +26,7 @@ public class TestHtmlPartsUtils
   public TestHtmlPartsUtils()
   {
     Console.Out.Flush();
-    _HtmlPipe = new HtmlPipe(PipeValues.HTML, Console.Out);
+    _HtmlPipe = new HtmlPipe(ParserPipeValues.HTML, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
   }
 
@@ -294,7 +294,7 @@ public class TestHtmlPartsUtils
     const string EXPECTED_VALUE = "iam:CreateServiceLinkedRole";
     bool isMatched = false;
 
-    _HtmlPipe = new HtmlPipe(PipeValues.REPEAT, Console.Out);
+    _HtmlPipe = new HtmlPipe(ParserPipeValues.REPEAT, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
 
     var parser = Parsing.Group(_Pipe)

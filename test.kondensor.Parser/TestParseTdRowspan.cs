@@ -34,7 +34,7 @@ public class TestParseTdRowspan
 
   public TestParseTdRowspan()
   {
-    _HtmlPipe = new HtmlPipe(PipeValues.ONE_ROW_DATA_WITH_ODD_ATTIBS, Console.Out);
+    _HtmlPipe = new HtmlPipe(ParserPipeValues.ONE_ROW_DATA_WITH_ODD_ATTIBS, Console.Out);
     _Pipe = new ReplayWrapPipe(_HtmlPipe);
     _Parser = Parsing.Group(_Pipe);
     _Parser.Expect(Production);
