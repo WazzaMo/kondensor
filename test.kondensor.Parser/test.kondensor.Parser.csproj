@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\kondensor.pipes\kondensor.pipes.csproj" />
     <ProjectReference Include="..\kondensor.Parser\kondensor.Parser.csproj" />
+    <ProjectReference Include="..\kondensor.Parser.AwsHtmlParse\kondensor.Parser.AwsHtmlParse.csproj" />
   </ItemGroup>
 
 </Project>

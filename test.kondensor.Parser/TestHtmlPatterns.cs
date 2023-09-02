@@ -8,7 +8,7 @@ using Xunit;
 
 using kondensor.Pipes;
 using kondensor.Parser;
-using kondensor.Parser.HtmlParse;
+using kondensor.Parser.AwsHtmlParse;
 
 using System;
 using System.Text.RegularExpressions;
