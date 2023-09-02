@@ -87,12 +87,11 @@ public static class ParserPipeValues
                 </tr>
             </thead>
             <tr>
-                <td tabindex=""1"">tabindex=1
-                </td>
-                <td borked=""aigoo"" rowspan=""1"">rowspan=1</td>
-                <td rowspan=""2"" tabindex=""3"">rowspan=2</td>
+                <td tabindex=""1"">tabindex=1</td>
+                <td borked=""aigoo"" rowspan=""1"">borked and rowspan=1</td>
+                <td rowspan=""2"" tabindex=""3"">rowspan=2 and tabindex</td>
                 <td>Empty</td>
-                <td rowspan=""text"" later=""stuff"">rowspan=text</td>
+                <td rowspan=""text"" later=""stuff"">rowspan=text and later</td>
                 <td nonsense=""always"">nonsense</td>
             </tr>
         </table>"

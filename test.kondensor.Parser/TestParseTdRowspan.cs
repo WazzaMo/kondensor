@@ -25,7 +25,19 @@ public class TestParseTdRowspan
     ANNO_START_TR_DATA = "start:tr:data",
     ANNO_END_TR_DATA = "end:tr:data",
     ANNO_START_TD_TABINDEX = "start:td:tabindex",
-    ANNO_END_TD = "end:td"
+    ANNO_START_TD_BORKED_AND_ROWSPAN = "start:td:borkedandrowspan",
+    ANNO_START_TD_ROWSPAN_AND_TABINDEX = "start:td:rowspanandtabindex",
+    ANNO_START_TD_EMTPY = "start:td:empty",
+    ANNO_START_TD_ROWSPAN_AND_LATER = "start:td:rowspanandlater",
+    ANNO_START_TD_NONSENSE = "start:td:nonsense",
+    ANNO_END_TD = "end:td",
+
+    VAL_TABINDEX = "tabindex=1",
+    VAL_BORKED_AND_ROWSPAN = "borked and rowspan=1",
+    VAL_ROWSPAN_AND_TABINDEX = "rowspan=2 and tabindex",
+    VAL_EMPTY = "Empty",
+    VAL_ROWSPAN_AND_LATER = "rowspan=text and later",
+    VAL_NONSENSE = "nonsense"
     ;
 
   private HtmlPipe _HtmlPipe;
@@ -48,7 +60,17 @@ public class TestParseTdRowspan
         .Expect(HtmlRules.END_THEAD)
         .Expect(HtmlRules.START_TR, ANNO_START_TR_DATA)
           .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_TABINDEX)
-          .Expect(HtmlRules.END_TD, ANNO_END_TD)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_BORKED_AND_ROWSPAN)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_ROWSPAN_AND_TABINDEX)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_EMTPY)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_ROWSPAN_AND_LATER)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_NONSENSE)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
           .SkipUntil(HtmlRules.END_TR)
         .Expect(HtmlRules.END_TR, ANNO_END_TR_DATA)
       ;
@@ -84,5 +106,26 @@ public class TestParseTdRowspan
     });
 
     Assert.True( wasParsed );
+  }
+
+  [Fact]
+  public void td_borked_and_rowspan_attribute_and_value_collected()
+  {
+    bool wasParsed = false;
+    _Parser.AllMatchThen( (list,_) => {
+      wasParsed = true;
+      var query = from node in list
+        where node.Annotation == ANNO_START_TD_BORKED_AND_ROWSPAN
+        select node;
+      
+      Assert.Collection(query,
+        item => Assert.Equal(expected: "1", HtmlPartsUtils.GetTdRowspan(item))
+      );
+
+      var match = query.Last();
+      Assert.Equal(VAL_BORKED_AND_ROWSPAN, HtmlPartsUtils.GetTdValue( match ) );
+    });
+
+    Assert.True(wasParsed);
   }
 }

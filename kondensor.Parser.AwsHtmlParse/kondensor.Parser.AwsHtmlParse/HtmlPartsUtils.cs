@@ -68,16 +68,14 @@ public static class HtmlPartsUtils
   public static string GetTdRowspan(Matching node)
   {
     string result = "";
-    if (
-      node.MatcherName == HtmlRules.MATCHER_START_TD_RS_VAL
-      && node.MatchResult == MatchKind.NamedGroupMatch)
+    if ( IsTdRowspanValue(node) )
     {
       if (node.TryGetNamedPart(HtmlPatterns.GRP_ROWSPAN, out string text))
       {
         var parts = text.Split(separator: '=');
         if (parts != null && parts.Length == 2)
         {
-          result = parts[1];
+          result = StripQuotes( parts[1] );
         }
       }
     }
@@ -90,13 +88,21 @@ public static class HtmlPartsUtils
   public static string GetTdValue(Matching node)
   {
     string result = "";
-    if (
-      node.MatchResult == MatchKind.NamedGroupMatch
-    )
+    if ( IsTdRowspanValue(node) )
     {
       node.TryGetNamedPart(HtmlPatterns.GRP_TAGVAL, out result);
     }
     return result;
+  }
+
+  private static bool IsTdRowspanValue(Matching node)
+    => node.MatcherName == HtmlRules.MATCHER_START_TD_RS_VAL
+      && node.MatchResult == MatchKind.NamedGroupMatch;
+  
+  private static string StripQuotes(string quotedValue)
+  {
+    var spaceInsteadOfQuotes = quotedValue.Replace('"', ' ');
+    return spaceInsteadOfQuotes.Trim();
   }
 
   public static string GetTdAttribName(Option<LinkedList<string>> Parts)
