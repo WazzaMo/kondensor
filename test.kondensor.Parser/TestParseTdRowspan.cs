@@ -111,19 +111,74 @@ public class TestParseTdRowspan
   [Fact]
   public void td_borked_and_rowspan_attribute_and_value_collected()
   {
+    assert_values(
+      ANNO_START_TD_BORKED_AND_ROWSPAN,
+      VAL_BORKED_AND_ROWSPAN,
+      rowspan: "1"
+    );
+  }
+
+  [Fact]
+  public void td_rowspan_and_tabindex_attribute_and_value_collected()
+  {
+    assert_values(
+      ANNO_START_TD_ROWSPAN_AND_TABINDEX,
+      VAL_ROWSPAN_AND_TABINDEX,
+      rowspan: "2"
+    );
+  }
+
+  [Fact]
+  public void td_empty_can_give_empty_as_tag_value()
+  {
+    assert_values(
+      ANNO_START_TD_EMTPY,
+      VAL_EMPTY
+    );
+  }
+
+  [Fact]
+  public void td_rowspan_and_later_gives_text_as_rowspan_and_tag_value_can_be_collected()
+  {
+    assert_values(
+      ANNO_START_TD_ROWSPAN_AND_LATER,
+      VAL_ROWSPAN_AND_LATER,
+      rowspan: "text"
+    );
+  }
+
+  [Fact]
+  public void td_nonsense_gives_no_attribute_and_nonsense_tagval_collected()
+  {
+    assert_values(
+      ANNO_START_TD_NONSENSE,
+      VAL_NONSENSE
+    );
+  }
+
+  private void assert_values(
+    string expectedAnnotation,
+    string expectedTagValue,
+    string? rowspan = null
+  )
+  {
     bool wasParsed = false;
-    _Parser.AllMatchThen( (list,_) => {
+    _Parser.AllMatchThen((list, _) =>
+    {
       wasParsed = true;
       var query = from node in list
-        where node.Annotation == ANNO_START_TD_BORKED_AND_ROWSPAN
-        select node;
-      
-      Assert.Collection(query,
-        item => Assert.Equal(expected: "1", HtmlPartsUtils.GetTdRowspan(item))
-      );
+                  where node.Annotation == expectedAnnotation
+                  select node;
+
+      if (rowspan != null)
+      {
+        Assert.Collection(query,
+          item => Assert.Equal(rowspan, HtmlPartsUtils.GetTdRowspan(item))
+        );
+      }
 
       var match = query.Last();
-      Assert.Equal(VAL_BORKED_AND_ROWSPAN, HtmlPartsUtils.GetTdValue( match ) );
+      Assert.Equal(expectedTagValue, HtmlPartsUtils.GetTdValue(match));
     });
 
     Assert.True(wasParsed);
