@@ -64,10 +64,12 @@ public static class HtmlPartsUtils
 
   /// <summary>Get rowspan value from START_TD_RS_VAL</summary>
   /// <param name="node">Matching node.</param>
+  /// <param name="rowspan">rowspan string</param>
   /// <returns>"" or string value</returns>
-  public static string GetTdRowspan(Matching node)
+  public static bool TryGetTdRowspan(Matching node, out string rowspan)
   {
-    string result = "";
+    bool isValueAvailable = false;
+    rowspan = "";
     if ( IsTdRowspanValue(node) )
     {
       if (node.TryGetNamedPart(HtmlPatterns.GRP_ROWSPAN, out string text))
@@ -75,24 +77,29 @@ public static class HtmlPartsUtils
         var parts = text.Split(separator: '=');
         if (parts != null && parts.Length == 2)
         {
-          result = StripQuotes( parts[1] );
+          rowspan = StripQuotes( parts[1] );
+          isValueAvailable = true;
         }
       }
     }
-    return result;
+    return isValueAvailable;
   }
 
   /// <summary>Get tag value for START_TD_RS_VAL tag</summary>
   /// <param name="node">Matching node</param>
   /// <returns>"" or tag value.</returns>
-  public static string GetTdValue(Matching node)
+  public static bool TryGetTdValue(Matching node, out string tagValue)
   {
-    string result = "";
+    bool isTagValueAvailable = false;
+
+    tagValue = "";
     if ( IsTdRowspanValue(node) )
     {
-      node.TryGetNamedPart(HtmlPatterns.GRP_TAGVAL, out result);
+      isTagValueAvailable = node.TryGetNamedPart(
+        HtmlPatterns.GRP_TAGVAL, out tagValue
+      );
     }
-    return result;
+    return isTagValueAvailable;
   }
 
   private static bool IsTdRowspanValue(Matching node)

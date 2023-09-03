@@ -30,6 +30,7 @@ public class TestParseTdRowspan
     ANNO_START_TD_EMTPY = "start:td:empty",
     ANNO_START_TD_ROWSPAN_AND_LATER = "start:td:rowspanandlater",
     ANNO_START_TD_NONSENSE = "start:td:nonsense",
+    ANNO_START_TD_NO_ATTRIB_NO_VALUE = "start:td:no-attribs:no-value",
     ANNO_END_TD = "end:td",
 
     VAL_TABINDEX = "tabindex=1",
@@ -71,6 +72,8 @@ public class TestParseTdRowspan
             .Expect(HtmlRules.END_TD, ANNO_END_TD)
           .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_NONSENSE)
             .Expect(HtmlRules.END_TD, ANNO_END_TD)
+          .Expect(HtmlRules.START_TD_RS_VALUE, ANNO_START_TD_NO_ATTRIB_NO_VALUE)
+            .Expect(HtmlRules.END_TD, ANNO_END_TD)
           .SkipUntil(HtmlRules.END_TR)
         .Expect(HtmlRules.END_TR, ANNO_END_TR_DATA)
       ;
@@ -101,7 +104,10 @@ public class TestParseTdRowspan
         select node;
       
       Assert.Collection( query,
-        node => Assert.Equal( expected: "tabindex=1", HtmlPartsUtils.GetTdValue( node))
+        node => {
+          Assert.True( HtmlPartsUtils.TryGetTdValue(node, out string tdVal));
+          Assert.Equal( expected: "tabindex=1", tdVal);
+        }
       );
     });
 
@@ -156,6 +162,27 @@ public class TestParseTdRowspan
     );
   }
 
+  [Fact]
+  public void td_without_attribs_and_tagValue_cannot_collect_values()
+  {
+    bool wasParsed = false;
+    _Parser.AllMatchThen( (list, _) => {
+      wasParsed = true;
+      var query = from node in list
+        where node.Annotation == ANNO_START_TD_NO_ATTRIB_NO_VALUE
+        select node;
+      
+      Assert.Collection( query,
+        item => {
+          Assert.False( HtmlPartsUtils.TryGetTdRowspan(item, out string rsVal));
+          Assert.False( HtmlPartsUtils.TryGetTdValue( item, out string tagVal));
+        }
+      );
+    });
+
+    Assert.True(wasParsed);
+  }
+
   private void assert_values(
     string expectedAnnotation,
     string expectedTagValue,
@@ -173,12 +200,16 @@ public class TestParseTdRowspan
       if (rowspan != null)
       {
         Assert.Collection(query,
-          item => Assert.Equal(rowspan, HtmlPartsUtils.GetTdRowspan(item))
+          item => {
+            Assert.True( HtmlPartsUtils.TryGetTdRowspan(item, out string rsValue));
+            Assert.Equal(rowspan, rsValue);
+          }
         );
       }
 
       var match = query.Last();
-      Assert.Equal(expectedTagValue, HtmlPartsUtils.GetTdValue(match));
+      Assert.True( HtmlPartsUtils.TryGetTdValue(match, out string tagVal));
+      Assert.Equal(expectedTagValue, tagVal);
     });
 
     Assert.True(wasParsed);

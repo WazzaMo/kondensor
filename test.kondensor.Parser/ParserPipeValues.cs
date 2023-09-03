@@ -93,6 +93,7 @@ public static class ParserPipeValues
                 <td>Empty</td>
                 <td rowspan=""text"" later=""stuff"">rowspan=text and later</td>
                 <td nonsense=""always"">nonsense</td>
+                <td></td>
             </tr>
         </table>"
 );
