@@ -166,6 +166,14 @@ public struct HtmlPipe : IPipe
       {
         if ( _Data._UnprocessedIndex >= _Data._UnprocessedText.Length )
         {
+          if (builder.Length > 0)
+          {
+            string segment = builder.ToString();
+            TokeniseLineParts(segment);
+            isTextRead = true;
+            builder.Clear();
+            tokenCount = 0;
+          }
           if (TryReadInput(out inputLine))
           {
             _Data._UnprocessedText = inputLine.ToCharArray();
