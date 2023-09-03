@@ -61,7 +61,7 @@ public static class ActionDeclarationParser
   private static ParseAction ActionDeclarationNoRowspan(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TD, ActionAnnotations.START_CELL_ACTION_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_CELL_ACTION_ANNOTATION)
         .Expect(ActionIdAndRefProd)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
@@ -71,7 +71,7 @@ public static class ActionDeclarationParser
   private static ParseAction ActionDeclarationRowspan(ParseAction parser)
   {
     parser
-      .Expect(HtmlRules.START_TD_ROWSPAN, ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_CELL_ACTION_ROWSPAN_ANNOTATION)
         .Expect(ActionIdAndRefProd)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
@@ -90,19 +90,19 @@ public static class ActionDeclarationParser
 
   private static ParseAction ActionDescriptionOneRowProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_VALUE, ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
   private static ParseAction ActionDescriptionRowspanProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ROWSPAN, ActionAnnotations.START_CELL_ACTIONDESC_ROWSPAN_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_CELL_ACTIONDESC_ROWSPAN_ANNOTATION)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
       ;
 
   private static ParseAction NewDescriptionSameAction(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_VALUE, ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_CELL_ACTION_NEWDESC_ANNOTATION)
         .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_NEWDECL_PARA)
         .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTIONDESC_ANNOTATION)
@@ -110,19 +110,19 @@ public static class ActionDeclarationParser
 
   private static ParseAction EmptyAccessLevelProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD, ActionAnnotations.START_ACCESSLEVEL_EMPTY_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_ACCESSLEVEL_EMPTY_ANNOTATION)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
       ;
 
   private static ParseAction ActionAccessLevelOneRowProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
       ;
 
   private static ParseAction ActionAccessLevelRowspanProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ROWSPAN, annotation: ActionAnnotations.START_ACCESSLEVEL_ROWSPAN_ANNOTATION)
+      .Expect(HtmlRules.START_TD_RS_VALUE, annotation: ActionAnnotations.START_ACCESSLEVEL_ROWSPAN_ANNOTATION)
       .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_ACCESSLEVEL_ANNOTATION)
       ;
 
@@ -132,12 +132,12 @@ public static class ActionDeclarationParser
 
   private static ParseAction EmptyResourceType(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_RESOURCETYPE);
 
   private static ParseAction MultiResourceType(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
       .ExpectProductionUntil(ResourcePara,
         HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_RESOURCETYPE
       );
@@ -152,7 +152,7 @@ public static class ActionDeclarationParser
 
   private static ParseAction ConditionKeys(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_CONDKEY)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_TD_CONDKEY)
         .ExpectProductionUntil(
           ConditionKeyEntry,
         HtmlRules.END_TD, ActionAnnotations.END_TD_CONDKEY
@@ -168,7 +168,7 @@ public static class ActionDeclarationParser
 
   private static ParseAction DependendActions(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ATTRIB_VALUE, ActionAnnotations.START_TD_DEPACT)
+      .Expect(HtmlRules.START_TD_RS_VALUE, ActionAnnotations.START_TD_DEPACT)
         .ExpectProductionUntil(
           RepeatableDependentActionParagraphs,
       HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_DEPACT)

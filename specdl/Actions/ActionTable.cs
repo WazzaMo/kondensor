@@ -175,22 +175,25 @@ public struct ActionTable
             Matching desc = declarationNodes.Current;
             declarationNodes.MoveNext();
             
-            string description = HtmlPartsUtils.GetTdTagValue(desc.Parts);
-            _Data.SavedDescription = description;
-            bool hasResourceType = ActionResourceCollection.HasCollectedActionProperties(
-                declarationNodes,
-                description,
-                out level,
-                out resourceType
-              );
-            if (hasResourceType)
+            if (HtmlPartsUtils.TryGetTdValue(desc, out string description))
             {
-              if (resourceType.Description.IsEmptyPartsValue())
+              _Data.SavedDescription = description;
+              bool hasResourceType = ActionResourceCollection.HasCollectedActionProperties(
+                  declarationNodes,
+                  description,
+                  out level,
+                  out resourceType
+              );
+              
+              if (hasResourceType)
               {
-                resourceType.SetDescription(description);
+                if (resourceType.Description.IsEmptyPartsValue())
+                {
+                  resourceType.SetDescription(description);
+                }
+                _Data._CurrentAccessLevel = Option.Some( level );
+                _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
               }
-              _Data._CurrentAccessLevel = Option.Some( level );
-              _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
             }
           }
         }

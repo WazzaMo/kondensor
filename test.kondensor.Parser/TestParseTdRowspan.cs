@@ -76,6 +76,7 @@ public class TestParseTdRowspan
             .Expect(HtmlRules.END_TD, ANNO_END_TD)
           .SkipUntil(HtmlRules.END_TR)
         .Expect(HtmlRules.END_TR, ANNO_END_TR_DATA)
+      .Expect(HtmlRules.END_TABLE)
       ;
 
   [Fact]
