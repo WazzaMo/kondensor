@@ -304,6 +304,8 @@ public class TestHtmlPartsUtils
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation:"start:td-2ndcell")
       .Expect(HtmlRules.END_TD, annotation: "end:td-2ndcell")
       .Expect(HtmlRules.START_TD_ATTRIB_VALUE, annotation: "start:td-3rdcell")
+      ;
+    parser
         .Expect(HtmlRules.START_PARA_VALUE, annotation: "subject")
       .AllMatchThen( (list,idx) => {
         var query = from node in list

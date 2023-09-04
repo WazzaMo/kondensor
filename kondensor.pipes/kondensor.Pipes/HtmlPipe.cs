@@ -159,6 +159,14 @@ public struct HtmlPipe : IPipe
     char charInput;
     int tokenCount = 0;
     string inputLine;
+    string segment;
+
+    Func<string> processText = () => {
+      var value = builder.ToString();
+      builder.Clear();
+      isTextRead = true;
+      return value;
+    };
 
     if (! _Data._EofInput)
     {
@@ -166,14 +174,6 @@ public struct HtmlPipe : IPipe
       {
         if ( _Data._UnprocessedIndex >= _Data._UnprocessedText.Length )
         {
-          if (builder.Length > 0)
-          {
-            string segment = builder.ToString();
-            TokeniseLineParts(segment);
-            isTextRead = true;
-            builder.Clear();
-            tokenCount = 0;
-          }
           if (TryReadInput(out inputLine))
           {
             _Data._UnprocessedText = inputLine.ToCharArray();
@@ -182,6 +182,12 @@ public struct HtmlPipe : IPipe
           else
           {
             _Data._UnprocessedText = EmptyCharArray();
+            if (builder.Length > 0)
+            {
+              segment = processText();
+              TokeniseLineParts(segment);
+              tokenCount = 0;
+            }
           }
           _Data._UnprocessedIndex = 0;
         }
@@ -198,10 +204,8 @@ public struct HtmlPipe : IPipe
           }
           else
           {
-            string segment = builder.ToString();
+            segment = processText();
             TokeniseLineParts(segment);
-            isTextRead = true;
-            builder.Clear();
             tokenCount = charInput == '<' ? 1 : 0;
           }
         }
