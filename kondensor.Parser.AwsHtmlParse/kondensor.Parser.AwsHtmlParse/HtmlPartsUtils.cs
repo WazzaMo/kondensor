@@ -64,20 +64,20 @@ public static class HtmlPartsUtils
 
   /// <summary>Get rowspan value from START_TD_RS_VAL</summary>
   /// <param name="node">Matching node.</param>
-  /// <param name="rowspan">rowspan string</param>
+  /// <param name="id">rowspan string</param>
   /// <returns>"" or string value</returns>
-  public static bool TryGetTdRowspan(Matching node, out string rowspan)
+  public static bool TryGetTdId(Matching node, out string id)
   {
     bool isValueAvailable = false;
-    rowspan = "";
-    if ( IsTdRowspanValue(node) )
+    id = "";
+    if ( IsTdIdValue(node) )
     {
-      if (node.TryGetNamedPart(HtmlPatterns.GRP_ROWSPAN, out string text))
+      if (node.TryGetNamedPart(HtmlPatterns.GRP_ID, out string text))
       {
         var parts = text.Split(separator: '=');
         if (parts != null && parts.Length == 2)
         {
-          rowspan = StripQuotes( parts[1] );
+          id = StripQuotes( parts[1] );
           isValueAvailable = true;
         }
       }
@@ -93,7 +93,7 @@ public static class HtmlPartsUtils
     bool isTagValueAvailable = false;
 
     tagValue = "";
-    if ( IsTdRowspanValue(node) )
+    if ( IsTdIdValue(node) )
     {
       isTagValueAvailable = node.TryGetNamedPart(
         HtmlPatterns.GRP_TAGVAL, out tagValue
@@ -102,8 +102,8 @@ public static class HtmlPartsUtils
     return isTagValueAvailable;
   }
 
-  private static bool IsTdRowspanValue(Matching node)
-    => node.MatcherName == HtmlRules.MATCHER_START_TD_RS_VAL
+  private static bool IsTdIdValue(Matching node)
+    => node.MatcherName == HtmlRules.MATCHER_START_TD_ID_VAL
       && node.MatchResult == MatchKind.NamedGroupMatch;
   
   private static string StripQuotes(string quotedValue)

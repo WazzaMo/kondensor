@@ -43,7 +43,7 @@ internal static class ActionResourceCollection
     level = ActionAccessLevel.Unknown;
     resourceType = new ActionResourceType();
 
-    bool isOk = nodes.Current.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION;
+    bool isOk = nodes.Current.Annotation == ActionAnnotations.START_TD_ACCESSLEVEL;
     if (isOk)
     {
       Matching levelNode = nodes.Current;

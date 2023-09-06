@@ -28,7 +28,7 @@ public static class HtmlPatterns
     TD_ATTRIB_VALUE = new Regex(pattern: @"\<td\s?(\w+)=?\""(\d+)\""?\>([\w\s\(\*\)]*)"),
     TD_VALUE = new Regex(pattern: @"\<td\>([*\-,/*\w\s\(\*\)]*)"),
     END_TD = new Regex(pattern: @"\<\/td\>"),
-    TD_RS_VAL = new Regex(pattern: @"\<td\s?(?<trash>.*="".*""\s)*(?<rs>rowspan=""[\w\d]*"")?(?<trash2>\s.+)*\>(?<val>.*)"),
+    TD_ID_VAL = new Regex(pattern: @"\<td\s?(?<trash>.*="".*""\s)*(?<id>id=""[*\-*\w\d]*"")?(?<trash2>\s.+)*\>(?<val>[\w\s\d\W]*)"),
     TR = new Regex(pattern: @"\<tr\>"),
     END_TR = new Regex(pattern: @"\<\/tr\>"),
     A_ID = new Regex(pattern: @"\<a id=\""([*-.*\w\s]+)\""\>$"),
@@ -57,7 +57,7 @@ public static class HtmlPatterns
     ;
 
   public const string
-    GRP_ROWSPAN = "rs",
+    GRP_ID = "id",
     GRP_TAGVAL = "val";
 
   public const int

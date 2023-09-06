@@ -143,15 +143,15 @@ public struct ActionTable
     ActionType actionDecl = new ActionType();
     ActionAccessLevel level;
     ActionResourceType resourceType = new ActionResourceType();
+    string actionId = "NO-ID";
 
     while( declarationNodes.MoveNext())
     {
-      if (
-        ActionCollection.IsStartActionIdAnnotation(declarationNodes.Current.Annotation)
-      )
+      if (ActionCollection.IsActionDeclarationStart(
+        ref declarationNodes,
+        out actionId
+      ))
       {
-        Matching aId = declarationNodes.Current;
-        declarationNodes.MoveNext();
         if (
           ActionCollection.IsStartActionNameAndRef(declarationNodes.Current.Annotation)
         )
@@ -159,11 +159,10 @@ public struct ActionTable
           Matching aHref = declarationNodes.Current;
           declarationNodes.MoveNext();
 
-          string id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
           string actionName = HtmlPartsUtils.GetAHrefTagValue(aHref.Parts);
           string apiLink = HtmlPartsUtils.GetAHrefAttribValue(aHref.Parts);
           actionDecl = new ActionType();
-          actionDecl.SetActionId(id);
+          actionDecl.SetActionId(actionId);
           actionDecl.SetActionName(actionName);
           actionDecl.SetApiDocLink(apiLink);
           _Data._Actions.Add( actionDecl );

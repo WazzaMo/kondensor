@@ -5,6 +5,7 @@
  */
 
 using kondensor.Parser;
+using kondensor.Parser.AwsHtmlParse;
 
 namespace Actions;
 
@@ -17,28 +18,57 @@ internal static class ActionCollection
     return query;
   }
 
+  internal static bool IsActionDeclarationStart(
+    ref IEnumerator<Matching> node,
+    out string id
+  )
+  {
+    bool isDeclaration = false;
+
+    if (IsStartActionIdAnnotation(node.Current.Annotation))
+    {
+      Matching aId = node.Current;
+      id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
+      node.MoveNext();
+      isDeclaration = true;
+    } else if (IsStartActionDeclarationWithId(node.Current.Annotation))
+    {
+      Matching tdWithId = node.Current;
+      isDeclaration = HtmlPartsUtils.TryGetTdId(node.Current, out id);
+      if (isDeclaration)
+        node.MoveNext();
+    }
+    else
+      id = "";
+    return isDeclaration;
+  }
+
   internal static bool IsActionDeclarationAnnotation(string annotation)
     => IsActionDeclRowStart(annotation)
+    || IsStartActionDeclarationWithId(annotation)
     || IsActionPropertyRowStart(annotation)
     || IsActionPropertyRowEnd(annotation)
     || IsStartActionIdAnnotation(annotation)
     || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
     || IsFirstActionDescription(annotation)
     || IsSameActionNewDescriptionAnnotation(annotation)
-    || annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
+    || annotation == ActionAnnotations.START_TD_ACCESSLEVEL
     || annotation == ActionAnnotations.A_HREF_RESOURCE
     || IsCondKeyIdAndNameHref(annotation)
     || annotation == ActionAnnotations.START_PARA_DEPENDENT
     ;
 
+  internal static bool IsStartActionDeclarationWithId(string annotation)
+    => annotation == ActionAnnotations.START_TD_ID_ACTION;
+
   internal static bool IsActionDeclRowStart(string annotation)
     => annotation == ActionAnnotations.START_ACTION_ROW_ANNOTATION;
 
   internal static bool IsActionPropertyRowStart(string annotation)
-    => annotation == ActionAnnotations.START_ACTION_PROP_ROW_ANNOTATION;
+    => annotation == ActionAnnotations.START_TR_ACTION_PROP_ROW;
 
   internal static bool IsActionPropertyRowEnd(string annotation)
-    => annotation == ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION;
+    => annotation == ActionAnnotations.END_TR_ACTION_PROP_ROW;
 
   internal static bool IsStartActionIdAnnotation(string annotation)
     => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
@@ -47,7 +77,7 @@ internal static class ActionCollection
     => annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION;
 
   internal static bool IsFirstActionDescription(string annotation)
-    => annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION;
+    => annotation == ActionAnnotations.START_TD_ACTIONDESC;
 
   internal static bool IsSameActionNewDescriptionAnnotation(string annotation)
     => annotation == ActionAnnotations.START_NEWDECL_PARA;

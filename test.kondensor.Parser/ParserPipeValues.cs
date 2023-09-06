@@ -88,10 +88,10 @@ public static class ParserPipeValues
             </thead>
             <tr>
                 <td tabindex=""1"">tabindex=1</td>
-                <td borked=""aigoo"" rowspan=""1"">borked and rowspan=1</td>
-                <td rowspan=""2"" tabindex=""3"">rowspan=2 and tabindex</td>
+                <td borked=""aigoo"" id=""awspanorama-ListTagsForResource"">borked and id=awspanorama-ListTagsForResource</td>
+                <td id=""amazonpersonalize-CreateBatchSegmentJob"" tabindex=""3"">id=amazonpersonalize-CreateBatchSegmentJob and tabindex</td>
                 <td>Empty</td>
-                <td rowspan=""text"" later=""stuff"">rowspan=text and later</td>
+                <td id=""amazonpersonalize-CreateCampaign"" later=""stuff"">id=amazonpersonalize-CreateCampaign and later</td>
                 <td nonsense=""always"">nonsense</td>
                 <td></td>
             </tr>
