@@ -22,19 +22,14 @@ public struct HtmlPipe : IPipe
   {
     internal TextReader _Input;
     internal Queue<string> _InputQueue;
-    internal TextWriter _Output;
+    internal TextPipeWriter _Output;
     internal bool _IsOpen;
     internal bool _EofInput;
     internal char[] _UnprocessedText;
     internal int _UnprocessedIndex;
     internal List<IPreprocessor> _Preprocessors;
-    private bool _LineTerminated;
 
-    internal void TerminateLine() => _LineTerminated = true;
-
-    internal void UnterminatedLineWritten() => _LineTerminated = false;
-
-    internal bool IsLineTerminated() => _LineTerminated;
+    internal bool IsLineTerminated() => _Output.IsLineTerminated();
 
     internal _InternalData( TextReader input, TextWriter output)
     {
@@ -42,11 +37,10 @@ public struct HtmlPipe : IPipe
       _InputQueue = new Queue<string>();
       _UnprocessedText = EmptyCharArray();
       _UnprocessedIndex = 0;
-      _Output = output;
+      _Output = new TextPipeWriter( output );
       _IsOpen = true;
       _EofInput = false;
       _Preprocessors = new List<IPreprocessor>();
-      _LineTerminated = false;
     }
   }
 
@@ -60,7 +54,7 @@ public struct HtmlPipe : IPipe
   public void ClosePipe()
   {
     _Data._Input.Close();
-    _Data._Output.Close();
+    _Data._Output.ClosePipe();
     _Data._IsOpen = false;
   }
 
@@ -88,26 +82,10 @@ public struct HtmlPipe : IPipe
   }
 
   public IPipeWriter WriteFragment(string fragment)
-  {
-    _Data._Output.Write(fragment);
-    _Data.UnterminatedLineWritten();
-    return (IPipeWriter) this;
-  }
+    => _Data._Output.WriteFragment(fragment);
 
   public IPipeWriter WriteFragmentLine(string fragment)
-  {
-    if ( fragment.Length == 0 )
-    {
-      if (! _Data.IsLineTerminated())
-        _Data._Output.WriteLine("");
-    }
-    else
-    {
-      _Data._Output.WriteLine(fragment);
-    }
-    _Data.TerminateLine();
-    return (IPipeWriter) this;
-  }
+    => _Data._Output.WriteFragmentLine(fragment);
 
   public bool IsLineTerminated()
     => _Data.IsLineTerminated();

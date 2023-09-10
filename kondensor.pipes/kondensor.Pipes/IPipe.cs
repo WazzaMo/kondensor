@@ -20,9 +20,6 @@ public interface IPipe : IPipeWriter
 
   bool IsInFlowEnded {get; }
 
-  void ClosePipe();
-
-  bool IsPipeOpen();
 
   void AddPreprocessor(IPreprocessor processor);
 }

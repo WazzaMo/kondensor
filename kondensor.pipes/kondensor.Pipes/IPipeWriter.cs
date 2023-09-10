@@ -30,5 +30,14 @@ public interface IPipeWriter
   /// </summary>
   /// <returns>True if line has been terminated.</returns>
   bool IsLineTerminated();
+
+  /// <summary>Determines if input and output is possible.</summary>
+  /// <returns>True if pipe remains open.</returns>
+  bool IsPipeOpen();
+
+  /// <summary>
+  /// Closes all IO for the pipe / pipewriter.
+  /// </summary>
+  void ClosePipe();
 }
 
