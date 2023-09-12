@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace kondensor.Pipes;
@@ -17,7 +18,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
   {
     internal TextReader _Input;
     internal TextPipeWriter _Output;
-    internal Queue<string> _Pending;
+    internal char[] _Buffer;
+    internal int _BufferIndex;
     internal bool _EoInput;
   }
 
@@ -31,7 +33,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     _Data = new Data() {
       _Input = input,
       _Output = output,
-      _Pending = new Queue<string>(),
+      _Buffer = EmptyBuffer,
+      _BufferIndex = 0,
       _EoInput = false
     };
   }
@@ -65,4 +68,31 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public IPipeWriter WriteFragmentLine(string fragment)
     => _Data._Output.WriteFragmentLine(fragment);
+  
+  /// <summary>Determines correct action and if the input has ended.</summary>
+  /// <param name="token">Token to return</param>
+  /// <returns>True if input stream continues, False if ended.</returns>
+  private bool GetNextToken(out string token)
+  {
+    token = "";
+    //
+    return false;
+  }
+
+  private void ProcessBuffer()
+  {
+    Span<char> buffer = new Span<char>( _Data._Buffer );
+    int startIndex = _Data._BufferIndex;
+
+    int index = startIndex;
+    while(index < buffer.Length && ! IsWhiteSpace(buffer[index]))
+    {
+      index++;
+    }
+  }
+
+  private static bool IsWhiteSpace(char test)
+    => Char.IsWhiteSpace(test);
+
+  private static char[] EmptyBuffer => new char[0]{};
 }

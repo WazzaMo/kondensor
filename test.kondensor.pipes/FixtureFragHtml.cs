@@ -4,11 +4,7 @@
  *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
-using Xunit;
 
-using kondensor.Pipes;
-
-using System;
 using System.IO;
 
 namespace test.kondensor.pipes;
