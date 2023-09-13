@@ -35,4 +35,15 @@ public class TestFragHtmlPipe
     Assert.True(Subject.ReadToken(out string token));
     Assert.Equal(EXPECTED, token);
   }
+
+  [Fact]
+  public void second_token_is_table_id_attribute()
+  {
+    const string EXPECTED = "id=\"actionFixture\"";
+    string token;
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED, token);
+  }
 }

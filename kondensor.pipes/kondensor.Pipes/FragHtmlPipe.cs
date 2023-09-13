@@ -33,7 +33,7 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     _Data = new Data() {
       _Input = input,
       _Output = output,
-      _Buffer = EmptyBuffer,
+      _Buffer = BufferUtils.EmptyBuffer,
       _BufferIndex = 0,
       _EoInput = false
     };
@@ -59,9 +59,7 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     => ! _Data._EoInput && _Data._Output.IsPipeOpen();
 
   public bool ReadToken(out string token)
-  {
-    throw new NotImplementedException();
-  }
+    => IsTokenFound(out token);
 
   public IPipeWriter WriteFragment(string fragment)
     => _Data._Output.WriteFragment(fragment);
@@ -69,30 +67,71 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
   public IPipeWriter WriteFragmentLine(string fragment)
     => _Data._Output.WriteFragmentLine(fragment);
   
-  /// <summary>Determines correct action and if the input has ended.</summary>
-  /// <param name="token">Token to return</param>
-  /// <returns>True if input stream continues, False if ended.</returns>
-  private bool GetNextToken(out string token)
-  {
-    token = "";
-    //
-    return false;
-  }
+  private const string EMPTY = "";
 
-  private void ProcessBuffer()
+  private bool IsTokenFound(out string token)
   {
-    Span<char> buffer = new Span<char>( _Data._Buffer );
-    int startIndex = _Data._BufferIndex;
+    bool isFound = false;
 
-    int index = startIndex;
-    while(index < buffer.Length && ! IsWhiteSpace(buffer[index]))
+    int tokenEnd;
+    int tokenStart = GetTokenStart();
+    if (! _Data._EoInput && tokenStart >= 0)
     {
-      index++;
+      tokenEnd = BufferUtils.ScanForWhitespace(_Data._Buffer, tokenStart);
+      if ( BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd) )
+      {
+        int length = tokenEnd - tokenStart;
+        _Data._BufferIndex = tokenEnd;
+        Span<char> buffer = new Span<char>(_Data._Buffer);
+        Span<char> tokenBuffer = buffer.Slice(tokenStart, length);
+        token = tokenBuffer.ToString();
+        isFound = true;
+      }
+      else
+        token = EMPTY;
     }
+    else
+      token = EMPTY;
+    return isFound;
   }
 
-  private static bool IsWhiteSpace(char test)
-    => Char.IsWhiteSpace(test);
+  private int GetTokenStart()
+  {
+    int index = 0;
 
-  private static char[] EmptyBuffer => new char[0]{};
+    index = BufferUtils.ScanForNextNonWhitespace(
+      _Data._Buffer,
+      _Data._BufferIndex
+    );
+    while (
+      !_Data._EoInput
+      && NeedNewBuffer()
+      && ! BufferUtils.IsValidIndex(_Data._Buffer, index)
+    )
+    {
+      GetNewBuffer();
+      index = BufferUtils.ScanForNextNonWhitespace(
+        _Data._Buffer,
+        _Data._BufferIndex
+      );
+      _Data._BufferIndex = index;
+    }
+
+    return index;
+  }
+
+  private bool NeedNewBuffer()
+    => ! _Data._EoInput
+    && ! BufferUtils.IsValidIndex( _Data._Buffer, _Data._BufferIndex );
+  
+  private void GetNewBuffer()
+  {
+    var input = _Data._Input.ReadLine();
+    if (input == null)
+    {
+      _Data._EoInput = true;
+    }
+    _Data._Buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
+    _Data._BufferIndex = 0;
+  }
 }
