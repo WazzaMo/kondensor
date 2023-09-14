@@ -77,7 +77,9 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     int tokenStart = GetTokenStart();
     if (! _Data._EoInput && tokenStart >= 0)
     {
-      tokenEnd = BufferUtils.ScanForWhitespace(_Data._Buffer, tokenStart);
+      tokenEnd = IsSingleCharFragment()
+        ? tokenStart + 1
+        : BufferUtils.ScanForEndOfSymbol(IsFragment, _Data._Buffer, tokenStart);
       if ( BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd) )
       {
         int length = tokenEnd - tokenStart;
@@ -97,20 +99,20 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   private int GetTokenStart()
   {
-    int index = 0;
-
-    index = BufferUtils.ScanForNextNonWhitespace(
+    int index = BufferUtils.ScanForSymbolStart(
+      IsFragmentSpace,
       _Data._Buffer,
       _Data._BufferIndex
     );
-    while (
-      !_Data._EoInput
-      && NeedNewBuffer()
-      && ! BufferUtils.IsValidIndex(_Data._Buffer, index)
+
+   while (
+      NeedNewBuffer()
+      || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
     )
     {
       GetNewBuffer();
-      index = BufferUtils.ScanForNextNonWhitespace(
+      index = BufferUtils.ScanForSymbolStart(
+        IsFragmentSpace,
         _Data._Buffer,
         _Data._BufferIndex
       );
@@ -134,4 +136,20 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     _Data._Buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
     _Data._BufferIndex = 0;
   }
+
+  private bool IsFragmentSpace(char _char)
+  => Char.IsWhiteSpace(_char);
+
+  private bool IsFragmentLone(char _char)
+  => _char == '>';
+
+  private bool IsFragment(char _char)
+  => Char.IsPunctuation(_char)
+    || Char.IsLetterOrDigit(_char)
+    || _char == '<'
+    || _char == '=';
+
+  private bool IsSingleCharFragment()
+  => BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex)
+    && IsFragmentLone(_Data._Buffer[_Data._BufferIndex]);
 }

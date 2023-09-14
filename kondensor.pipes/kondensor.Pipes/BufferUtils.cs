@@ -16,20 +16,31 @@ internal static class BufferUtils
   /// <value>char[] of zero length.</value>
   internal static char[] EmptyBuffer => new char[0] { };
 
+  /// <summary>Rule for scanning characters.</summary>
+  /// <param name="_char">Character to check for a match</param>
+  /// <returns>True when matched, False if not significant.</returns>
+  internal delegate bool ScanRule(char _char);
+
   /// <summary>
-  /// Searches for non-whitespace, returning the index
-  /// where a non-whitespace character is found.
+  /// Searches through a collection of symbol boundary characters, looking
+  /// for the next non-boundary, returning the index
+  /// where a non-boundary character is found.
   /// </summary>
+  /// <param name="wordSeparator">Scan for character that returns true as a match.</param>
   /// <param name="buffer">Buffer to scan</param>
   /// <param name="startIndex">(optional) index to start scanning.</param>
   /// <returns>
   ///   0 to length when non-WS char found;
   ///   <see href="INDEX_END_BUFFER" /> if over the end of the buffer
   /// </returns>
-  internal static int ScanForNextNonWhitespace(char[] buffer, int startIndex = 0)
+  internal static int ScanForSymbolStart(
+    ScanRule wordSeparator,
+    char[] buffer,
+    int startIndex = 0
+  )
   {
     int index = startIndex;
-    while(IsValidIndex(buffer, index) && Char.IsWhiteSpace(buffer[index]))
+    while(IsValidIndex(buffer, index) && wordSeparator(buffer[index]))
     {
       index++;
     }
@@ -39,19 +50,24 @@ internal static class BufferUtils
   }
 
   /// <summary>
-  /// Searches for whitespace, returning the index
-  /// where a whitespace character is found.
+  /// Searches for symbol characters, returning the index
+  /// where at the edge of a symbol.
   /// </summary>
+  /// <param name="symbolRule">Rule defining valid symbol characters.</param>
   /// <param name="buffer">Buffer to scan</param>
   /// <param name="startIndex">index to start scanning.</param>
   /// <returns>
   ///   0 to length when non-WS char found;
   ///   <see href="INDEX_END_BUFFER" /> if over the end of the buffer
   /// </returns>
-  internal static int ScanForWhitespace(char[] buffer, int startIndex)
+  internal static int ScanForEndOfSymbol(
+    ScanRule symbolRule,
+    char[] buffer,
+    int startIndex
+  )
   {
     int index = startIndex;
-    while(IsValidIndex(buffer, index) && ! Char.IsWhiteSpace(buffer[index]))
+    while(IsValidIndex(buffer, index) && symbolRule(buffer[index]) )
     {
       index++;
     }

@@ -46,4 +46,59 @@ public class TestFragHtmlPipe
     Assert.True(Subject.ReadToken(out token));
     Assert.Equal(EXPECTED, token);
   }
+
+  [Fact]
+  public void third_token_is_tag_end()
+  {
+    const string EXPECTED = ">";
+    string token;
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED, token);
+  }
+
+  [Fact]
+  public void fourth_token_is_tag_thead()
+  {
+    const string EXPECTED = "<thead";
+    string token;
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED, token);
+  }
+
+  [Fact]
+  public void fifth_token_is_end_tag()
+  {
+    const string EXPECTED = ">";
+    string token;
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED, token);
+  }
+
+  [Fact]
+  public void sixth_token_is_start_tag_tr()
+  {
+    const string EXPECTED = "<tr";
+    string token;
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED, token);
+  }
+
 }
