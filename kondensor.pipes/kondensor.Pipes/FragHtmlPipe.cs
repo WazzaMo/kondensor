@@ -14,7 +14,7 @@ namespace kondensor.Pipes;
 
 public struct FragHtmlPipe : IPipe, IPipeWriter
 {
-  internal struct Data
+  internal struct FragData
   {
     internal TextReader _Input;
     internal TextPipeWriter _Output;
@@ -23,14 +23,14 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     internal bool _EoInput;
   }
 
-  private Data _Data;
+  private FragData _Data;
 
   public FragHtmlPipe(
     TextReader input,
     TextPipeWriter output
   )
   {
-    _Data = new Data() {
+    _Data = new FragData() {
       _Input = input,
       _Output = output,
       _Buffer = BufferUtils.EmptyBuffer,
@@ -108,11 +108,11 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     );
 
    while (
-      NeedNewBuffer()
+      FragDataOps.NeedNewBuffer(ref _Data)
       || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
     )
     {
-      GetNewBuffer();
+      FragDataOps.GetNewBuffer(ref _Data);
       index = BufferUtils.ScanForSymbolStart(
         IsFragmentSpace,
         _Data._Buffer,
@@ -122,21 +122,6 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     }
 
     return index;
-  }
-
-  private bool NeedNewBuffer()
-    => ! _Data._EoInput
-    && ! BufferUtils.IsValidIndex( _Data._Buffer, _Data._BufferIndex );
-  
-  private void GetNewBuffer()
-  {
-    var input = _Data._Input.ReadLine();
-    if (input == null)
-    {
-      _Data._EoInput = true;
-    }
-    _Data._Buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
-    _Data._BufferIndex = 0;
   }
 
   private bool IsFragmentSpace(char _char)
