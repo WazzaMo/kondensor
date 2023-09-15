@@ -79,7 +79,9 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     {
       tokenEnd = IsSingleCharFragment()
         ? tokenStart + 1
-        : BufferUtils.ScanForEndOfSymbol(IsFragment, _Data._Buffer, tokenStart);
+        : BufferUtils.ScanForEndOfSymbol(
+            IsFragment, IsFragmentEnd, _Data._Buffer, tokenStart
+          );
       if ( BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd) )
       {
         int length = tokenEnd - tokenStart;
@@ -148,6 +150,11 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     || Char.IsLetterOrDigit(_char)
     || _char == '<'
     || _char == '=';
+
+  private bool IsFragmentEnd(char _char)
+  => Char.IsWhiteSpace(_char)
+    || _char == '>'
+    || _char == '<';
 
   private bool IsSingleCharFragment()
   => BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex)

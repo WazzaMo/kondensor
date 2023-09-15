@@ -18,6 +18,37 @@ public class TestFragHtmlPipe
 {
   private FragHtmlPipe Subject;
 
+  private readonly string[] TOKENS = {
+    "<table",
+    "id=\"actionFixture\"",
+    ">",
+    "<thead",
+    ">",
+    "<tr",
+    ">",
+    "<th",
+    ">",
+    "Actions",
+    "</th",
+    ">",
+    "<th",
+    ">",
+    "Description",
+    "</th",
+    // ">",
+    // "<th",
+    // ">",
+    // "Access level",
+    // "</th",
+    // ">",
+    // "<th",
+    // ">",
+    // "Resource types (*required)",
+    // "</th",
+    ">"
+  };
+
+
   public TestFragHtmlPipe()
   {
     var output = new TextPipeWriter(Console.Out);
@@ -99,6 +130,19 @@ public class TestFragHtmlPipe
     Assert.True(Subject.ReadToken(out token));
     Assert.True(Subject.ReadToken(out token));
     Assert.Equal(EXPECTED, token);
+  }
+
+  [Fact]
+  public void tokens_match_known_set()
+  {
+    string token;
+
+    for(int index = 0; index < TOKENS.Length; index++)
+    {
+      token = "";
+      Assert.True( Subject.ReadToken(out token) );
+      Assert.Equal(TOKENS[index], token);
+    }
   }
 
 }

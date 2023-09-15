@@ -54,6 +54,7 @@ internal static class BufferUtils
   /// where at the edge of a symbol.
   /// </summary>
   /// <param name="symbolRule">Rule defining valid symbol characters.</param>
+  /// <param name="symbolEndRule">Rule defining symbol end character.</param>
   /// <param name="buffer">Buffer to scan</param>
   /// <param name="startIndex">index to start scanning.</param>
   /// <returns>
@@ -62,14 +63,23 @@ internal static class BufferUtils
   /// </returns>
   internal static int ScanForEndOfSymbol(
     ScanRule symbolRule,
+    ScanRule symbolEndRule,
     char[] buffer,
     int startIndex
   )
   {
     int index = startIndex;
-    while(IsValidIndex(buffer, index) && symbolRule(buffer[index]) )
+    bool isNotEnd = true;
+    int length = 0;
+    while(
+      IsValidIndex(buffer, index) && symbolRule(buffer[index])
+      && isNotEnd
+    )
     {
       index++;
+      length = index - startIndex;
+      // Scan ahead for symbol end.
+      isNotEnd = length > 0 && !symbolEndRule(buffer[index]);
     }
     if (index >= buffer.Length)
       index = INDEX_END_BUFFER;
