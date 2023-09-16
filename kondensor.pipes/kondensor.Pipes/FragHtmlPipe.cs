@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace kondensor.Pipes;
@@ -21,6 +22,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     internal char[] _Buffer;
     internal int _BufferIndex;
     internal bool _EoInput;
+    internal int _NumTagStart;
+    internal int _NumTagEnd;
   }
 
   private FragData _Data;
@@ -35,7 +38,9 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
       _Output = output,
       _Buffer = BufferUtils.EmptyBuffer,
       _BufferIndex = 0,
-      _EoInput = false
+      _EoInput = false,
+      _NumTagStart = 0,
+      _NumTagEnd = 0
     };
   }
 
@@ -67,6 +72,9 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
   public IPipeWriter WriteFragmentLine(string fragment)
     => _Data._Output.WriteFragmentLine(fragment);
   
+  internal bool IsInTag => FragDataOps.IsInTag(ref _Data);
+  internal bool IsBetweenTags => FragDataOps.IsBetweenTags(ref _Data);
+
   private const string EMPTY = "";
 
   private bool IsTokenFound(out string token)
@@ -77,12 +85,12 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     int tokenStart = GetTokenStart();
     if (! _Data._EoInput && tokenStart >= 0)
     {
-      tokenEnd = IsSingleCharFragment()
+      tokenEnd = FragDataOps.IsSingleCharFragment(ref _Data)
         ? tokenStart + 1
         : BufferUtils.ScanForEndOfSymbol(
             IsFragment, IsFragmentEnd, _Data._Buffer, tokenStart
           );
-      if ( BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd) )
+      if ( BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd-1) )
       {
         int length = tokenEnd - tokenStart;
         _Data._BufferIndex = tokenEnd;
@@ -101,47 +109,41 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   private int GetTokenStart()
   {
-    int index = BufferUtils.ScanForSymbolStart(
-      IsFragmentSpace,
-      _Data._Buffer,
-      _Data._BufferIndex
-    );
-
-   while (
-      FragDataOps.NeedNewBuffer(ref _Data)
-      || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
-    )
+    int index;
+    if (IsBetweenTags)
+      index = _Data._BufferIndex;
+    else
     {
-      FragDataOps.GetNewBuffer(ref _Data);
       index = BufferUtils.ScanForSymbolStart(
         IsFragmentSpace,
         _Data._Buffer,
         _Data._BufferIndex
       );
-      _Data._BufferIndex = index;
     }
+
+    while (
+        FragDataOps.NeedNewBuffer(ref _Data)
+        || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
+      )
+      {
+        FragDataOps.GetNewBuffer(ref _Data);
+        index = BufferUtils.ScanForSymbolStart(
+          IsFragmentSpace,
+          _Data._Buffer,
+          _Data._BufferIndex
+        );
+        _Data._BufferIndex = index;
+      }
 
     return index;
   }
 
   private bool IsFragmentSpace(char _char)
-  => Char.IsWhiteSpace(_char);
-
-  private bool IsFragmentLone(char _char)
-  => _char == '>';
+    => FragDataOps.IsFragmentSpace(ref _Data, _char);
 
   private bool IsFragment(char _char)
-  => Char.IsPunctuation(_char)
-    || Char.IsLetterOrDigit(_char)
-    || _char == '<'
-    || _char == '=';
-
+    => FragDataOps.IsFragment(ref _Data, _char);
+  
   private bool IsFragmentEnd(char _char)
-  => Char.IsWhiteSpace(_char)
-    || _char == '>'
-    || _char == '<';
-
-  private bool IsSingleCharFragment()
-  => BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex)
-    && IsFragmentLone(_Data._Buffer[_Data._BufferIndex]);
+    => FragDataOps.IsFragmentEnd(ref _Data, _char);
 }

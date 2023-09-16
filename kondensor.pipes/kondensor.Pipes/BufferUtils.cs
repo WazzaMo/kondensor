@@ -96,5 +96,5 @@ internal static class BufferUtils
   }
 
   internal static string WhitespaceTerminate(string invalue)
-    => invalue + " ";
+    => invalue;// + " ";
 }
