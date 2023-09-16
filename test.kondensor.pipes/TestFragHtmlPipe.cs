@@ -45,6 +45,11 @@ public class TestFragHtmlPipe
     ">",
     "Resource types (*required)",
     "</th",
+    ">",
+    "<th",
+    ">",
+    "Condition keys",
+    "</th",
     ">"
   };
 
