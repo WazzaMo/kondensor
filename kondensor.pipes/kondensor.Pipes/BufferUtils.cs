@@ -79,7 +79,9 @@ internal static class BufferUtils
       index++;
       length = index - startIndex;
       // Scan ahead for symbol end.
-      isNotEnd = length > 0 && !symbolEndRule(buffer[index]);
+      isNotEnd = length > 0
+        && IsValidIndex( buffer, index)
+        && !symbolEndRule(buffer[index]);
     }
     if (index >= buffer.Length)
       index = INDEX_END_BUFFER;

@@ -10,7 +10,8 @@ using kondensor.Pipes;
 
 using System;
 using System.IO;
-using System.Dynamic;
+
+using test.kondensor.fixtures;
 
 namespace test.kondensor.pipes;
 

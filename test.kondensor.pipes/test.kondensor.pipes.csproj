@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\kondensor.pipes\kondensor.pipes.csproj" />
+    <ProjectReference Include="..\test.kondensor.fixtures\test.kondensor.fixtures.csproj" />
   </ItemGroup>
 
 </Project>

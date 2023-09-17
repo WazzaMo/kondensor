@@ -7,7 +7,7 @@
 
 using System.IO;
 
-namespace test.kondensor.pipes;
+namespace test.kondensor.fixtures;
 
 /// <summary>
 /// Fixture providing HTML data a TextReader (StringReader) object for

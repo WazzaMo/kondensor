@@ -7,6 +7,8 @@
 
 using kondensor.Pipes;
 
+using test.kondensor.fixtures;
+
 using System;
 
 namespace test.kondensor.pipes;

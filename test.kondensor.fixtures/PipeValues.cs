@@ -6,7 +6,7 @@
 
 using System.IO;
 
-namespace test.kondensor.pipes;
+namespace test.kondensor.fixtures;
 
 
 public static class PipeValues
