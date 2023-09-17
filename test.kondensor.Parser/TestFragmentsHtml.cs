@@ -65,7 +65,16 @@ public class TestFragmentsHtml
       .SkipUntil(BasicFragmentsRules.START_TR)
       .Expect(BasicFragmentsRules.START_TR, ATN_HEADING_ROW)
       .Expect(BasicFragmentsRules.TAG_CLOSE)
+      .Expect(ActionsHeading)
       .ExpectProductionUntil(Heading, BasicFragmentsRules.END_TR, ATN_END_HEADING_ROW)
+      ;
+
+  private ParseAction ActionsHeading(ParseAction parser)
+    => parser
+      .Expect(BasicFragmentsRules.START_TH, ATN_TABLE_HEADING_START)
+      .Expect(BasicFragmentsRules.TAG_CLOSE)
+      .Expect(BasicFragmentsRules.ACTIONS_TAG_VALUE, ATN_ACTIONS_HEADING)
+      .Expect(BasicFragmentsRules.END_TH).Expect(BasicFragmentsRules.TAG_CLOSE)
       ;
 
   private ParseAction Heading(ParseAction parser)
@@ -85,7 +94,8 @@ public class TestFragmentsHtml
     ATN_HEADING_ROW = "table:heading:row:start",
     ATN_END_HEADING_ROW = "table:heading:row:end",
     ATN_TABLE_HEADING_START = "table:heading:start",
-    ATN_TABLE_HEADING = "table:heading:value";
+    ATN_TABLE_HEADING = "table:heading:value",
+    ATN_ACTIONS_HEADING = "actions:heading:value";
     
 }
 
