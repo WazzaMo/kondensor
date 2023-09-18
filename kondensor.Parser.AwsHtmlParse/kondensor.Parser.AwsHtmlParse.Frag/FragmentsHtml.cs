@@ -4,7 +4,6 @@
  *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
-using System;
 using System.Text.RegularExpressions;
 
 

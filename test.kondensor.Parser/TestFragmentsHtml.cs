@@ -58,6 +58,19 @@ public class TestFragmentsHtml
     Assert.True(isMatched);
   }
 
+  [Fact]
+  public void can_parse_first_action_declaration()
+  {
+    bool isMatched = false;
+    Parser
+      .Expect(TableStart)
+      .Expect(ActionRow)
+      .AllMatchThen( (list, _) => {
+        isMatched = true;
+      });
+    Assert.True(isMatched);
+  }
+
   private ParseAction TableStart(ParseAction parser)
     => parser
       .SkipUntil(BasicFragmentsRules.START_TABLE)
@@ -67,6 +80,9 @@ public class TestFragmentsHtml
       .Expect(BasicFragmentsRules.TAG_CLOSE)
       .Expect(ActionsHeading)
       .ExpectProductionUntil(Heading, BasicFragmentsRules.END_TR, ATN_END_HEADING_ROW)
+      .Expect(BasicFragmentsRules.TAG_CLOSE)
+      .Expect(BasicFragmentsRules.END_THEAD)
+      .Expect(BasicFragmentsRules.TAG_CLOSE)
       ;
 
   private ParseAction ActionsHeading(ParseAction parser)
@@ -85,6 +101,20 @@ public class TestFragmentsHtml
       .Expect(BasicFragmentsRules.END_TH).Expect(BasicFragmentsRules.TAG_CLOSE)
       ;
 
+  private ParseAction ActionRow(ParseAction parser)
+    => parser
+      .Expect(BasicFragmentsRules.START_TR)
+        .Expect(BasicFragmentsRules.ROWSPAN_VALUE, ATN_ROWSPAN)
+        .SkipUntil(BasicFragmentsRules.ID_VALUE)
+        .Expect(BasicFragmentsRules.ID_VALUE, ATN_ID)
+        .SkipUntil(BasicFragmentsRules.START_A)
+        .Expect(BasicFragmentsRules.START_A)
+          .Expect(BasicFragmentsRules.HREF_VALUE, ATN_ACTION_HREF)
+        .Expect(BasicFragmentsRules.TAG_CLOSE)
+        .Expect(BasicFragmentsRules.TAG_VALUE, ATN_VALUE_ACTION_NAME)
+      .SkipUntil(BasicFragmentsRules.END_TR)
+      .Expect(BasicFragmentsRules.END_TR);
+
   private ParseAction Parser
     => Parsing.Group(_Pipe);
 
@@ -95,7 +125,14 @@ public class TestFragmentsHtml
     ATN_END_HEADING_ROW = "table:heading:row:end",
     ATN_TABLE_HEADING_START = "table:heading:start",
     ATN_TABLE_HEADING = "table:heading:value",
-    ATN_ACTIONS_HEADING = "actions:heading:value";
-    
+    ATN_ACTIONS_HEADING = "actions:heading:value",
+    ATN_START_ACTIONROW = "row:action:start",
+    ATN_END_ACTIONROW = "row:action:end",
+    ATN_ROWSPAN = "rowspan:num",
+    ATN_ID = "id:value",
+    ATN_ACTION_HREF = "href:action",
+    ATN_VALUE_ACTION_NAME = "value:action:name",
+    ATN_VALUE_DESCRIPTION = "value:description",
+    ATN_VALUE = "value:access-level";
 }
 

@@ -29,7 +29,7 @@ s:@"
         <th>Condition keys</th>
         <th>Dependent actions</th>
     </tr>
-</thead>
+  </thead>
     <tr>
         <td rowspan=""2"" tabindex=""-1"" id=""amazonplaygroundmanagement-AddCertificateToPlayGround"">
               
