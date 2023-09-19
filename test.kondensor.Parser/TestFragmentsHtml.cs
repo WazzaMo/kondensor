@@ -13,9 +13,10 @@ using kondensor.Parser.AwsHtmlParse.Frag;
 using test.kondensor.fixtures;
 
 using System;
-using System.Text.RegularExpressions;
 using System.Linq;
 using kondensor.Parser.AwsHtmlParse;
+using System.Security.Principal;
+using System.Net.Cache;
 
 namespace test.kondensor.Parser;
 
@@ -66,7 +67,42 @@ public class TestFragmentsHtml
       .Expect(TableStart)
       .Expect(ActionRow)
       .AllMatchThen( (list, _) => {
+        var query = from token in list 
+          where token.Annotation == ATN_VALUE_ACTION_NAME
+            || token.Annotation == ATN_VALUE_DESCRIPTION
+            || token.Annotation == ATN_ROWSPAN
+            || token.Annotation == ATN_ID
+            || token.Annotation == ATN_ACTION_HREF
+            select token;
+
         isMatched = true;
+        Assert.Collection( query,
+          rowspan => {
+            Assert.True( UtilsFragHtml.TryGetText(rowspan, "rowspanValue", out string span));
+            Assert.Equal(expected:"2", span);
+          },
+          id => {
+            Assert.True( UtilsFragHtml.TryGetText(id, key: "idValue", out string span));
+            Assert.Equal(
+              expected: "amazonplaygroundmanagement-AddCertificateToPlayGround",
+              span
+            );
+          },
+          href => {
+            Assert.True( UtilsFragHtml.TryGetText(href, key: "hrefValue", out string value));
+            Assert.Equal(
+              expected: "https://docs.aws.amazon.com/playground/latest/api/PG_funtimes.html",
+              value
+            );
+          },
+          name => {
+            Assert.True( UtilsFragHtml.TryGetText(name, key: "tagValue", out string tag));
+            Assert.Equal(
+              expected: "AddCertificateToPlayGround",
+              tag
+            );
+          }
+        );
       });
     Assert.True(isMatched);
   }
@@ -104,6 +140,7 @@ public class TestFragmentsHtml
   private ParseAction ActionRow(ParseAction parser)
     => parser
       .Expect(BasicFragmentsRules.START_TR)
+        .SkipUntil(BasicFragmentsRules.ROWSPAN_VALUE)
         .Expect(BasicFragmentsRules.ROWSPAN_VALUE, ATN_ROWSPAN)
         .SkipUntil(BasicFragmentsRules.ID_VALUE)
         .Expect(BasicFragmentsRules.ID_VALUE, ATN_ID)
