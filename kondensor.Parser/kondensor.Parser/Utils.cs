@@ -102,7 +102,7 @@ public static class Utils
       var match = rule.Match(token);
       GroupCollection groups = match.Groups;
 
-      if (groups.Keys.Count() > 0)
+      if (match.Success && groups.Keys.Count() > 0)
       {
         result = new Matching()
         {
@@ -117,9 +117,10 @@ public static class Utils
         );
       }
       else
-        throw new ArgumentException(
-          message: $"Not a {nameof(NamedGroupRule)}: {rule}"
-        );
+      {
+        result = NoMatch();
+        result.MismatchToken = token;
+      }
       return result;
     };
     return matcher;
