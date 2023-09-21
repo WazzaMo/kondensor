@@ -58,6 +58,15 @@ public struct ParseAction
 
   public IPipeWriter Writer => (IPipeWriter) _Pipe;
 
+  /// <summary>
+  /// Scan ahead looking for a match and making sure the
+  /// next symbol to parse will be that symbol.
+  /// Move forward throught the pipe scanning for the given
+  /// matcher, leaving the parse action at the state where it
+  /// will read the symbol that first matched the given Matcher.
+  /// </summary>
+  /// <param name="rule">Matcher to scan for</param>
+  /// <returns>ParseAction at the point to read the expected token.</returns>
   public ParseAction SkipUntil(Matcher rule)
   {
     int originalCheckPoint = _Pipe.GetCheckPoint();
@@ -83,6 +92,16 @@ public struct ParseAction
     }
     return this;
   }
+
+  /// <summary>Scans for and consumes a token that matches the given rule.</summary>
+  /// <param name="matchRule">Rule for token scanning and then matching.</param>
+  /// <param name="annotation">Annotation to apply to match.</param>
+  /// <returns>ParseAction ready to parse token after matched token.</returns>
+  public ParseAction ScanForAndExpect(
+    Matcher matchRule, string? annotation = null
+  )
+    => SkipUntil(matchRule)
+      .Expect(matchRule, annotation);
 
   public ParseAction Expect(Matcher nextRule, string? annotation = null)
   {
@@ -301,6 +320,13 @@ public struct ParseAction
     return this;
   }
 
+  /// <summary>
+  /// Attempts to parse by applying the first production and, should that fail,
+  /// trying the second one, until either one has parsed or both failed.
+  /// </summary>
+  /// <param name="first">Primary production to attempt</param>
+  /// <param name="second">Second production, if first fails.</param>
+  /// <returns>ParseAction for fluid API.</returns>
   public ParseAction EitherProduction(
     Production first,
     Production second

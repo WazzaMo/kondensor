@@ -109,10 +109,8 @@ public class TestFragmentsHtml
 
   private ParseAction TableStart(ParseAction parser)
     => parser
-      .SkipUntil(BasicFragmentsRules.START_TABLE)
-      .Expect(BasicFragmentsRules.START_TABLE, ATN_TABLE_HEADING_START)
-      .SkipUntil(BasicFragmentsRules.START_TR)
-      .Expect(BasicFragmentsRules.START_TR, ATN_HEADING_ROW)
+      .ScanForAndExpect(BasicFragmentsRules.START_TABLE, ATN_TABLE_HEADING_START)
+      .ScanForAndExpect(BasicFragmentsRules.START_TR, ATN_HEADING_ROW)
       .Expect(BasicFragmentsRules.TAG_CLOSE)
       .Expect(ActionsHeading)
       .ExpectProductionUntil(Heading, BasicFragmentsRules.END_TR, ATN_END_HEADING_ROW)
