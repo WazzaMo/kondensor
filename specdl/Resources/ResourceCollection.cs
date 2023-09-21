@@ -1,7 +1,7 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Public License v3.0 or later.
  */
 
 using System;
@@ -9,9 +9,8 @@ using System.Collections.Generic;
 
 using Optional;
 
-using Parser;
-using HtmlParse;
-using YamlWriters;
+using kondensor.Parser;
+
 
 namespace Resources;
 

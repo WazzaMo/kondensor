@@ -1,18 +1,19 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Public License v3.0 or later.
  */
 
 
 using System.Collections.Generic;
 using Optional;
 
-using Parser;
-using HtmlParse;
+using kondensor.Pipes;
+using kondensor.Parser;
+using kondensor.Parser.AwsHtmlParse;
+using kondensor.YamlFormat;
 
 using YamlWriters;
-using System.Globalization;
 
 namespace Actions;
 
@@ -114,30 +115,6 @@ public struct ActionTable
     ActionsYamlWriter.WriteYaml(_Data._SourceUrl, _Data._HeadingNames, _Data._Actions, formatter);
   }
 
-  private ParseAction RowData(ParseAction parser)
-  {
-    ActionType foundAction = new ActionType();
-    InternalData data = _Data;
-    Action<LinkedList<Matching>> processActionInfo = CollectActionDeclarations;
-
-    parser
-      .Expect(ActionTableParser.RowData)
-      .AllMatchThen( (list,writer) => {
-        processActionInfo(list);
-      })
-      .MismatchesThen( (list,wr) => {
-          var query = from node in list where node.MatchResult == MatchKind.Mismatch
-            select node;
-          query.ForEach( (node, idx) => {
-            Console.Error.WriteLine(
-              value: $"Error # {idx}: mismatch on token {node.MismatchToken} for annotation: {node.Annotation}"
-            );
-          });
-      });
-
-    return parser;
-  }
-
   private void CollectParsedData(LinkedList<Matching> list, IPipeWriter _)
   {
     CollectHeadings(list);
@@ -160,64 +137,79 @@ public struct ActionTable
 
   private void CollectActionDeclarations(LinkedList<Matching> list)
   {
-    var declarationNodes = FilterActionDeclaration(list).GetEnumerator();
+    var declarationNodes
+      = ActionCollection.FilterActionDeclaration(list).GetEnumerator();
+    
     ActionType actionDecl = new ActionType();
     ActionAccessLevel level;
     ActionResourceType resourceType = new ActionResourceType();
+    string actionId = "NO-ID";
 
     while( declarationNodes.MoveNext())
     {
-      if (IsStartActionIdAnnotation(declarationNodes.Current.Annotation) )
+      if (ActionCollection.IsActionDeclarationStart(
+        ref declarationNodes,
+        out actionId
+      ))
       {
-        Matching aId = declarationNodes.Current;
-        declarationNodes.MoveNext();
-        if ( IsStartActionNameAndRef(declarationNodes.Current.Annotation) )
+        if (
+          ActionCollection.IsStartActionNameAndRef(declarationNodes.Current.Annotation)
+        )
         {
           Matching aHref = declarationNodes.Current;
           declarationNodes.MoveNext();
 
-          string id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
           string actionName = HtmlPartsUtils.GetAHrefTagValue(aHref.Parts);
           string apiLink = HtmlPartsUtils.GetAHrefAttribValue(aHref.Parts);
           actionDecl = new ActionType();
-          actionDecl.SetActionId(id);
+          actionDecl.SetActionId(actionId);
           actionDecl.SetActionName(actionName);
           actionDecl.SetApiDocLink(apiLink);
           _Data._Actions.Add( actionDecl );
 
-          if ( IsFirstActionDescription(declarationNodes.Current.Annotation) )
+          if (
+            ActionCollection.IsFirstActionDescription(declarationNodes.Current.Annotation)
+          )
           {
             Matching desc = declarationNodes.Current;
             declarationNodes.MoveNext();
             
-            string description = HtmlPartsUtils.GetTdTagValue(desc.Parts);
-            _Data.SavedDescription = description;
-            bool hasResourceType = HasCollectedActionProperties(
-                declarationNodes,
-                description,
-                out level,
-                out resourceType
-              );
-            if (hasResourceType)
+            if (HtmlPartsUtils.TryGetTdValue(desc, out string description))
             {
-              if (resourceType.Description.IsEmptyPartsValue())
+              _Data.SavedDescription = description;
+              bool hasResourceType = ActionResourceCollection.HasCollectedActionProperties(
+                  declarationNodes,
+                  description,
+                  out level,
+                  out resourceType
+              );
+              
+              if (hasResourceType)
               {
-                resourceType.SetDescription(description);
+                if (resourceType.Description.IsEmptyPartsValue())
+                {
+                  resourceType.SetDescription(description);
+                }
+                _Data._CurrentAccessLevel = Option.Some( level );
+                _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
               }
-              _Data._CurrentAccessLevel = Option.Some( level );
-              _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
             }
           }
         }
       }
-      else if (IsActionPropertyRowStart(declarationNodes.Current.Annotation) )
+      else if (
+        ActionCollection.IsActionPropertyRowStart(declarationNodes.Current.Annotation)
+      )
       {
         declarationNodes.MoveNext();
-        if ( IsResourceConditionKeyOrDependency( declarationNodes.Current.Annotation)
-          && resourceType.IsDescriptionSet)
+        if (
+          ActionCollection.IsResourceConditionKeyOrDependency( declarationNodes.Current.Annotation)
+          && resourceType.IsDescriptionSet
+        )
         {
-          ActionResourceType nextResourceType = CopyResourceType(resourceType);
-          bool isNew = CollectActionPropertyRow(declarationNodes, ref nextResourceType);
+          ActionResourceType nextResourceType
+            = ActionResourceCollection.CopyResourceType(resourceType);
+          bool isNew = ActionResourceCollection.CollectActionPropertyRow(declarationNodes, ref nextResourceType);
           var _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
 
           if (_level != ActionAccessLevel.Unknown)
@@ -242,11 +234,10 @@ public struct ActionTable
               );
             }
           }
-          
         }
         
         if (
-          IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
+          ActionCollection.IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
           && actionDecl.IsActionIdSet && resourceType.IsIdAndNameSet
         )
         {
@@ -255,8 +246,8 @@ public struct ActionTable
           declarationNodes.MoveNext();
 
           string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
-          ActionResourceType nextDescResourceType = CopyResourceType(resourceType);
-          bool isNew = CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
+          ActionResourceType nextDescResourceType = ActionResourceCollection.CopyResourceType(resourceType);
+          bool isNew = ActionResourceCollection.CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
           nextDescResourceType.SetDescription(description);
 
           ActionAccessLevel _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
@@ -267,150 +258,4 @@ public struct ActionTable
     }
   }
 
-  private ActionResourceType CopyResourceType(ActionResourceType resourceType)
-  {
-    ActionResourceType copy = new ActionResourceType();
-    copy.SetTypeIdAndName(
-      resourceType.ResourceTypeDefId,
-      resourceType.ResourceTypeName
-    );
-    copy.SetDescription(resourceType.Description);
-    return copy;
-  }
-
-  private bool HasCollectedActionProperties(
-    IEnumerator<Matching> nodes,
-    string description,
-    out ActionAccessLevel level,
-    out ActionResourceType resourceType
-  )
-  {
-    bool result = false;
-
-    level = ActionAccessLevel.Unknown;
-    resourceType = new ActionResourceType();
-
-    bool isOk = nodes.Current.Annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION;
-    if (isOk)
-    {
-      Matching levelNode = nodes.Current;
-      nodes.MoveNext();
-
-      string levelTxt = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
-      level = levelTxt.GetLevelFrom();
-      if (level != ActionAccessLevel.Unknown)
-      {
-        resourceType = new ActionResourceType();
-        resourceType.SetDescription(description);
-        result = true;
-
-        CollectActionPropertyRow(
-          nodes,
-          ref resourceType
-        );
-      }
-    }
-    return result;
-  }
-
-  private bool CollectActionPropertyRow(
-    IEnumerator<Matching> nodes,
-    ref ActionResourceType resourceType
-  )
-  {
-    bool isResourceTypeNew = false;
-    do
-    {
-      if (IsResourceIdAndName(nodes.Current.Annotation))
-      {
-        Matching aHrefResource = nodes.Current;
-
-        string resourceId, resourceName;
-
-        isResourceTypeNew = true;
-
-        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
-        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
-        resourceType.SetTypeIdAndName(resourceId, resourceName);
-      }
-      if (IsCondKeyIdAndNameHref(nodes.Current.Annotation) )
-      {
-        Matching aHrefConditionKey = nodes.Current;
-        string ckId, ckName;
-
-        ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
-        ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
-        resourceType.AddConditionKeyId(ckId);
-      }
-
-      if ( IsDependentKey(nodes.Current.Annotation) )
-      {
-        Matching tdDependency = nodes.Current;
-        string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
-
-        if (! depId.IsEmptyPartsValue())
-          resourceType.AddDependentActionId(depId);
-      }
-    }
-    while(nodes.MoveNext() && ! IsActionPropertyRowEnd(nodes.Current.Annotation));
-
-    return isResourceTypeNew;
-  }
-
-  private IEnumerable<Matching> FilterActionDeclaration(LinkedList<Matching> list)
-  {
-    Func<string, bool> filter = IsActionDeclarationAnnotation;
-    var query = from node in list where filter(node.Annotation) select node;
-    return query;
-  }
-
-  private bool IsActionDeclarationAnnotation(string annotation)
-    => IsActionDeclRowStart(annotation)
-    || IsActionPropertyRowStart(annotation)
-    || IsActionPropertyRowEnd(annotation)
-    || IsStartActionIdAnnotation(annotation) 
-    || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
-    || IsFirstActionDescription(annotation)
-    || IsSameActionNewDescriptionAnnotation(annotation)
-    || annotation == ActionAnnotations.START_ACCESSLEVEL_ANNOTATION
-    || annotation == ActionAnnotations.A_HREF_RESOURCE
-    || IsCondKeyIdAndNameHref( annotation )
-    || annotation == ActionAnnotations.START_PARA_DEPENDENT
-    ;
-
-  private bool IsActionDeclRowStart(string annotation)
-    => annotation == ActionAnnotations.START_ACTION_ROW_ANNOTATION;
-  
-  private bool IsActionPropertyRowStart(string annotation)
-    => annotation == ActionAnnotations.START_ACTION_PROP_ROW_ANNOTATION;
-
-  private bool IsActionPropertyRowEnd(string annotation)
-    => annotation == ActionAnnotations.END_ACTION_PROP_ROW_ANNOTATION;
-
-  private bool IsStartActionIdAnnotation(string annotation)
-    => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
-
-  private bool IsStartActionNameAndRef(string annotation)
-    => annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION;
-
-  private bool IsFirstActionDescription(string annotation)
-    => annotation == ActionAnnotations.START_CELL_ACTIONDESC_ANNOTATION;
-  
-  private bool IsSameActionNewDescriptionAnnotation(string annotation)
-    => annotation == ActionAnnotations.START_NEWDECL_PARA;
-
-  private static bool IsResourceConditionKeyOrDependency(string annotation)
-    => IsResourceIdAndName(annotation)
-    || IsCondKeyIdAndNameHref(annotation)
-    || IsDependentKey(annotation)
-    ;
-
-  private static bool IsResourceIdAndName(string annotation)
-    => annotation == ActionAnnotations.A_HREF_RESOURCE;
-  
-  private static bool IsCondKeyIdAndNameHref(string annotation)
-    => annotation == ActionAnnotations.A_HREF_CONDKEY;
-  
-  private static bool IsDependentKey(string annotation)
-    => annotation == ActionAnnotations.START_PARA_DEPENDENT;
 }

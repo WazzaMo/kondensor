@@ -1,7 +1,7 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Public License v3.0
  */
 
 using System.IO;
@@ -11,8 +11,11 @@ using System.Net.Http.Headers;
 using Optional;
 
 using Spec;
-using Parser;
-using HtmlParse;
+
+using kondensor.Parser;
+using kondensor.Parser.AwsHtmlParse;
+using kondensor.Pipes;
+
 using Resources;
 using Actions;
 
@@ -83,7 +86,6 @@ public struct SpecDownloader
     HtmlPipe htmlPipe;
     ReplayWrapPipe thePipe;
 
-    // IPreprocessor arnPreprocessor = new ArnSpecPreprocessor();
     IPreprocessor boldPreprocessor = new ActionBoldPreprocessor();
     IPreprocessor spanPreprocessor = new ActionSpanPreprocessor();
 
@@ -94,7 +96,6 @@ public struct SpecDownloader
             _dest.Match(
               destination => {
                 htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
-                // htmlPipe.AddPreprocessor( arnPreprocessor );
                 htmlPipe.AddPreprocessor( boldPreprocessor );
                 htmlPipe.AddPreprocessor( spanPreprocessor );
                 thePipe = new ReplayWrapPipe(htmlPipe);

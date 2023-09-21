@@ -1,15 +1,15 @@
 /*
  *  (c) Copyright 2022, 2023 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Public License v3.0 or later.
  */
 
 
 using System.Collections.Generic;
 using Optional;
 
-using Parser;
-using HtmlParse;
+using kondensor.Parser;
+using kondensor.Parser.AwsHtmlParse;
 
 namespace Actions;
 
@@ -33,24 +33,24 @@ public static class ActionAnnotations
     START_ROW_ANNOTATION = "start:tr:row",
     END_ROW_ANNOTATION = "end:tr:row",
     START_ACTION_ROW_ANNOTATION = "start:tr:action:row",
-    START_ACTION_PROP_ROW_ANNOTATION = "start:tr:action-prop:row",
-    END_ACTION_PROP_ROW_ANNOTATION = "end:tr:action-prop:row",
+    START_TR_ACTION_PROP_ROW = "start:tr:action-prop:row",
+    END_TR_ACTION_PROP_ROW = "end:tr:action-prop:row",
 
-    START_CELL_ACTION_ANNOTATION = "start:td:action:decl",
+    START_TD_ID_ACTION = "start:td:action:decl",
     START_ID_ACTION_ANNOTATION = "start:a-id:action",
     END_ID_ACTION_ANNOTATION = "end:a-id:action",
     START_HREF_ACTION_ANNOTATION = "start:a-href:action",
     END_HREF_ACTION_ANNOTATION = "end:a-href:action",
     END_CELL_ACTION_ANNOTATION = "end:td:action",
-    START_CELL_ACTIONDESC_ANNOTATION = "start:td:description",
+    START_TD_ACTIONDESC = "start:td:description",
     START_CELL_ACTIONDESC_ROWSPAN_ANNOTATION = "start:td:rowspan:description",
     START_CELL_ACTION_ROWSPAN_ANNOTATION = "start:td:rowspan",
-    START_CELL_ACTION_NEWDESC_ANNOTATION = "start:td:new-description",
-    END_CELL_ACTIONDESC_ANNOTATION = "end:td:description",
-    START_ACCESSLEVEL_ANNOTATION = "start:td:accesslevel",
+    START_TD_ACTION_NEWDESC = "start:td:new-description",
+    END_TD_ACTIONDESC = "end:td:description",
+    START_TD_ACCESSLEVEL = "start:td:accesslevel",
     START_ACCESSLEVEL_ROWSPAN_ANNOTATION = "start:td:rowspan:accesslevel",
     START_ACCESSLEVEL_EMPTY_ANNOTATION = "start:td:accesslevel:empty",
-    END_ACCESSLEVEL_ANNOTATION = "end:td:accesslevel",
+    END_TD_ACCESSLEVEL = "end:td:accesslevel",
     
     START_TD_RESOURCETYPE = "start:td:resourcetype",
     END_TD_RESOURCETYPE = "end:td:resourcetype",
