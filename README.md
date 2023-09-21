@@ -23,6 +23,10 @@ it easier to keep current with AWS' ongoing changes to their services
 and how security and access policies can and should be specified for their
 web services.
 
+### cfgen
+
+A tool that exercises and demonstrates the *kondensor.cfgenlib* library.
+In development.
 
 ## Libraries in this mono-repo
 
@@ -43,6 +47,12 @@ style and, through the use of annotated matches, makes it easy
 to collect the parsed information. This makes linking the compiler
 back-end to the front-end, the parser, fairly simple.
 
+## kondensor.cfgenlib
+
+A library with a fluid API for creating CloudFormation templates.
+This was built to a degree and proven for a number of services and paused
+to develop specdl so that IAM policy generation could be generated
+from Action, Resource and condition key specifications.
 
 
 ## .NET Libraries Used
