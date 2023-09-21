@@ -12,10 +12,10 @@ FILES="*.cs"
 for csf in ${FILES}; do
 	#ls -l "$csf"
   # -- LGPL Library
-	# cat "$csf" | sed -e "s/${SEARCH}/${REPLACE_LGPL}/g" > "/tmp/${csf}"
+	cat "$csf" | sed -e "s/${SEARCH}/${REPLACE_LGPL}/g" > "/tmp/${csf}"
 
   # -- GPL App code
-	cat "$csf" | sed -e "s/${SEARCH}/${REPLACE_GPL}/g" > "/tmp/${csf}"
+	# cat "$csf" | sed -e "s/${SEARCH}/${REPLACE_GPL}/g" > "/tmp/${csf}"
 	rm $csf
 	mv "/tmp/${csf}" .
 done

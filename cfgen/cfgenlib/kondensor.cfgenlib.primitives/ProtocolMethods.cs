@@ -1,7 +1,7 @@
 /*
  *  (c) Copyright 2020 Kondensor Contributors
  *  Written by Warwick Molloy.
- *  Distributed under the Kondensor License.
+ *  Distributed without warranty, under the GNU Lesser Public License v 3.0 or later.
  */
 
 
