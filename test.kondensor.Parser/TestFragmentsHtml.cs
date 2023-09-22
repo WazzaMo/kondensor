@@ -15,8 +15,6 @@ using test.kondensor.fixtures;
 using System;
 using System.Linq;
 using kondensor.Parser.AwsHtmlParse;
-using System.Security.Principal;
-using System.Net.Cache;
 
 namespace test.kondensor.Parser;
 
