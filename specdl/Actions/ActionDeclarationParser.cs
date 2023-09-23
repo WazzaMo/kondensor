@@ -10,6 +10,7 @@ using Optional;
 
 using kondensor.Parser;
 using kondensor.Parser.AwsHtmlParse;
+using kondensor.Parser.AwsHtmlParse.Frag;
 
 namespace Actions;
 
@@ -22,7 +23,7 @@ public static class ActionDeclarationParser
   /// <returns>Same parser returned for fluid API.</returns>
   internal static ParseAction ActionDeclarationProduction(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, annotation: ActionAnnotations.START_ACTION_ROW_ANNOTATION)
+      .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_ACTIONS)
         .Expect(ActionDeclarationWithId)
         .Expect(ActionDescriptionProd)
         .Expect(ActionAccessLevelProd)
@@ -63,22 +64,21 @@ public static class ActionDeclarationParser
   private static ParseAction ActionDeclarationWithId(ParseAction parser)
   {
     parser
+      .ScanForAndExpect(HtmlFragRules.ID_VALUE, ActionAnnotations.ID_ACTION)
+      .TagClose()
+      .Expect(HtmlFragRules.START_A)
+        .Expect(HtmlFragRules.HREF_VALUE, ActionAnnotations.HREF_ACTION)
+      .TagClose()
+      .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.NAME_ACTION)
+      .Expect(HtmlFragRules.END_A).TagClose()
+      .Expect(HtmlFragRules.END_TD).TagClose()
+      
       .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_ID_ACTION)
         .Expect(ActionIdAndRefProd)
       .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
     return parser;
   }
-
-  private static ParseAction ActionIdAndRefProd(ParseAction parser)
-    => parser
-        .MayExpect(HtmlRules.START_A_ID, ActionAnnotations.START_ID_ACTION_ANNOTATION)
-        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_ID_ACTION_ANNOTATION)
-        .Expect(HtmlRules.START_A_HREF, ActionAnnotations.START_HREF_ACTION_ANNOTATION)
-        .MayExpect(HtmlRules.START_AWSUIICON, ActionAnnotations.START_AWSICON)
-        .MayExpect(HtmlRules.END_AWSUIICON, ActionAnnotations.END_AWSICON)
-        .Expect(HtmlRules.END_A, ActionAnnotations.END_HREF_ACTION_ANNOTATION)
-        ;
 
   private static ParseAction ActionDescriptionProd(ParseAction parser)
     => parser
