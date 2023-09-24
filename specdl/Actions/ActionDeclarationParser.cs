@@ -24,10 +24,10 @@ public static class ActionDeclarationParser
   internal static ParseAction ActionDeclarationProduction(ParseAction parser)
     => parser
       .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_ACTIONS)
-        .Expect(ActionDeclarationWithId)
-        .Expect(ActionDescriptionProd)
-        .Expect(ActionAccessLevelProd)
-        .Expect(ActionInitialResourceCondKeyDepProd)
+        .Expect(ActionDeclarationWithId) // frag
+        .Expect(ActionDescriptionProd) // frag
+        .Expect(ActionAccessLevelProd) // frag
+        .Expect(ActionInitialResourceCondKeyDepProd) // next frag
       .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_TR_ACTION_PROP_ROW)
       .ProductionWhileMatch(ActionRowsResourceCondKeyDependentsProd)
       .ProductionWhileMatch(ActionNewDescriptionResourceCondKeyDependentProd)
@@ -45,7 +45,7 @@ public static class ActionDeclarationParser
 
   private static ParseAction PropertiesResourceCondKeyDepProd(ParseAction parser)
     => parser
-        .Expect(ResourceType)
+        .Expect(ResourceType) // next frag
         .Expect(ConditionKeys)
         .Expect(DependendActions)
       ;
@@ -65,25 +65,23 @@ public static class ActionDeclarationParser
   {
     parser
       .ScanForAndExpect(HtmlFragRules.ID_VALUE, ActionAnnotations.ID_ACTION)
-      .TagClose()
+      .ScanForTagClose()
       .Expect(HtmlFragRules.START_A)
         .Expect(HtmlFragRules.HREF_VALUE, ActionAnnotations.HREF_ACTION)
-      .TagClose()
+      .ScanForTagClose()
       .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.NAME_ACTION)
       .Expect(HtmlFragRules.END_A).TagClose()
       .Expect(HtmlFragRules.END_TD).TagClose()
-      
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_ID_ACTION)
-        .Expect(ActionIdAndRefProd)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_CELL_ACTION_ANNOTATION)
       ;
     return parser;
   }
 
   private static ParseAction ActionDescriptionProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_ACTIONDESC)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_ACTIONDESC)
+      .Expect(HtmlFragRules.START_TD)
+      .ScanForTagClose()
+      .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.ACTION_DESCRIPTION)
+      .Expect(HtmlFragRules.END_TD).TagClose()
       ;
 
   private static ParseAction NewDescriptionSameAction(ParseAction parser)
@@ -102,14 +100,16 @@ public static class ActionDeclarationParser
 
   private static ParseAction ActionAccessLevelProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, annotation: ActionAnnotations.START_TD_ACCESSLEVEL)
-      .Expect(HtmlRules.END_TD, annotation: ActionAnnotations.END_TD_ACCESSLEVEL)
-      ;
+        .Expect(HtmlFragRules.START_TD).ScanForTagClose()
+          .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.ACTION_ACCESS_LEVEL)
+        .Expect(HtmlFragRules.END_TD).TagClose()
+        ;
 
   private static ParseAction ResourceType(ParseAction parser)
     => parser
       .EitherProduction(EmptyResourceType, MultiResourceType);
 
+  // TODO FRAG
   private static ParseAction EmptyResourceType(ParseAction parser)
     => parser
       .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
@@ -117,14 +117,23 @@ public static class ActionDeclarationParser
 
   private static ParseAction MultiResourceType(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
-      .ExpectProductionUntil(ResourcePara,
-        HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_RESOURCETYPE
-      );
-
+        .Expect(HtmlFragRules.START_TD, ActionAnnotations.RESOURCE_START)
+        .ScanForTagClose()
+          .ExpectProductionUntil(ResourcePara,
+            HtmlFragRules.END_TD, endAnnodation: ActionAnnotations.RESOURCE_END
+          ).TagClose()
+      ;
 
   private static ParseAction ResourcePara(ParseAction parser)
     => parser
+        .ScanForAndExpect(HtmlFragRules.START_P).ScanForTagClose()
+          .ScanForAndExpect(HtmlFragRules.HREF_VALUE, ActionAnnotations.RESOURCE_HREF)
+          .ScanForTagClose()
+          .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.RESOURCE_NAME)
+          .Expect(HtmlFragRules.END_A)
+        .Expect(HtmlFragRules.END_P).TagClose()
+      ;
+
       .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
         .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
         .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)

@@ -25,7 +25,13 @@ public static class ActionAnnotations
     START_ROW_ACTIONS = "row:start:actions",
     ID_ACTION = "id:action",
     HREF_ACTION = "href:action",
-    NAME_ACTION = "tag:name:action"
+    NAME_ACTION = "tag:name:action",
+    ACTION_DESCRIPTION = "tag:value:description",
+    ACTION_ACCESS_LEVEL = "tag:value:accessLevel",
+    RESOURCE_START = "td:start:resource",
+    RESOURCE_END = "td:end:resource",
+    RESOURCE_HREF = "href:resource:value",
+    RESOURCE_NAME = "tag:value:resourceName"
     ;
 
 }

@@ -25,6 +25,8 @@ public static class HtmlFragRules
     END_TR = Utils.SingularMatchRule(FragmentsHtml.END_TR, name: "end:tr"),
     START_TH = Utils.SingularMatchRule(FragmentsHtml.START_TH, name: "start:th"),
     END_TH = Utils.SingularMatchRule(FragmentsHtml.END_TH, name: "end:th"),
+    START_P = Utils.SingularMatchRule(FragmentsHtml.START_P, name: "start:p"),
+    END_P = Utils.SingularMatchRule(FragmentsHtml.END_P, name: "end:p"),
 
     /// <summary>Named group tag value value</summary>
     TAG_VALUE = Utils.NamedGroupRule(FragmentsHtml.TAG_VALUE, name: "tag:value"),

@@ -21,4 +21,8 @@ public static class ParseActionExt
 
   public static ParseAction TagClose(this ParseAction parser)
     => parser.Expect(HtmlFragRules.TAG_CLOSE, ATN_CLOSE_TAG);
+  
+  public static ParseAction ScanForTagClose(this ParseAction parser)
+    => parser
+        .ScanForAndExpect(HtmlFragRules.TAG_CLOSE, ATN_CLOSE_TAG);
 }
