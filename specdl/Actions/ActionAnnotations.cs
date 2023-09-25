@@ -31,7 +31,13 @@ public static class ActionAnnotations
     RESOURCE_START = "td:start:resource",
     RESOURCE_END = "td:end:resource",
     RESOURCE_HREF = "href:resource:value",
-    RESOURCE_NAME = "tag:value:resourceName"
+    RESOURCE_NAME = "tag:value:resourceName",
+    CONDKEY_START = "td:start:conditionKey",
+    CONDKEY_END = "td:end:conditionKey",
+    CONDKEY_HREF = "href:conditionKey:value",
+    CONDKEY_NAME = "name:conditionKey:value",
+    DEPACT_START = "td:start:depAction",
+    DEPACT_END = "td:end:depAction"
     ;
 
 }

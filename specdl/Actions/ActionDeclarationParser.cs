@@ -45,9 +45,9 @@ public static class ActionDeclarationParser
 
   private static ParseAction PropertiesResourceCondKeyDepProd(ParseAction parser)
     => parser
-        .Expect(ResourceType) // next frag
-        .Expect(ConditionKeys)
-        .Expect(DependendActions)
+        .Expect(ResourceType) //  frag
+        .Expect(ConditionKeys) // frag
+        .Expect(DependendActions) // next frag
       ;
 
 
@@ -109,11 +109,11 @@ public static class ActionDeclarationParser
     => parser
       .EitherProduction(EmptyResourceType, MultiResourceType);
 
-  // TODO FRAG
   private static ParseAction EmptyResourceType(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_RESOURCETYPE)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_RESOURCETYPE);
+        .Expect(HtmlFragRules.START_TD, ActionAnnotations.RESOURCE_START).ScanForTagClose()
+        .Expect(HtmlFragRules.END_TD, ActionAnnotations.RESOURCE_END).TagClose()
+        ;
 
   private static ParseAction MultiResourceType(ParseAction parser)
     => parser
@@ -139,24 +139,38 @@ public static class ActionDeclarationParser
         .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
       .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
+  // TODO adjust for <p>name | <p><a href>name
   private static ParseAction ConditionKeys(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_CONDKEY)
+        .Expect(HtmlFragRules.START_TD, ActionAnnotations.CONDKEY_START)
         .ExpectProductionUntil(
           ConditionKeyEntry,
-        HtmlRules.END_TD, ActionAnnotations.END_TD_CONDKEY
-      );
+          HtmlFragRules.END_TD, ActionAnnotations.CONDKEY_END
+        );
 
+
+  // See this link - shows that <a href> is optional and that it's
+  // possible there could be a name only in the paragraph
+  // https://docs.aws.amazon.com/service-authorization/latest/reference/list_apachekafkaapisforamazonmskclusters.html
   private static ParseAction ConditionKeyEntry(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_CONDKEY)
-        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
-      .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      ;
+        .Expect(HtmlFragRules.START_P)
+          .Expect(HtmlFragRules.START_A)
+            .MayExpect(HtmlFragRules.HREF_VALUE, ActionAnnotations.CONDKEY_HREF)
+            .TagClose()
+            .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.CONDKEY_NAME)
+          .Expect(HtmlFragRules.END_A)
+        .Expect(HtmlFragRules.END_P).TagClose()
+        ;
 
   private static ParseAction DependendActions(ParseAction parser)
     => parser
+        .Expect(HtmlFragRules.START_TD, ActionAnnotations.DEPACT_START)
+          .ExpectProductionUntil(RepeatableDependentActionParagraphs,
+        HtmlFragRules.END_TD, ActionAnnotations.DEPACT_END)
+        ;
+
+
       .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_DEPACT)
         .ExpectProductionUntil(
           RepeatableDependentActionParagraphs,
@@ -165,6 +179,9 @@ public static class ActionDeclarationParser
 
   private static ParseAction RepeatableDependentActionParagraphs(ParseAction parser)
     => parser
+        .Expect(HtmlFragRules.START_P)
+
+
         .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEPENDENT)
         .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
 
