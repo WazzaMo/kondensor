@@ -23,12 +23,12 @@ public static class ActionDeclarationParser
   /// <returns>Same parser returned for fluid API.</returns>
   internal static ParseAction ActionDeclarationProduction(ParseAction parser)
     => parser
-      .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_ACTIONS)
+      .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_ACTION)
         .Expect(ActionDeclarationWithId) // frag
         .Expect(ActionDescriptionProd) // frag
         .Expect(ActionAccessLevelProd) // frag
         .Expect(ActionInitialResourceCondKeyDepProd) // next frag
-      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_TR_ACTION_PROP_ROW)
+      .Expect(HtmlRules.END_TR, annotation: ActionAnnotations.END_ROW_ACTION)
       .ProductionWhileMatch(ActionRowsResourceCondKeyDependentsProd)
       .ProductionWhileMatch(ActionNewDescriptionResourceCondKeyDependentProd)
       ;
@@ -38,9 +38,11 @@ public static class ActionDeclarationParser
 
   private static ParseAction ActionRowsResourceCondKeyDependentsProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, ActionAnnotations.START_TR_ACTION_PROP_ROW)
+      .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_ADD_PROPS_ACTION)
+      .ScanForTagClose()
         .Expect(PropertiesResourceCondKeyDepProd)
-      .Expect(HtmlRules.END_TR, ActionAnnotations.END_TR_ACTION_PROP_ROW)
+      .Expect(HtmlFragRules.END_TR, ActionAnnotations.END_ROW_ADD_PROPS_ACTION)
+      .TagClose()
       ;
 
   private static ParseAction PropertiesResourceCondKeyDepProd(ParseAction parser)
@@ -54,11 +56,13 @@ public static class ActionDeclarationParser
   // --- SPECIAL CASE
   private static ParseAction ActionNewDescriptionResourceCondKeyDependentProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TR, ActionAnnotations.START_TR_ACTION_PROP_ROW)
+      .Expect(HtmlFragRules.START_TR, ActionAnnotations.START_ROW_EXTENDED_ACTION)
+      .ScanForTagClose()
         .Expect(NewDescriptionSameAction)
         .Expect(EmptyAccessLevelProd)
         .Expect(ActionInitialResourceCondKeyDepProd)
-      .Expect(HtmlRules.END_TR, ActionAnnotations.END_TR_ACTION_PROP_ROW)
+      .Expect(HtmlFragRules.END_TR, ActionAnnotations.END_ROW_EXTENDED_ACTION)
+      .TagClose()
       ;
 
   private static ParseAction ActionDeclarationWithId(ParseAction parser)
@@ -86,17 +90,18 @@ public static class ActionDeclarationParser
 
   private static ParseAction NewDescriptionSameAction(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_ACTION_NEWDESC)
-        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_NEWDECL_PARA)
-        .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_ACTIONDESC)
+        .Expect(HtmlFragRules.START_TD).ScanForTagClose()
+          .Expect(HtmlFragRules.START_P).TagClose()
+            .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.SAME_ACTION_DESCRIPTION)
+          .Expect(HtmlFragRules.END_P).TagClose()
+        .Expect(HtmlFragRules.END_TD).TagClose()
       ;
 
   private static ParseAction EmptyAccessLevelProd(ParseAction parser)
     => parser
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_ACCESSLEVEL_EMPTY_ANNOTATION)
-      .Expect(HtmlRules.END_TD, ActionAnnotations.END_TD_ACCESSLEVEL)
-      ;
+        .Expect(HtmlFragRules.START_TD).ScanForTagClose()
+        .Expect(HtmlFragRules.END_TD).TagClose()
+        ;
 
   private static ParseAction ActionAccessLevelProd(ParseAction parser)
     => parser
@@ -134,11 +139,6 @@ public static class ActionDeclarationParser
         .Expect(HtmlFragRules.END_P).TagClose()
       ;
 
-      .Expect(HtmlRules.START_PARA, ActionAnnotations.START_PARA)
-        .MayExpect(HtmlRules.START_A_HREF, ActionAnnotations.A_HREF_RESOURCE)
-        .MayExpect(HtmlRules.END_A, ActionAnnotations.END_A)
-      .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
-
   // TODO adjust for <p>name | <p><a href>name
   private static ParseAction ConditionKeys(ParseAction parser)
     => parser
@@ -167,22 +167,14 @@ public static class ActionDeclarationParser
     => parser
         .Expect(HtmlFragRules.START_TD, ActionAnnotations.DEPACT_START)
           .ExpectProductionUntil(RepeatableDependentActionParagraphs,
-        HtmlFragRules.END_TD, ActionAnnotations.DEPACT_END)
+        HtmlFragRules.END_TD, ActionAnnotations.DEPACT_END).TagClose()
         ;
-
-
-      .Expect(HtmlRules.START_TD_ID_VALUE, ActionAnnotations.START_TD_DEPACT)
-        .ExpectProductionUntil(
-          RepeatableDependentActionParagraphs,
-      HtmlRules.END_TD, endAnnodation: ActionAnnotations.END_TD_DEPACT)
-    ;
 
   private static ParseAction RepeatableDependentActionParagraphs(ParseAction parser)
     => parser
-        .Expect(HtmlFragRules.START_P)
-
-
-        .Expect(HtmlRules.START_PARA_VALUE, ActionAnnotations.START_PARA_DEPENDENT)
-        .Expect(HtmlRules.END_PARA, ActionAnnotations.END_PARA);
+        .Expect(HtmlFragRules.START_P).ScanForTagClose()
+          .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.DEPACT_VALUE)
+        .Expect(HtmlFragRules.END_P).TagClose()
+        ;
 
 }

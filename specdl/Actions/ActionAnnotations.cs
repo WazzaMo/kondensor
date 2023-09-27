@@ -22,12 +22,19 @@ public static class ActionAnnotations
     ACTION_HEADING = "heading:action",
     OTHER_HEADING = "heading:other",
     END_ACTION_TABLE = "table:end:actions",
-    START_ROW_ACTIONS = "row:start:actions",
+    START_ROW_ACTION = "row:start:newaction",
+    END_ROW_ACTION = "row:end:newAction",
+    /// <summary>Extended action props with desc and access level</summary>
+    START_ROW_EXTENDED_ACTION = "row:start:extendedAction",
+    END_ROW_EXTENDED_ACTION = "row:end:extendedAction",
+    START_ROW_ADD_PROPS_ACTION = "row:start:additionalPropsAction",
+    END_ROW_ADD_PROPS_ACTION = "row:end:additionalPropsAction",
     ID_ACTION = "id:action",
     HREF_ACTION = "href:action",
     NAME_ACTION = "tag:name:action",
     ACTION_DESCRIPTION = "tag:value:description",
     ACTION_ACCESS_LEVEL = "tag:value:accessLevel",
+    SAME_ACTION_DESCRIPTION = "tag:value:sameAction:newDescription",
     RESOURCE_START = "td:start:resource",
     RESOURCE_END = "td:end:resource",
     RESOURCE_HREF = "href:resource:value",
@@ -37,7 +44,8 @@ public static class ActionAnnotations
     CONDKEY_HREF = "href:conditionKey:value",
     CONDKEY_NAME = "name:conditionKey:value",
     DEPACT_START = "td:start:depAction",
-    DEPACT_END = "td:end:depAction"
+    DEPACT_END = "td:end:depAction",
+    DEPACT_VALUE = "tag:value:dependentAction"
     ;
 
 }
