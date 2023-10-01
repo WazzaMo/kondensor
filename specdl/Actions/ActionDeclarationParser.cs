@@ -47,9 +47,9 @@ public static class ActionDeclarationParser
 
   private static ParseAction PropertiesResourceCondKeyDepProd(ParseAction parser)
     => parser
-        .Expect(ResourceType) //  frag
-        .Expect(ConditionKeys) // frag
-        .Expect(DependendActions) // next frag
+        .Expect(ResourceType)
+        .Expect(ConditionKeys)
+        .Expect(DependendActions)
       ;
 
 
@@ -84,7 +84,7 @@ public static class ActionDeclarationParser
     => parser
       .Expect(HtmlFragRules.START_TD)
       .ScanForTagClose()
-      .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.ACTION_DESCRIPTION)
+      .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.ACTION_DESCRIPTION_FIRST_ENTRY)
       .Expect(HtmlFragRules.END_TD).TagClose()
       ;
 
@@ -92,7 +92,7 @@ public static class ActionDeclarationParser
     => parser
         .Expect(HtmlFragRules.START_TD).ScanForTagClose()
           .Expect(HtmlFragRules.START_P).TagClose()
-            .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.SAME_ACTION_DESCRIPTION)
+            .Expect(HtmlFragRules.TAG_VALUE, ActionAnnotations.NEW_ACTION_DESCRIPTION_SAME_ENTRY)
           .Expect(HtmlFragRules.END_P).TagClose()
         .Expect(HtmlFragRules.END_TD).TagClose()
       ;

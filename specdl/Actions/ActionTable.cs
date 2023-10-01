@@ -14,6 +14,9 @@ using kondensor.Parser.AwsHtmlParse;
 using kondensor.YamlFormat;
 
 using YamlWriters;
+using kondensor.Parser.AwsHtmlParse.Frag;
+using System.Text.Unicode;
+using System.Xml;
 
 namespace Actions;
 
@@ -126,90 +129,98 @@ public struct ActionTable
     var headingList = _Data._HeadingNames;
 
     var query = from node in list
-      where node.HasAnnotation && node.Annotation == ActionAnnotations.START_HEADING_ANNOTATION
-      && node.Parts.HasValue
+      where node.HasAnnotation
+      && IsHeading( node.Annotation ) && node.HasNamedGroups
       select node;
 
     query.ForEach( (node, idx) => {
-      headingList.Add( HtmlPartsUtils.GetThTagValue(node.Parts));
+      if ( UtilsFragHtml.TryGetTagValue(node, out string heading) )
+        headingList.Add( heading );
     });
   }
 
+  private static bool IsHeading(string annotation)
+    => annotation == ActionAnnotations.ACTION_HEADING
+      || annotation == ActionAnnotations.OTHER_HEADING;
+
   private void CollectActionDeclarations(LinkedList<Matching> list)
   {
-    var declarationNodes
-      = ActionCollection.FilterActionDeclaration(list).GetEnumerator();
+    var nodes = ActionCollection.FilterActionDeclaration(list).GetEnumerator();
     
     ActionType actionDecl = new ActionType();
     ActionAccessLevel level;
     ActionResourceType resourceType = new ActionResourceType();
     string actionId = "NO-ID";
 
-    while( declarationNodes.MoveNext())
+    while( nodes.MoveNext())
     {
-      if (ActionCollection.IsActionDeclarationStart(
-        ref declarationNodes,
-        out actionId
-      ))
+      if (ActionCollection.IsActionPropertyRowStart(nodes.Current.Annotation))
       {
-        if (
-          ActionCollection.IsStartActionNameAndRef(declarationNodes.Current.Annotation)
-        )
+        nodes.MoveNext();
+        if (ActionCollection.IsActionId(nodes.Current.Annotation)
+          && UtilsFragHtml.TryGetIdValue(nodes.Current, out actionId))
         {
-          Matching aHref = declarationNodes.Current;
-          declarationNodes.MoveNext();
-
-          string actionName = HtmlPartsUtils.GetAHrefTagValue(aHref.Parts);
-          string apiLink = HtmlPartsUtils.GetAHrefAttribValue(aHref.Parts);
-          actionDecl = new ActionType();
-          actionDecl.SetActionId(actionId);
-          actionDecl.SetActionName(actionName);
-          actionDecl.SetApiDocLink(apiLink);
-          _Data._Actions.Add( actionDecl );
-
-          if (
-            ActionCollection.IsFirstActionDescription(declarationNodes.Current.Annotation)
+          nodes.MoveNext();
+          if (ActionCollection.IsActionHref(nodes.Current.Annotation)
+            && UtilsFragHtml.TryGetHrefValue(nodes.Current, out string actionHref)
           )
           {
-            Matching desc = declarationNodes.Current;
-            declarationNodes.MoveNext();
-            
-            if (HtmlPartsUtils.TryGetTdValue(desc, out string description))
+            nodes.MoveNext();
+            if (ActionCollection.IsActionName(nodes.Current.Annotation)
+              && UtilsFragHtml.TryGetTagValue(nodes.Current, out string actionName)
+            )
             {
-              _Data.SavedDescription = description;
-              bool hasResourceType = ActionResourceCollection.HasCollectedActionProperties(
-                  declarationNodes,
-                  description,
+              //
+              actionDecl = new ActionType();
+              actionDecl.SetActionId(actionId);
+              actionDecl.SetActionName(actionName);
+              actionDecl.SetApiDocLink(actionHref);
+              _Data._Actions.Add(actionDecl);
+
+              if (ActionCollection.IsDescriptionNewAction(nodes.Current.Annotation)
+                && UtilsFragHtml.TryGetTagValue(nodes.Current, out string newDesc)
+              )
+              {
+                nodes.MoveNext();
+                _Data.SavedDescription = newDesc;
+                bool hasResourceType = ActionResourceCollection.HasCollectedActionProperties(
+                  nodes,
+                  newDesc,
                   out level,
                   out resourceType
-              );
-              
-              if (hasResourceType)
-              {
-                if (resourceType.Description.IsEmptyPartsValue())
+                );
+
+                if (hasResourceType)
                 {
-                  resourceType.SetDescription(description);
+                  if (resourceType.Description.IsEmptyPartsValue())
+                    resourceType.SetDescription(newDesc);
+                  _Data._CurrentAccessLevel = Option.Some(level);
+                  _Data.CurrentAction.MapAccessToResourceType(level, resourceType);
                 }
-                _Data._CurrentAccessLevel = Option.Some( level );
-                _Data.CurrentAction.MapAccessToResourceType(level, resourceType );
               }
             }
           }
         }
       }
       else if (
-        ActionCollection.IsActionPropertyRowStart(declarationNodes.Current.Annotation)
+        ActionCollection.IsNewDescriptionSameAction(nodes.Current.Annotation)
+        && UtilsFragHtml.TryGetTagValue(nodes.Current, out string replacingDescription)
       )
       {
-        declarationNodes.MoveNext();
+        nodes.MoveNext();
+        _Data.SavedDescription = replacingDescription;
+
         if (
-          ActionCollection.IsResourceConditionKeyOrDependency( declarationNodes.Current.Annotation)
+          ActionCollection.IsResourceConditionKeyOrDependency( nodes.Current.Annotation)
           && resourceType.IsDescriptionSet
         )
         {
           ActionResourceType nextResourceType
             = ActionResourceCollection.CopyResourceType(resourceType);
-          bool isNew = ActionResourceCollection.CollectActionPropertyRow(declarationNodes, ref nextResourceType);
+          bool isNew = ActionResourceCollection.CollectActionPropertyRow(
+            nodes,
+            ref nextResourceType
+          );
           var _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);
 
           if (_level != ActionAccessLevel.Unknown)
@@ -237,17 +248,17 @@ public struct ActionTable
         }
         
         if (
-          ActionCollection.IsSameActionNewDescriptionAnnotation(declarationNodes.Current.Annotation)
+          ActionCollection.IsNewDescriptionSameAction(nodes.Current.Annotation)
           && actionDecl.IsActionIdSet && resourceType.IsIdAndNameSet
         )
         {
           // reuse actionDecl to create ActionResourceType(s) with new description.
-          Matching descNode = declarationNodes.Current;
-          declarationNodes.MoveNext();
+          Matching descNode = nodes.Current;
+          nodes.MoveNext();
 
           string description = HtmlPartsUtils.GetPTagValue(descNode.Parts);
           ActionResourceType nextDescResourceType = ActionResourceCollection.CopyResourceType(resourceType);
-          bool isNew = ActionResourceCollection.CollectActionPropertyRow(declarationNodes, ref nextDescResourceType);
+          bool isNew = ActionResourceCollection.CollectActionPropertyRow(nodes, ref nextDescResourceType);
           nextDescResourceType.SetDescription(description);
 
           ActionAccessLevel _level = _Data._CurrentAccessLevel.ValueOr(ActionAccessLevel.Unknown);

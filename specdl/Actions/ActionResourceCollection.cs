@@ -6,6 +6,7 @@
 
 using kondensor.Parser;
 using kondensor.Parser.AwsHtmlParse;
+using kondensor.Parser.AwsHtmlParse.Frag;
 
 namespace Actions;
 
@@ -39,18 +40,19 @@ internal static class ActionResourceCollection
     )
   {
     bool result = false;
+    string accessLevel = "";
 
     level = ActionAccessLevel.Unknown;
     resourceType = new ActionResourceType();
 
-    bool isOk = nodes.Current.Annotation == ActionAnnotations.START_TD_ACCESSLEVEL;
+    bool isOk = ActionCollection.IsAccessLevelOnAction(nodes.Current.Annotation)
+      && UtilsFragHtml.TryGetTagValue(nodes.Current, out accessLevel);
+
     if (isOk)
     {
-      Matching levelNode = nodes.Current;
       nodes.MoveNext();
 
-      string levelTxt = HtmlPartsUtils.GetTdTagValue(levelNode.Parts);
-      level = levelTxt.GetLevelFrom();
+      level = accessLevel.GetLevelFrom();
       if (level != ActionAccessLevel.Unknown)
       {
         resourceType = new ActionResourceType();
@@ -72,37 +74,42 @@ internal static class ActionResourceCollection
   )
   {
     bool isResourceTypeNew = false;
+    string
+      resourceHref = "",
+      resourceName = "";
+
     do
     {
-      if (ActionCollection.IsResourceIdAndName(nodes.Current.Annotation))
+      if (ActionCollection.IsResourceHref(nodes.Current.Annotation)
+        && UtilsFragHtml.TryGetHrefValue(nodes.Current, out resourceHref))
       {
-        Matching aHrefResource = nodes.Current;
+        nodes.MoveNext();
 
-        string resourceId, resourceName;
-
-        isResourceTypeNew = true;
-
-        resourceId = HtmlPartsUtils.GetAHrefAttribValue(aHrefResource.Parts);
-        resourceName = HtmlPartsUtils.GetAHrefTagValue(aHrefResource.Parts);
-        resourceType.SetTypeIdAndName(resourceId, resourceName);
+        if( ActionCollection.IsResourceName(nodes.Current.Annotation)
+         && UtilsFragHtml.TryGetTagValue(nodes.Current, out resourceName))
+        {
+          isResourceTypeNew = true;
+          resourceType.SetTypeIdAndName(resourceHref, resourceName);
+        }
       }
-      if (ActionCollection.IsCondKeyIdAndNameHref(nodes.Current.Annotation))
+      if ( ActionCollection.IsCondKeyHref(nodes.Current.Annotation)
+           && UtilsFragHtml.TryGetHrefValue( nodes.Current, out string condKeyHref)
+        )
       {
-        Matching aHrefConditionKey = nodes.Current;
-        string ckId, ckName;
-
-        ckId = HtmlPartsUtils.GetAHrefAttribValue(aHrefConditionKey.Parts);
-        ckName = HtmlPartsUtils.GetAHrefTagValue(aHrefConditionKey.Parts);
-        resourceType.AddConditionKeyId(ckId);
+        nodes.MoveNext();
+        if (ActionCollection.IsCondKeyName(nodes.Current.Annotation)
+        && UtilsFragHtml.TryGetTagValue(nodes.Current, out string condKeyName) )
+        {
+          resourceType.AddConditionKeyId(condKeyHref);
+        }
       }
 
-      if (ActionCollection.IsDependentKey(nodes.Current.Annotation))
-      {
-        Matching tdDependency = nodes.Current;
-        string depId = HtmlPartsUtils.GetPTagValue(tdDependency.Parts);
+      if (ActionCollection.IsDependentActionValue(nodes.Current.Annotation))
 
-        if (!depId.IsEmptyPartsValue())
-          resourceType.AddDependentActionId(depId);
+      if (ActionCollection.IsDependentActionValue(nodes.Current.Annotation)
+        && UtilsFragHtml.TryGetTagValue(nodes.Current, out string depAction) )
+      {
+          resourceType.AddDependentActionId(depAction);
       }
     }
     while (nodes.MoveNext()

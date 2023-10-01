@@ -4,6 +4,7 @@
  *  Distributed without warranty, under the GNU Public License v3.0 or later.
  */
 
+using System.IO.Pipes;
 using kondensor.Parser;
 using kondensor.Parser.AwsHtmlParse;
 
@@ -18,83 +19,84 @@ internal static class ActionCollection
     return query;
   }
 
-  internal static bool IsActionDeclarationStart(
-    ref IEnumerator<Matching> node,
-    out string id
-  )
-  {
-    bool isDeclaration = false;
-
-    if (IsStartActionIdAnnotation(node.Current.Annotation))
-    {
-      Matching aId = node.Current;
-      id = HtmlPartsUtils.GetAIdAttribValue(aId.Parts);
-      node.MoveNext();
-      isDeclaration = true;
-    } else if (IsStartActionDeclarationWithId(node.Current.Annotation))
-    {
-      Matching tdWithId = node.Current;
-      isDeclaration = HtmlPartsUtils.TryGetTdId(node.Current, out id);
-      if (isDeclaration)
-        node.MoveNext();
-    }
-    else
-      id = "";
-    return isDeclaration;
-  }
-
   internal static bool IsActionDeclarationAnnotation(string annotation)
-    => IsActionDeclRowStart(annotation)
-    || IsStartActionDeclarationWithId(annotation)
-    || IsActionPropertyRowStart(annotation)
-    || IsActionPropertyRowEnd(annotation)
-    || IsStartActionIdAnnotation(annotation)
-    || annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION
-    || IsFirstActionDescription(annotation)
-    || IsSameActionNewDescriptionAnnotation(annotation)
-    || annotation == ActionAnnotations.START_TD_ACCESSLEVEL
-    || annotation == ActionAnnotations.A_HREF_RESOURCE
-    || IsCondKeyIdAndNameHref(annotation)
-    || annotation == ActionAnnotations.START_PARA_DEPENDENT
+    => IsStartNewActionRow(annotation)
+    || IsEndNewActionRow(annotation)
+    || IsStartDescriptionAndPropsActionRow(annotation)
+    || IsEndDescriptionAndPropsActionRow(annotation)
+    || IsStartExtraPropsActionRow(annotation)
+    || IsEndExtraPropsActionRow(annotation)
+    || IsActionId(annotation) || IsActionHref(annotation) || IsActionName(annotation)
+    || IsDescriptionNewAction(annotation) || IsNewDescriptionSameAction(annotation)
+    || IsAccessLevelOnAction(annotation)
+    || IsResourceConditionKeyOrDependency(annotation)
     ;
-
-  internal static bool IsStartActionDeclarationWithId(string annotation)
-    => annotation == ActionAnnotations.START_TD_ID_ACTION;
-
-  internal static bool IsActionDeclRowStart(string annotation)
-    => annotation == ActionAnnotations.START_ACTION_ROW_ANNOTATION;
-
+  
   internal static bool IsActionPropertyRowStart(string annotation)
-    => annotation == ActionAnnotations.START_TR_ACTION_PROP_ROW;
+    => IsStartNewActionRow(annotation)
+    || IsStartDescriptionAndPropsActionRow(annotation)
+    || IsStartExtraPropsActionRow(annotation);
 
   internal static bool IsActionPropertyRowEnd(string annotation)
-    => annotation == ActionAnnotations.END_TR_ACTION_PROP_ROW;
+    => IsEndNewActionRow(annotation) || IsEndDescriptionAndPropsActionRow(annotation)
+    || IsEndExtraPropsActionRow(annotation);
 
-  internal static bool IsStartActionIdAnnotation(string annotation)
-    => annotation == ActionAnnotations.START_ID_ACTION_ANNOTATION;
+  internal static bool IsStartNewActionRow(string annotation)
+    => annotation == ActionAnnotations.START_ROW_ACTION;
 
-  internal static bool IsStartActionNameAndRef(string annotation)
-    => annotation == ActionAnnotations.START_HREF_ACTION_ANNOTATION;
+  internal static bool IsStartDescriptionAndPropsActionRow(string annotation)
+    => annotation == ActionAnnotations.START_ROW_EXTENDED_ACTION;
+  
+  internal static bool IsStartExtraPropsActionRow(string annotation)
+    => annotation == ActionAnnotations.START_ROW_ADD_PROPS_ACTION;
+  
+  internal static bool IsEndNewActionRow(string annotation)
+    => annotation == ActionAnnotations.END_ROW_ACTION;
+  
+  internal static bool IsEndDescriptionAndPropsActionRow(string annotation)
+    => annotation == ActionAnnotations.END_ROW_EXTENDED_ACTION;
+  
+  internal static bool IsEndExtraPropsActionRow(string annotation)
+    => annotation == ActionAnnotations.END_ROW_ADD_PROPS_ACTION;
 
-  internal static bool IsFirstActionDescription(string annotation)
-    => annotation == ActionAnnotations.START_TD_ACTIONDESC;
-
-  internal static bool IsSameActionNewDescriptionAnnotation(string annotation)
-    => annotation == ActionAnnotations.START_NEWDECL_PARA;
-
+  internal static bool IsActionId(string annotation)
+    => annotation == ActionAnnotations.ID_ACTION;
+  
+  internal static bool IsActionHref(string annotation)
+    => annotation == ActionAnnotations.HREF_ACTION;
+  
+  internal static bool IsActionName(string annotation)
+    => annotation == ActionAnnotations.NAME_ACTION;
+  
+  internal static bool IsDescriptionNewAction(string annotation)
+    => annotation == ActionAnnotations.ACTION_DESCRIPTION_FIRST_ENTRY;
+  
+  internal static bool IsNewDescriptionSameAction(string annotation)
+    => annotation == ActionAnnotations.NEW_ACTION_DESCRIPTION_SAME_ENTRY;
+  
+  internal static bool IsAccessLevelOnAction(string annotation)
+    => annotation == ActionAnnotations.ACTION_ACCESS_LEVEL;
+  
   internal static bool IsResourceConditionKeyOrDependency(string annotation)
-    => IsResourceIdAndName(annotation)
-    || IsCondKeyIdAndNameHref(annotation)
-    || IsDependentKey(annotation)
+    => IsResourceHref(annotation) || IsResourceName(annotation)
+    || IsCondKeyHref(annotation) || IsCondKeyName(annotation)
+    || IsDependentActionValue(annotation)
     ;
 
-  internal static bool IsResourceIdAndName(string annotation)
-    => annotation == ActionAnnotations.A_HREF_RESOURCE;
+  internal static bool IsResourceHref(string annotation)
+    => annotation == ActionAnnotations.RESOURCE_HREF;
 
-  internal static bool IsCondKeyIdAndNameHref(string annotation)
-    => annotation == ActionAnnotations.A_HREF_CONDKEY;
+  internal static bool IsResourceName(string annotation)
+    => annotation == ActionAnnotations.RESOURCE_NAME;
 
-  internal static bool IsDependentKey(string annotation)
-    => annotation == ActionAnnotations.START_PARA_DEPENDENT;
+
+  internal static bool IsCondKeyHref(string annotation)
+    => annotation == ActionAnnotations.CONDKEY_HREF;
+  
+  internal static bool IsCondKeyName(string annotation)
+    => annotation == ActionAnnotations.CONDKEY_NAME;
+
+  internal static bool IsDependentActionValue(string annotation)
+    => annotation == ActionAnnotations.DEPACT_VALUE;
 
 }

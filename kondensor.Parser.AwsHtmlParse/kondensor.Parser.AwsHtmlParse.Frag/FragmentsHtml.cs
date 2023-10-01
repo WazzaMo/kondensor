@@ -11,6 +11,12 @@ namespace kondensor.Parser.AwsHtmlParse.Frag;
 
 public static class FragmentsHtml
 {
+  public const string
+    KEY_TAG_VALUE = "tagValue",
+    KEY_ID_VALUE = "idValue",
+    KEY_HREF_VALUE = "hrefValue",
+    KEY_ROWSPAN_VALUE = "rowspanValue";
+
   public static readonly Regex
     TAG_CLOSE = new Regex(pattern: ">"),
     START_TABLE = new Regex(pattern: "<table"),
@@ -29,11 +35,11 @@ public static class FragmentsHtml
     END_A = new Regex(pattern: "</a"),
     START_CODE = new Regex(pattern: "<code"),
     END_CODE = new Regex(pattern: "</code"),
-    TAG_VALUE = new Regex(pattern: "(?<tagValue>.*)"),
-    ACTIONS_TAG_VALUE = new Regex(pattern: "(?<tagValue>Actions)"),
-    ID_VALUE = new Regex( pattern: "id=\"(?<idValue>.*)\"" ),
-    HREF_VALUE = new Regex(pattern: "href=\"(?<hrefValue>.*)\""),
+    TAG_VALUE = new Regex(pattern: "(?<"+ KEY_TAG_VALUE + ">.*)"),
+    ACTIONS_TAG_VALUE = new Regex(pattern: "(?<" + KEY_TAG_VALUE + ">Actions)"),
+    ID_VALUE = new Regex( pattern: "id=\"(?<" + KEY_ID_VALUE + ">.*)\"" ),
+    HREF_VALUE = new Regex(pattern: "href=\"(?<" + KEY_HREF_VALUE + ">.*)\""),
     ROWSPAN_VALUE = new Regex(
-      pattern: "rowspan=\"(?<rowspanValue>[*\\-*\\d] *)\""
+      pattern: "rowspan=\"(?<" + KEY_ROWSPAN_VALUE + ">[*\\-*\\d] *)\""
     );
 }
