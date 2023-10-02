@@ -83,11 +83,17 @@ public struct SpecDownloader
     Option<TextReader> _source = _Source;
     Option<TextWriter> _dest = _Destination;
 
-    HtmlPipe htmlPipe;
+    FragHtmlPipe fragPipe;
     ReplayWrapPipe thePipe;
+
+    TextPipeWriter writer = new TextPipeWriter(Console.Out);
 
     IPreprocessor boldPreprocessor = new ActionBoldPreprocessor();
     IPreprocessor spanPreprocessor = new ActionSpanPreprocessor();
+
+    _Destination.MatchSome(
+      writerSet => writer = new TextPipeWriter(writerSet)
+    );
 
     _Processor.Match(
       processor => {
@@ -95,10 +101,10 @@ public struct SpecDownloader
           source => {
             _dest.Match(
               destination => {
-                htmlPipe = new HtmlPipe(_source.ValueOr(Console.In), _dest.ValueOr(Console.Out));
-                htmlPipe.AddPreprocessor( boldPreprocessor );
-                htmlPipe.AddPreprocessor( spanPreprocessor );
-                thePipe = new ReplayWrapPipe(htmlPipe);
+                fragPipe = new FragHtmlPipe(_source.ValueOr(Console.In), writer);
+                fragPipe.AddPreprocessor( boldPreprocessor );
+                fragPipe.AddPreprocessor( spanPreprocessor );
+                thePipe = new ReplayWrapPipe(fragPipe);
                 processor.ProcessAllLines(path, thePipe);
                 processor.WriteOutput(thePipe);
               },

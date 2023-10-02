@@ -6,9 +6,8 @@
 
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
+using System.Collections.Generic;
 
 namespace kondensor.Pipes;
 
@@ -24,6 +23,7 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     internal bool _EoInput;
     internal int _NumTagStart;
     internal int _NumTagEnd;
+    internal List<IPreprocessor> _Preprocessors;
   }
 
   private FragData _Data;
@@ -40,7 +40,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
       _BufferIndex = 0,
       _EoInput = false,
       _NumTagStart = 0,
-      _NumTagEnd = 0
+      _NumTagEnd = 0,
+      _Preprocessors = new List<IPreprocessor>()
     };
   }
 
@@ -48,7 +49,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public void AddPreprocessor(IPreprocessor processor)
   {
-    throw new NotImplementedException();
+    if (processor != null)
+      _Data._Preprocessors.Add(processor);
   }
 
   public void ClosePipe()

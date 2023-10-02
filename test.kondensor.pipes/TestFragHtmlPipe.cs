@@ -151,4 +151,20 @@ public class TestFragHtmlPipe
     }
   }
 
+  [Fact]
+  public void preprocessor_applies_observable_changes_in_second_token()
+  {
+    const string EXPECTED_PostProcessed = "id=\"megaFixture\"";
+    string token;
+    ConfigurablePreprocessor preprocessor = new ConfigurablePreprocessor(
+      search: "actionFixture",
+      replace: "megaFixture"
+    );
+
+    Subject.AddPreprocessor(preprocessor);
+
+    Assert.True(Subject.ReadToken(out token));
+    Assert.True(Subject.ReadToken(out token));
+    Assert.Equal(EXPECTED_PostProcessed, token);
+  }
 }

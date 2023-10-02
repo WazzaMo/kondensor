@@ -23,7 +23,12 @@ internal static class FragDataOps
     {
       _Data._EoInput = true;
     }
-    _Data._Buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
+    char[] buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
+    PreprocessPipeUtils.TryApplyPreprocessors(
+      _Data._Preprocessors,
+      buffer,
+      out _Data._Buffer
+    );
     _Data._BufferIndex = 0;
   }
 

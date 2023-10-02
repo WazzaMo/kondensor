@@ -170,7 +170,6 @@ public struct ActionTable
               && UtilsFragHtml.TryGetTagValue(nodes.Current, out string actionName)
             )
             {
-              //
               actionDecl = new ActionType();
               actionDecl.SetActionId(actionId);
               actionDecl.SetActionName(actionName);
