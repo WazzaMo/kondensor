@@ -17,11 +17,12 @@ public struct ReplayWrapPipe : IPipe
 {
   private IPipe _BasePipe;
   private List<string> _TokenHistory;
-  private int[] _ReadIndex;
+  /// <summary>Token history index</summary>
+  private int[] _TokenHistoryIndexRaw;
 
-  private int ReadIndex {
-    get { return _ReadIndex[0]; }
-    set { _ReadIndex[0] = value; }
+  private int TokenHistoryIndex {
+    get { return _TokenHistoryIndexRaw[0]; }
+    set { _TokenHistoryIndexRaw[0] = value; }
   }
 
   public bool IsInFlowEnded => _BasePipe.IsInFlowEnded;
@@ -30,7 +31,7 @@ public struct ReplayWrapPipe : IPipe
   {
     _BasePipe = mainPipe;
     _TokenHistory = new List<string>();
-    _ReadIndex = new int[]{0};
+    _TokenHistoryIndexRaw = new int[]{0};
   }
 
   public void ClosePipe()
@@ -42,7 +43,7 @@ public struct ReplayWrapPipe : IPipe
   public bool ReadToken(out string token)
   {
     bool isOk;
-    int readIndex = ReadIndex;
+    int readIndex = TokenHistoryIndex;
 
     if (readIndex == _TokenHistory.Count)
     {
@@ -59,9 +60,12 @@ public struct ReplayWrapPipe : IPipe
       readIndex++;
       isOk = true;
     }
-    ReadIndex = readIndex;
+    TokenHistoryIndex = readIndex;
     return isOk;
   }
+
+  public bool TryScanAheadFor(char[] search, out int matchIndex)
+    => _BasePipe.TryScanAheadFor(search, out matchIndex);
 
   public IPipeWriter WriteFragment(string fragment)
   {
@@ -78,13 +82,13 @@ public struct ReplayWrapPipe : IPipe
   public bool IsLineTerminated() => _BasePipe.IsLineTerminated();
 
 
-  public int GetCheckPoint() => ReadIndex;
+  public int GetCheckPoint() => TokenHistoryIndex;
 
   public void ReturnToCheckPoint(int checkPoint)
   {
     if (checkPoint <= _TokenHistory.Count)
     {
-      ReadIndex = checkPoint;
+      TokenHistoryIndex = checkPoint;
     }
     else
       throw new ArgumentException(message: $"Illegal checkpoint value given {checkPoint}, history is only {_TokenHistory.Count} long");

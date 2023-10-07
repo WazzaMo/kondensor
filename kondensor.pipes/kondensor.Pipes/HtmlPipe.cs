@@ -10,6 +10,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.AccessControl;
 
 namespace kondensor.Pipes;
 
@@ -89,12 +90,49 @@ public struct HtmlPipe : IPipe
 
   public bool IsLineTerminated()
     => _Data.IsLineTerminated();
-  
+
+  public bool TryScanAheadFor(char[] searchArray, out int matchIndex)
+  {
+    bool isFound = false;
+    bool isNotEof = ! _Data._EofInput;
+    int internalStartIndex = _Data._UnprocessedIndex;
+    Span<char> buffer = new Span<char>(_Data._UnprocessedText);
+    Span<char> search = new Span<char>(searchArray);
+
+    matchIndex = 0;
+
+    while(! isFound && isNotEof)
+    {
+      if (internalStartIndex >= _Data._UnprocessedText.Length )
+      {
+        TryReadInputAndPreprocess();
+        buffer = new Span<char>(_Data._UnprocessedText);
+        isNotEof = ! _Data._EofInput;
+        internalStartIndex = 0;
+      }
+      isFound = PreprocessorUtils.FindNextMatch(
+        buffer,
+        search,
+        internalStartIndex,
+        out int foundIndex
+      );
+      if (isFound)
+      {
+        _Data._UnprocessedIndex = foundIndex;
+        matchIndex = foundIndex;
+      }
+      else
+        internalStartIndex = GetBufferEndIndex();
+    }
+    return isFound;
+  }
 
   public void AddPreprocessor(IPreprocessor processor)
   {
     _Data._Preprocessors.Add(processor);
   }
+
+  private int GetBufferEndIndex() => _Data._UnprocessedText.Length;
 
   private bool GetTokenFromInput(out string token)
   {
@@ -136,7 +174,6 @@ public struct HtmlPipe : IPipe
 
     char charInput;
     int tokenCount = 0;
-    string inputLine;
     string segment;
 
     Func<string> processText = () => {
@@ -152,12 +189,7 @@ public struct HtmlPipe : IPipe
       {
         if ( _Data._UnprocessedIndex >= _Data._UnprocessedText.Length )
         {
-          if (TryReadInput(out inputLine))
-          {
-            _Data._UnprocessedText = inputLine.ToCharArray();
-            ApplyPreprocessors();
-          }
-          else
+          if (! TryReadInputAndPreprocess() )
           {
             _Data._UnprocessedText = EmptyCharArray();
             if (builder.Length > 0)
@@ -167,7 +199,6 @@ public struct HtmlPipe : IPipe
               tokenCount = 0;
             }
           }
-          _Data._UnprocessedIndex = 0;
         }
 
         if (_Data._UnprocessedIndex < _Data._UnprocessedText.Length)
@@ -192,6 +223,19 @@ public struct HtmlPipe : IPipe
     }
 
     return isTextRead;
+  }
+
+  private bool TryReadInputAndPreprocess()
+  {
+    bool isNotEof = TryReadInput(out string inputLine);
+
+    if (isNotEof)
+    {
+      _Data._UnprocessedText = inputLine.ToCharArray();
+      ApplyPreprocessors();
+    }
+    _Data._UnprocessedIndex = 0;
+    return isNotEof;
   }
 
   private void ApplyPreprocessors()
@@ -247,4 +291,5 @@ public struct HtmlPipe : IPipe
       : "";
     return value;
   }
+
 }

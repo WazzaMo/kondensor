@@ -22,14 +22,53 @@ internal static class FragDataOps
     if (input == null)
     {
       _Data._EoInput = true;
+      _Data._Buffer = BufferUtils.EmptyBuffer;
     }
-    char[] buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
-    PreprocessPipeUtils.TryApplyPreprocessors(
-      _Data._Preprocessors,
-      buffer,
-      out _Data._Buffer
-    );
+    else
+    {
+      char[] buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
+      PreprocessPipeUtils.TryApplyPreprocessors(
+        _Data._Preprocessors,
+        buffer,
+        out _Data._Buffer
+      );
+    }
     _Data._BufferIndex = 0;
+  }
+
+  internal static bool TryScan(
+    ref FragHtmlPipe.FragData _Data,
+    char[] search,
+    out int matchIndex
+  )
+  {
+    bool isFound = false;
+    Span<char> scanFor = new Span<char>(search);
+    Span<char> buffer;
+
+    matchIndex = 0;
+    while(! isFound && ! _Data._EoInput)
+    {
+      if (NeedNewBuffer(ref _Data))
+      {
+        GetNewBuffer(ref _Data);
+      }
+      if (! _Data._EoInput && _Data._Buffer.Length > 0)
+      {
+        buffer = new Span<char>(_Data._Buffer);
+        isFound = PreprocessorUtils.FindNextMatch(
+          buffer,
+          scanFor,
+          _Data._BufferIndex,
+          out matchIndex
+        );
+        if (! isFound)
+          _Data._BufferIndex = _Data._Buffer.Length;
+      }
+    }
+    if (isFound)
+      _Data._BufferIndex = matchIndex;
+    return isFound;
   }
 
   internal static bool IsFragmentSpace(ref FragHtmlPipe.FragData _Data, char _char)

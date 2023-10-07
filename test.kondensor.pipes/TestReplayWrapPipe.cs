@@ -68,6 +68,17 @@ public class TestReplayWrapPipe
   }
 
   [Fact]
+  public void TryScanAheadFor_makes_scanned_token_next()
+  {
+    string token = DEFAULT;
+    char[] search = TOK2.ToCharArray();
+
+    Assert.True( _Fixture.Subject.TryScanAheadFor(search, out int matchIdx));
+    Assert.True( _Fixture.Subject.ReadToken(out token));
+    Assert.Equal(TOK2, token);
+  }
+
+  [Fact]
   public void ReplayPipe_CanReplayFromCheckpoint()
   {
     string token = DEFAULT;

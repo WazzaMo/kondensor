@@ -66,6 +66,17 @@ public class TestFragHtmlPipe
   }
 
   [Fact]
+  public void TryScanAheadFor_finds_known_text()
+  {
+    const string target = "Access level";
+    char[] search = target.ToCharArray();
+
+    Assert.True( Subject.TryScanAheadFor(search, out int matchIndex));
+    Assert.True( Subject.ReadToken(out string token) );
+    Assert.Equal(target, token);
+  }
+
+  [Fact]
   public void Start_of_table_tag_is_first_token()
   {
     const string EXPECTED = "<table";

@@ -34,6 +34,22 @@ public class TestHtmlPipe
   }
 
   [Fact]
+  public void TryScanAheadFor_finds_known_text()
+  {
+    const string Input =
+    @"<table id=""foobar"">
+      <thead>
+      ";
+    const string target = "<thead>";
+    char[] search = target.ToCharArray();
+
+    _Subject = PipeFor(Input);
+    Assert.True(_Subject.TryScanAheadFor(search, out int matchIndex));
+    Assert.True(_Subject.ReadToken(out string token) );
+    Assert.Equal(target, token);
+  }
+
+  [Fact]
   public void HtmlPipe_readsCodeStrippingSpanElements()
   {
     const string SEARCH = "$<span>{</span>"; //"Foo";

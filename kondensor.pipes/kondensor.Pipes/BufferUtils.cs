@@ -82,6 +82,8 @@ internal static class BufferUtils
       isNotEnd = length > 0
         && IsValidIndex( buffer, index)
         && !symbolEndRule(buffer[index]);
+      if (index > buffer.Length)
+        Console.Error.WriteLine("Exceeded buffer");
     }
     if (index >= buffer.Length)
       index = INDEX_END_BUFFER;

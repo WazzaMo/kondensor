@@ -66,6 +66,11 @@ public struct TextPipe : IPipe
     return ! isEof;
   }
 
+  public bool TryScanAheadFor(char[] search, out int matchIndex)
+  {
+    throw new NotImplementedException();
+  }
+
   public IPipeWriter WriteFragment(string fragment)
   {
     _Writer.Write(fragment);

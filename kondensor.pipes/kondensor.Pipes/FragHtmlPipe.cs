@@ -73,7 +73,10 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public IPipeWriter WriteFragmentLine(string fragment)
     => _Data._Output.WriteFragmentLine(fragment);
-  
+
+  public bool TryScanAheadFor(char[] search, out int matchIndex)
+    => FragDataOps.TryScan(ref _Data, search, out matchIndex);
+
   internal bool IsInTag => FragDataOps.IsInTag(ref _Data);
   internal bool IsBetweenTags => FragDataOps.IsBetweenTags(ref _Data);
 
@@ -124,18 +127,18 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
     }
 
     while (
-        FragDataOps.NeedNewBuffer(ref _Data)
-        || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
-      )
-      {
-        FragDataOps.GetNewBuffer(ref _Data);
-        index = BufferUtils.ScanForSymbolStart(
-          IsFragmentSpace,
-          _Data._Buffer,
-          _Data._BufferIndex
-        );
-        _Data._BufferIndex = index;
-      }
+      FragDataOps.NeedNewBuffer(ref _Data)
+      || ! BufferUtils.IsValidIndex(_Data._Buffer, index)
+    )
+    {
+      FragDataOps.GetNewBuffer(ref _Data);
+      index = BufferUtils.ScanForSymbolStart(
+        IsFragmentSpace,
+        _Data._Buffer,
+        _Data._BufferIndex
+      );
+      _Data._BufferIndex = index;
+    }
 
     return index;
   }
