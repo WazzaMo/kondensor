@@ -71,6 +71,13 @@ public struct TextPipe : IPipe
     throw new NotImplementedException();
   }
 
+  public ScanResult ScanAhead(ScanRule rule)
+  {
+    throw new NotImplementedException(
+      message: $"{nameof(TextPipe)} implements a {nameof(IPipe)} partially."
+    );
+  }
+
   public IPipeWriter WriteFragment(string fragment)
   {
     _Writer.Write(fragment);

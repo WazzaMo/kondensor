@@ -10,7 +10,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Security.AccessControl;
 
 namespace kondensor.Pipes;
 
@@ -125,6 +124,28 @@ public struct HtmlPipe : IPipe
         internalStartIndex = GetBufferEndIndex();
     }
     return isFound;
+  }
+
+  public ScanResult ScanAhead(ScanRule rule)
+  {
+    ScanResult result = new ScanResult();
+    bool isEof = _Data._EofInput;
+    string input;
+
+    if ( _Data._UnprocessedText != null
+      && _Data._UnprocessedText.Length > 0
+    )
+    {
+      input = _Data._UnprocessedText.ToString() ?? "";
+      result = rule.Invoke(input);
+    }
+    while(! result.IsMatched && ! isEof)
+    {
+      isEof = ! GetTokenFromInput(out input);
+      if (! isEof)
+        result = rule.Invoke(input);
+    }
+    return result;
   }
 
   public void AddPreprocessor(IPreprocessor processor)

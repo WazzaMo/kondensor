@@ -77,6 +77,12 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
   public bool TryScanAheadFor(char[] search, out int matchIndex)
     => FragDataOps.TryScan(ref _Data, search, out matchIndex);
 
+
+  public ScanResult ScanAhead(ScanRule rule)
+  {
+    throw new NotImplementedException();
+  }
+
   internal bool IsInTag => FragDataOps.IsInTag(ref _Data);
   internal bool IsBetweenTags => FragDataOps.IsBetweenTags(ref _Data);
 

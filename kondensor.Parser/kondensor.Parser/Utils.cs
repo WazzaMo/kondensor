@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
+using kondensor.Pipes;
 using Optional;
 
 namespace kondensor.Parser;
@@ -66,7 +66,8 @@ public static class Utils
         result = new Matching() {
           MatcherName = name,
           MatchResult = MatchKind.SingularMatch,
-          Parts = Utils.GetParts(match)
+          Parts = Utils.GetParts(match),
+          MatchIndex = match.Index
         };
       }
       else
@@ -108,6 +109,7 @@ public static class Utils
         {
           MatcherName = name,
           MatchResult = MatchKind.NamedGroupMatch,
+          MatchIndex = match.Index
         };
         if (annotation != null)
           result.Annotation = annotation;
@@ -146,7 +148,8 @@ public static class Utils
         result = new Matching() {
           MatcherName = name,
           MatchResult = MatchKind.LongMatch,
-          Parts = GetParts(match)
+          Parts = GetParts(match),
+          MatchIndex = match.Index
         };
       }
       else {
@@ -156,7 +159,8 @@ public static class Utils
           result = new Matching() {
             MatcherName = name,
             MatchResult = MatchKind.ShortMatch,
-            Parts = GetParts(match)
+            Parts = GetParts(match),
+            MatchIndex = match.Index
           };
         }
         else
@@ -177,6 +181,23 @@ public static class Utils
     return matcher;
   }
 
+  /// <summary>Make a <see cref="ScanRule"/> from <see cref="Matcher"/></summary>
+  /// <param name="matcher">Matcher to convert.</param>
+  /// <returns>
+  ///   Delegate to be used in <see cref="IPipe.ScanAhead(ScanRule)"/>
+  /// </returns>
+  public static ScanRule MakeScanRule(Matcher matcher)
+  {
+    ScanRule rule = (string token) => {
+      Matching matching = matcher.Invoke(token);
+      return new ScanResult() {
+        IsMatched = matching.IsMatch,
+        Index = matching.MatchIndex
+      };
+    };
+
+    return rule;
+  }
   
   internal static string GetMatcherName(Matcher matcher)
     => matcher.Method.GetGenericMethodDefinition().Name;

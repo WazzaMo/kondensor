@@ -19,6 +19,8 @@ public struct Matching
     UNDEFINED_NAME = "UNDEFINED_MATCHER_NAME",
     UNDEFINED_ANNOTATION = "UNDEFINED_ANNOTATION",
     UNDEFINED_MISMATCH = "NO_MISMATCH";
+  
+  public const int IDX_NO_MATCH = -1;
 
   public bool IsMatch
     => MatchResult != MatchKind.NoMatchAttempted && MatchResult != MatchKind.Mismatch;
@@ -34,6 +36,7 @@ public struct Matching
   public string MatcherName;
   public string Annotation;
   public string MismatchToken;
+  public int MatchIndex;
 
   /// <summary>Used for REGEX patterns with named groups.</summary>
   private Dictionary<string,string> _NamedGroups;
@@ -46,6 +49,7 @@ public struct Matching
     Annotation = UNDEFINED_ANNOTATION;
     MismatchToken = UNDEFINED_MISMATCH;
     _NamedGroups = new Dictionary<string, string>();
+    MatchIndex = IDX_NO_MATCH;
   }
 
   /// <summary>Property indicates if REGEX had named groups</summary>

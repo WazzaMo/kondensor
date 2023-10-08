@@ -50,6 +50,34 @@ public class TestHtmlPipe
   }
 
   [Fact]
+  public void ScanAhead_finds_known_text()
+  {
+    ScanRule rule = (string token) => {
+      Regex thead = new Regex(pattern: @"\<thead\>");
+      ScanResult result = new ScanResult();
+      Match match = thead.Match(token);
+      if (match.Success)
+      {
+        result.IsMatched = true;
+        result.Index = match.Index;
+      }
+      return result;
+    };
+
+    const string Input =
+    @"<table id=""foobar"">
+      <thead>
+      ",
+    EXPECTED = "<thead>";
+    
+    _Subject = PipeFor(Input);
+    ScanResult scan = _Subject.ScanAhead(rule);
+    Assert.True(scan.IsMatched);
+    Assert.True(_Subject.ReadToken(out string token));
+    Assert.Equal(EXPECTED, token);
+  }
+
+  [Fact]
   public void HtmlPipe_readsCodeStrippingSpanElements()
   {
     const string SEARCH = "$<span>{</span>"; //"Foo";

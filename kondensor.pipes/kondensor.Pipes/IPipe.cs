@@ -24,6 +24,8 @@ public interface IPipe : IPipeWriter
     out int matchIndex
   );
 
+  ScanResult ScanAhead(ScanRule rule);
+
   /// <summary>
   /// Read a token and indicate if value is valid.
   /// </summary>
