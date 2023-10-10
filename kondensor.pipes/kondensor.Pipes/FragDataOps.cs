@@ -12,11 +12,11 @@ namespace kondensor.Pipes;
 
 internal static class FragDataOps
 {
-  internal static bool NeedNewBuffer(ref FragHtmlPipe.FragData _Data)
+  internal static bool NeedNewBuffer(ref FragContext _Data)
     => !_Data._EoInput
     && !BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex);
 
-  internal static void GetNewBuffer(ref FragHtmlPipe.FragData _Data)
+  internal static void GetNewBuffer(ref FragContext _Data)
   {
     var input = _Data._Input.ReadLine();
     if (input == null)
@@ -26,7 +26,7 @@ internal static class FragDataOps
     }
     else
     {
-      char[] buffer = BufferUtils.GetWhitespaceTerminatedBufferFromString(input);
+      char[] buffer = BufferUtils.GetBufferFromString(input);
       PreprocessPipeUtils.TryApplyPreprocessors(
         _Data._Preprocessors,
         buffer,
@@ -37,7 +37,7 @@ internal static class FragDataOps
   }
 
   internal static bool TryScan(
-    ref FragHtmlPipe.FragData _Data,
+    ref FragContext _Data,
     char[] search,
     out int matchIndex
   )
@@ -71,66 +71,68 @@ internal static class FragDataOps
     return isFound;
   }
 
-  internal static bool IsFragmentSpace(ref FragHtmlPipe.FragData _Data, char _char)
+  internal static int GetTokenStart(ref FragContext _Data)
   {
-    bool result = Char.IsWhiteSpace(_char);
-    DoStartEndTracking(ref _Data, _char);
+    int index;
 
-    return result;
-  }
-
-  internal static bool IsFragmentLone(ref FragHtmlPipe.FragData _Data, char _char)
-  {
-    bool result = _char == '>';
-    DoStartEndTracking(ref _Data, _char);
-    return result;
-  }
-
-  internal static bool IsFragment(ref FragHtmlPipe.FragData _Data, char _char)
-  {
-    bool result;
-    
-    if (IsInTag(ref _Data))
-    {
-      result = Char.IsPunctuation(_char)
-        || Char.IsLetterOrDigit(_char)
-        || _char == '<'
-        || _char == '=';
-    }
+    if (FragmentHtml.IsBetweenTags(ref _Data))
+      index = _Data._BufferIndex;
     else
     {
-      result = _char != '<';
+      index = BufferUtils.ScanForSymbolStart( ref _Data, FragmentHtml.IsFragmentSpace,
+        _Data._Buffer, _Data._BufferIndex
+      );
     }
-    DoStartEndTracking(ref _Data, _char);
-    return result;
+
+    while (
+      FragDataOps.NeedNewBuffer(ref _Data)
+      || !BufferUtils.IsValidIndex(_Data._Buffer, index)
+    )
+    {
+      FragDataOps.GetNewBuffer(ref _Data);
+      index = BufferUtils.ScanForSymbolStart( ref _Data,
+        FragmentHtml.IsFragmentSpace,
+        _Data._Buffer, _Data._BufferIndex
+      );
+      _Data._BufferIndex = index;
+    }
+
+    return index;
   }
 
-  internal static bool IsFragmentEnd(ref FragHtmlPipe.FragData _Data, char _char)
+  internal static bool GetTokenFromStartIndex(
+    ref FragContext _Data,
+    int tokenStartIndex,
+    out string token
+  )
   {
-    bool result = ( IsInTag(ref _Data) && Char.IsWhiteSpace(_char) )
-      || _char == '>'
-      || _char == '<';
+    bool isFound = false;
+
+    int tokenEnd;
+    if (!_Data._EoInput && tokenStartIndex >= 0)
+    {
+      tokenEnd = FragmentHtml.IsSingleCharFragment(ref _Data)
+        ? tokenStartIndex + 1
+        : BufferUtils.ScanForEndOfSymbol(
+            ref _Data,
+            FragmentHtml.IsFragment, FragmentHtml.IsFragmentEnd,
+            _Data._Buffer, tokenStartIndex
+          );
+      if (BufferUtils.IsValidIndex(_Data._Buffer, tokenEnd - 1))
+      {
+        int length = tokenEnd - tokenStartIndex;
+        _Data._BufferIndex = tokenEnd;
+        Span<char> buffer = new Span<char>(_Data._Buffer);
+        Span<char> tokenBuffer = buffer.Slice(tokenStartIndex, length);
+        token = tokenBuffer.ToString();
+        isFound = true;
+      }
+      else
+        token = FragHtmlPipe.EMPTY;
+    }
+    else
+      token = FragHtmlPipe.EMPTY;
     
-    DoStartEndTracking(ref _Data, _char);
-
-    return result;
+    return isFound;
   }
-
-  internal static void DoStartEndTracking(ref FragHtmlPipe.FragData _Data, char _char)
-  {
-    if (_char == '<')
-      _Data._NumTagStart += 1;
-    else if (_char == '>')
-      _Data._NumTagEnd += 1;
-  }
-
-  internal static bool IsSingleCharFragment(ref FragHtmlPipe.FragData _Data)
-  => BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex)
-    && IsFragmentLone(ref _Data, _Data._Buffer[_Data._BufferIndex]);
-
-  internal static bool IsInTag(ref FragHtmlPipe.FragData _Data)
-    => _Data._NumTagStart == (_Data._NumTagEnd + 1);
-
-  internal static bool IsBetweenTags(ref FragHtmlPipe.FragData _Data)
-    => _Data._NumTagStart == _Data._NumTagEnd;
 }

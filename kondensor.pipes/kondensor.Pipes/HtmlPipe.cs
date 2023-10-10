@@ -130,7 +130,7 @@ public struct HtmlPipe : IPipe
   {
     ScanResult result = new ScanResult();
     bool isEof = _Data._EofInput;
-    string input;
+    string input  = "";
 
     if ( _Data._UnprocessedText != null
       && _Data._UnprocessedText.Length > 0
@@ -144,6 +144,10 @@ public struct HtmlPipe : IPipe
       isEof = ! GetTokenFromInput(out input);
       if (! isEof)
         result = rule.Invoke(input);
+    }
+    if (result.IsMatched)
+    {
+      EnqueueToken(input);
     }
     return result;
   }
@@ -300,9 +304,16 @@ public struct HtmlPipe : IPipe
         : line.Length;
       length = index2 - index1;
 
-      string sub = line.Substring(index1, length).Trim();
-      _Data._InputQueue.Enqueue(sub);
+      EnqueueToken(line.Substring(index1, length));
+      // string sub = line.Substring(index1, length).Trim();
+      // _Data._InputQueue.Enqueue(sub);
     }
+  }
+
+  private void EnqueueToken(string segment)
+  {
+    string sub = segment.Trim();
+    _Data._InputQueue.Enqueue(sub);
   }
 
   private string DequeueTokenOrEmpty()

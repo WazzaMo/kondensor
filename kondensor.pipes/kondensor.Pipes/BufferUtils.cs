@@ -19,7 +19,7 @@ internal static class BufferUtils
   /// <summary>Rule for scanning characters.</summary>
   /// <param name="_char">Character to check for a match</param>
   /// <returns>True when matched, False if not significant.</returns>
-  internal delegate bool ScanRule(char _char);
+  internal delegate bool ScanRule(ref FragContext _Data, char _char);
 
   /// <summary>
   /// Searches through a collection of symbol boundary characters, looking
@@ -34,13 +34,14 @@ internal static class BufferUtils
   ///   <see href="INDEX_END_BUFFER" /> if over the end of the buffer
   /// </returns>
   internal static int ScanForSymbolStart(
+    ref FragContext _Data,
     ScanRule wordSeparator,
     char[] buffer,
     int startIndex = 0
   )
   {
     int index = startIndex;
-    while(IsValidIndex(buffer, index) && wordSeparator(buffer[index]))
+    while(IsValidIndex(buffer, index) && wordSeparator(ref _Data, buffer[index]))
     {
       index++;
     }
@@ -62,17 +63,16 @@ internal static class BufferUtils
   ///   <see href="INDEX_END_BUFFER" /> if over the end of the buffer
   /// </returns>
   internal static int ScanForEndOfSymbol(
-    ScanRule symbolRule,
-    ScanRule symbolEndRule,
-    char[] buffer,
-    int startIndex
+    ref FragContext _Data,
+    ScanRule symbolRule, ScanRule symbolEndRule,
+    char[] buffer, int startIndex
   )
   {
     int index = startIndex;
     bool isNotEnd = true;
     int length = 0;
     while(
-      IsValidIndex(buffer, index) && symbolRule(buffer[index])
+      IsValidIndex(buffer, index) && symbolRule(ref _Data, buffer[index])
       && isNotEnd
     )
     {
@@ -81,9 +81,7 @@ internal static class BufferUtils
       // Scan ahead for symbol end.
       isNotEnd = length > 0
         && IsValidIndex( buffer, index)
-        && !symbolEndRule(buffer[index]);
-      if (index > buffer.Length)
-        Console.Error.WriteLine("Exceeded buffer");
+        && !symbolEndRule(ref _Data, buffer[index]);
     }
     if (index >= buffer.Length)
       index = INDEX_END_BUFFER;
@@ -93,12 +91,10 @@ internal static class BufferUtils
   internal static bool IsValidIndex(char[] buffer, int index)
     => index >= 0 && index < buffer.Length;
   
-  internal static char[] GetWhitespaceTerminatedBufferFromString(string? input)
+  internal static char[] GetBufferFromString(string? input)
   {
-    string temp = input != null ? WhitespaceTerminate(input) : "";
+    string temp = input != null ? input : "";
     return temp.ToCharArray();
   }
 
-  internal static string WhitespaceTerminate(string invalue)
-    => invalue;// + " ";
 }
