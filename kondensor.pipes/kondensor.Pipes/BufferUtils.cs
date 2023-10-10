@@ -19,7 +19,7 @@ internal static class BufferUtils
   /// <summary>Rule for scanning characters.</summary>
   /// <param name="_char">Character to check for a match</param>
   /// <returns>True when matched, False if not significant.</returns>
-  internal delegate bool ScanRule(ref FragContext _Data, char _char);
+  internal delegate bool BufferRule(ref FragContext _Data, char _char);
 
   /// <summary>
   /// Searches through a collection of symbol boundary characters, looking
@@ -35,7 +35,7 @@ internal static class BufferUtils
   /// </returns>
   internal static int ScanForSymbolStart(
     ref FragContext _Data,
-    ScanRule wordSeparator,
+    BufferRule wordSeparator,
     char[] buffer,
     int startIndex = 0
   )
@@ -64,7 +64,7 @@ internal static class BufferUtils
   /// </returns>
   internal static int ScanForEndOfSymbol(
     ref FragContext _Data,
-    ScanRule symbolRule, ScanRule symbolEndRule,
+    BufferRule symbolRule, BufferRule symbolEndRule,
     char[] buffer, int startIndex
   )
   {
