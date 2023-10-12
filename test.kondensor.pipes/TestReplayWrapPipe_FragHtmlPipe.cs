@@ -11,38 +11,41 @@ using kondensor.Pipes;
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace test.kondensor.pipes;
 
-public class TestReplayWrapPipe
+public class TestReplayWrapPipe_FragHtmlPipe
 {
-  private PipeFixture _Fixture;
+  private PipeFixture_FragHtmlPipe _Fixture;
 
-  public TestReplayWrapPipe()
+  public TestReplayWrapPipe_FragHtmlPipe()
   {
-    _Fixture = new PipeFixture();
+    _Fixture = new PipeFixture_FragHtmlPipe();
   }
 
   const string
       DEFAULT = "++++++",
-      TOK1 = @"<html xmlns=""http://www.w3.org/1999/xhtml"" lang=""en-US"">",
-      TOK2 = "<head>",
-      TOK3 = @"<meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"" />",
-      TOK4 = @"<title>Actions, resources, and condition keys for AWS Account Management - Service Authorization Reference",
-      TOK5 = @"</title>";
+      TOK1 = @"<html",
+      TOK2 = @"xmlns=""http://www.w3.org/1999/xhtml""",
+      TOK3 = @"lang=""en-US""",
+      TOK4 = @">",
+      TOK5 = "<head"
+      ;
 
   [Fact]
   public void TokensFetchedInOrderFromRootPipe()
   {
     string token = DEFAULT;
+    var basePipe = _Fixture.RootPipe;
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(basePipe.ReadToken(out token));
     Assert.Equal(TOK1, token);
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(basePipe.ReadToken(out token));
     Assert.Equal(TOK2, token);
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(basePipe.ReadToken(out token));
     Assert.Equal(TOK3, token);
   }
 
@@ -75,6 +78,28 @@ public class TestReplayWrapPipe
 
     Assert.True( _Fixture.Subject.TryScanAheadFor(search, out int matchIdx));
     Assert.True( _Fixture.Subject.ReadToken(out token));
+    Assert.Equal(TOK2, token);
+  }
+
+  [Fact]
+  public void ScanAhead_makes_scanned_token_next()
+  {
+    string token = DEFAULT;
+    Regex regex = new Regex(TOK2);
+
+    ScanRule tok2Scan = (string token) => {
+      ScanResult result = new ScanResult();
+      var match = regex.Match(token);
+      if (match.Success) {
+        result.IsMatched = true;
+        result.Index = match.Index;
+      }
+      return result;
+    };
+
+    var scan = _Fixture.Subject.ScanAhead(tok2Scan);
+    Assert.True( scan.IsMatched );
+    Assert.True(_Fixture.Subject.ReadToken(out token));
     Assert.Equal(TOK2, token);
   }
 

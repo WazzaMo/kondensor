@@ -14,18 +14,19 @@ using System;
 namespace test.kondensor.pipes;
 
 
-public class PipeFixture : IDisposable
+public class PipeFixture_FragHtmlPipe : IDisposable
 {
-  private HtmlPipe _RootPipe;
+  private FragHtmlPipe _RootPipe;
   private ReplayWrapPipe _Subject;
 
-  public PipeFixture()
+  public PipeFixture_FragHtmlPipe()
   {
-    _RootPipe = new HtmlPipe(PipeValues.HTML, Console.Out);
+    TextPipeWriter writer = new TextPipeWriter(Console.Out);
+    _RootPipe = new FragHtmlPipe(PipeValues.HTML, writer);
     _Subject = new ReplayWrapPipe(_RootPipe);
   }
 
-  public HtmlPipe RootPipe => _RootPipe;
+  public FragHtmlPipe RootPipe => _RootPipe;
 
   public ReplayWrapPipe Subject => _Subject;
 

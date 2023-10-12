@@ -24,6 +24,15 @@ public interface IPipe : IPipeWriter
     out int matchIndex
   );
 
+  /// <summary>
+  /// Is used to bring the pipe quickly to a point where the desired text
+  /// will be the next token read. It returns an indication of success
+  /// in the form of <see cref="ScanResult"/> providing a match success boolean and index.
+  /// If result is a failure to match, likely cause is pipe exhausted
+  /// input content.
+  /// </summary>
+  /// <param name="rule">Can be based on Regex or other matching method.</param>
+  /// <returns><see cref="ScanResult"/> to indicate success or failure.</returns>
   ScanResult ScanAhead(ScanRule rule);
 
   /// <summary>

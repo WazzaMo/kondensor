@@ -68,9 +68,7 @@ public struct ReplayWrapPipe : IPipe
     => _BasePipe.TryScanAheadFor(search, out matchIndex);
 
   public ScanResult ScanAhead(ScanRule rule)
-  {
-    throw new NotImplementedException();
-  }
+    => _BasePipe.ScanAhead(rule);
 
   public IPipeWriter WriteFragment(string fragment)
   {
