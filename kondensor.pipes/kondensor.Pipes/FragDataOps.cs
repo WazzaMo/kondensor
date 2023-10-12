@@ -16,9 +16,43 @@ internal static class FragDataOps
     => !_Data._EoInput
     && !BufferUtils.IsValidIndex(_Data._Buffer, _Data._BufferIndex);
 
-  internal static void GetNewBuffer(ref FragContext _Data)
+  internal static void GetNewBuffer(
+    ref FragContext _Data
+  )
   {
-    var input = _Data._Input.ReadLine();
+    const int StartOfLine = 0;
+
+    string? input = _Data._Input.ReadLine();
+
+    LoadBuffer(ref _Data, input, StartOfLine);
+  }
+
+  internal static ScanResult ScanForNewBuffer(
+    ref FragContext _Data,
+    ScanRule lookAhead
+  )
+  {
+    string? input;
+    ScanResult scan = new ScanResult();
+
+    do {
+      input = _Data._Input.ReadLine();
+      if (input != null)
+      {
+        scan = lookAhead(input);
+      }
+    } while( input != null && ! scan.IsMatched);
+
+    LoadBuffer(ref _Data, input, scan.Index);
+    return scan;
+  }
+
+  private static void LoadBuffer(
+    ref FragContext _Data,
+    string? input,
+    int inputIndex
+  )
+  {
     if (input == null)
     {
       _Data._EoInput = true;
@@ -33,7 +67,7 @@ internal static class FragDataOps
         out _Data._Buffer
       );
     }
-    _Data._BufferIndex = 0;
+    _Data._BufferIndex = inputIndex;
   }
 
   internal static bool TryScan(

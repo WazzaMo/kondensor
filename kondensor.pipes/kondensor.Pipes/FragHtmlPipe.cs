@@ -65,7 +65,30 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public ScanResult ScanAhead(ScanRule rule)
   {
-    throw new NotImplementedException();
+    ScanResult scan = new ScanResult();
+
+    if (_Data._EoInput)
+    {
+      scan = new ScanResult() {
+        IsMatched = false,
+        Index = -1
+      };
+    }
+    else if (! FragDataOps.NeedNewBuffer(ref _Data))
+    {
+      Span<char> totalBuffer = _Data._Buffer;
+      Span<char> unprocessedBuffer = totalBuffer.Slice(_Data._BufferIndex);
+      string text = unprocessedBuffer.ToString();
+      scan = rule(text);
+      _Data._BufferIndex = scan.IsMatched
+        ? _Data._BufferIndex + scan.Index
+        : _Data._BufferIndex;
+    }
+    else
+    {
+      scan = FragDataOps.ScanForNewBuffer(ref _Data, rule);
+    }
+    return scan;
   }
 
   internal const string EMPTY = "";

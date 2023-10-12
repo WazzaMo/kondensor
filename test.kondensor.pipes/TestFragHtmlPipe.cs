@@ -10,6 +10,7 @@ using kondensor.Pipes;
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 using test.kondensor.fixtures;
 
@@ -74,6 +75,51 @@ public class TestFragHtmlPipe
     Assert.True( Subject.TryScanAheadFor(search, out int matchIndex));
     Assert.True( Subject.ReadToken(out string token) );
     Assert.Equal(target, token);
+  }
+
+  [Fact]
+  public void ScanAhead_finds_known_text()
+  {
+    const string target = "Access level";
+    Regex regex = new Regex(target);
+    ScanRule rule = (string text)=> {
+      ScanResult result = new ScanResult();
+      var match = regex.Match(text);
+      if (match.Success)
+      {
+        result.IsMatched = true;
+        result.Index = match.Index;
+      }
+      return result;
+    };
+
+    var scanResult = Subject.ScanAhead(rule);
+    Assert.True( scanResult.IsMatched);
+    Assert.True(Subject.ReadToken(out string token));
+    Assert.Equal(target, token);
+  }
+
+  [Fact]
+  public void ScanAhead_finds_thead_Tag()
+  {
+    const string theadTag = "<thead";
+    Regex regex = new Regex(theadTag);
+    ScanRule rule = (string text) =>
+    {
+      ScanResult result = new ScanResult();
+      var match = regex.Match(text);
+      if (match.Success)
+      {
+        result.IsMatched = true;
+        result.Index = match.Index;
+      }
+      return result;
+    };
+
+    var scanResult = Subject.ScanAhead(rule);
+    Assert.True(scanResult.IsMatched);
+    Assert.True(Subject.ReadToken(out string token));
+    Assert.Equal(theadTag, token);
   }
 
   [Fact]
