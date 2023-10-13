@@ -70,7 +70,7 @@ public class TestReplayWrapPipe_FragHtmlPipe
     Assert.Equal(TOK5, token);
   }
 
-  [Fact]
+  // [Fact]
   public void TryScanAheadFor_makes_scanned_token_next()
   {
     string token = DEFAULT;

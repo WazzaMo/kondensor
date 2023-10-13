@@ -72,12 +72,12 @@ internal static class FragmentHtml
   /// <summary>Internal state tracking that can be called many times on same char.</summary>
   /// <param name="_Data">Context to use</param>
   /// <param name="_char">Char to handle</param>
-  private static void DoStartEndTracking(ref FragContext _Data, char _char)
+  internal static void DoStartEndTracking(ref FragContext _Data, char _char)
   {
     if (_char == '<')
       _Data._NumTagStart = _Data._NumTagEnd + 1;
     else if (_char == '>')
-      _Data._NumTagEnd = _Data._NumTagStart + 1;
+      _Data._NumTagEnd = _Data._NumTagStart;
   }
 
 }

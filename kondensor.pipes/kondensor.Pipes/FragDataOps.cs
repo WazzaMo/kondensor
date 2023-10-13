@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace kondensor.Pipes;
@@ -40,11 +41,34 @@ internal static class FragDataOps
       if (input != null)
       {
         scan = lookAhead(input);
+        TagStartEndScan(ref _Data, input, scan);
       }
     } while( input != null && ! scan.IsMatched);
 
     LoadBuffer(ref _Data, input, scan.Index);
     return scan;
+  }
+
+  private static void TagStartEndScan( ref FragContext _Data, string input, ScanResult scan)
+  {
+    const char START = '<', END = '>';
+    const int MISSING = -1;
+
+    int range = scan.IsMatched ? scan.Index : input.Length;
+
+    int tagStartIdx;
+    int tagEndIdx = 0;
+    
+    tagStartIdx = input.IndexOf(START, 0, range);
+
+    tagEndIdx = (tagStartIdx == MISSING)
+      ? input.IndexOf(END, 0, range)
+      : input.IndexOf(END, tagStartIdx, range - tagStartIdx);
+    
+    if (tagStartIdx > MISSING)
+      FragmentHtml.DoStartEndTracking(ref _Data, START);
+    if (tagEndIdx > MISSING)
+      FragmentHtml.DoStartEndTracking(ref _Data, END);
   }
 
   private static void LoadBuffer(
