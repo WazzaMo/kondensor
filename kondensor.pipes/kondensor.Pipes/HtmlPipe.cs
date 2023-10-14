@@ -141,13 +141,15 @@ public struct HtmlPipe : IPipe
     }
     while(! result.IsMatched && ! isEof)
     {
-      isEof = ! GetTokenFromInput(out input);
+      // isEof = ! TryReadInput(out input);// ! GetTokenFromInput(out input);
+      isEof = ! GetTokenFromInput(out input, rule);
       if (! isEof)
-        result = rule.Invoke(input);
+        result = rule(input);
     }
     if (result.IsMatched)
     {
       EnqueueToken(input);
+      // TokeniseLineParts(input, rule);
     }
     return result;
   }
@@ -159,7 +161,7 @@ public struct HtmlPipe : IPipe
 
   private int GetBufferEndIndex() => _Data._UnprocessedText.Length;
 
-  private bool GetTokenFromInput(out string token)
+  private bool GetTokenFromInput(out string token, ScanRule? rule = null)
   {
     bool isOk;
 
@@ -170,7 +172,7 @@ public struct HtmlPipe : IPipe
     }
     else
     {
-      isOk = GreedyRead();
+      isOk = GreedyRead(rule);
       if (isOk)
       {
         token = DequeueTokenOrEmpty();
@@ -192,7 +194,7 @@ public struct HtmlPipe : IPipe
   /// Read until next token starts.
   /// </summary>
   /// <returns>One or more lines of text</returns>
-  private bool GreedyRead()
+  private bool GreedyRead(ScanRule? rule)
   {
     bool isTextRead = false;
     StringBuilder builder = new StringBuilder();
@@ -220,7 +222,7 @@ public struct HtmlPipe : IPipe
             if (builder.Length > 0)
             {
               segment = processText();
-              TokeniseLineParts(segment);
+              TokeniseLineParts(segment, rule);
               tokenCount = 0;
             }
           }
@@ -239,7 +241,7 @@ public struct HtmlPipe : IPipe
           else
           {
             segment = processText();
-            TokeniseLineParts(segment);
+            TokeniseLineParts(segment, rule);
             tokenCount = charInput == '<' ? 1 : 0;
           }
         }
@@ -290,9 +292,14 @@ public struct HtmlPipe : IPipe
     return inputLine != null;
   }
 
-  private void TokeniseLineParts(string line)
+  private void TokeniseLineParts(string line, ScanRule? rule = null)
   {
     MatchCollection parts = __LineSep.Matches(line);
+    ScanResult scan = new ScanResult() {
+      IsMatched = rule == null ? true : false
+    };
+
+    string token;
 
     for(int partIndex = 0; partIndex < parts.Count; partIndex++)
     {
@@ -304,7 +311,12 @@ public struct HtmlPipe : IPipe
         : line.Length;
       length = index2 - index1;
 
-      EnqueueToken(line.Substring(index1, length));
+      token = line.Substring(index1, length);
+      if (rule != null && ! scan.IsMatched)
+        scan = rule(token);
+
+      if (scan.IsMatched)
+        EnqueueToken(token);
       // string sub = line.Substring(index1, length).Trim();
       // _Data._InputQueue.Enqueue(sub);
     }

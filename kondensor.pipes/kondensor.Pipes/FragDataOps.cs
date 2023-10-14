@@ -51,24 +51,16 @@ internal static class FragDataOps
 
   private static void TagStartEndScan( ref FragContext _Data, string input, ScanResult scan)
   {
-    const char START = '<', END = '>';
-    const int MISSING = -1;
-
     int range = scan.IsMatched ? scan.Index : input.Length;
 
-    int tagStartIdx;
-    int tagEndIdx = 0;
-    
-    tagStartIdx = input.IndexOf(START, 0, range);
+    int index = 0;
+    char _char;
 
-    tagEndIdx = (tagStartIdx == MISSING)
-      ? input.IndexOf(END, 0, range)
-      : input.IndexOf(END, tagStartIdx, range - tagStartIdx);
-    
-    if (tagStartIdx > MISSING)
-      FragmentHtml.DoStartEndTracking(ref _Data, START);
-    if (tagEndIdx > MISSING)
-      FragmentHtml.DoStartEndTracking(ref _Data, END);
+    for (index =0; index < range; index++)
+    {
+      _char = input[index];
+      FragmentHtml.DoStartEndTracking(ref _Data, _char);
+    }
   }
 
   private static void LoadBuffer(

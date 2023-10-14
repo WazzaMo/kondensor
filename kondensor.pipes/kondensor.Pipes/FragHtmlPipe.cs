@@ -80,9 +80,10 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
       Span<char> unprocessedBuffer = totalBuffer.Slice(_Data._BufferIndex);
       string text = unprocessedBuffer.ToString();
       scan = rule(text);
-      _Data._BufferIndex = scan.IsMatched
-        ? _Data._BufferIndex + scan.Index
-        : _Data._BufferIndex;
+      if (scan.IsMatched)
+        _Data._BufferIndex = _Data._BufferIndex + scan.Index;
+      else
+        scan = FragDataOps.ScanForNewBuffer(ref _Data, rule);
     }
     else
     {

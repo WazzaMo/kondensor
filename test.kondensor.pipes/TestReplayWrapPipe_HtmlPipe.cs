@@ -83,7 +83,7 @@ public class TestReplayWrapPipe_HtmlPipe
   public void ScanAhead_makes_scanned_token_next()
   {
     string token = DEFAULT;
-    Regex regex = new Regex(TOK2);
+    Regex regex = new Regex(pattern: @"\<head\>");
 
     ScanRule tok2Scan = (string token) => {
       ScanResult result = new ScanResult();

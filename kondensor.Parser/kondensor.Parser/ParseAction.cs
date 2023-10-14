@@ -69,27 +69,35 @@ public struct ParseAction
   /// <returns>ParseAction at the point to read the expected token.</returns>
   public ParseAction SkipUntil(Matcher rule)
   {
-    int originalCheckPoint = _Pipe.GetCheckPoint();
-    int testCheckPoint = 0;
-    bool canRead = true;
-    string token;
-    Matching status = Utils.NoMatch();
+    // int originalCheckPoint = _Pipe.GetCheckPoint();
+    // int testCheckPoint = 0;
+    // bool canRead = true;
+    // string token;
+    // Matching status = Utils.NoMatch();
     
-    while( canRead && !status.IsMatch)
-    {
-      testCheckPoint = _Pipe.GetCheckPoint();
-      canRead = _Pipe.ReadToken(out token);
-      if (canRead)
-      {
-        status = rule.Invoke(token);
-      }
-    }
-    if (status.IsMatch)
-    {
-      if (testCheckPoint < originalCheckPoint)
-        throw new Exception(message:$"\n## Checkpoint {testCheckPoint} before start point of {originalCheckPoint}");
-      _Pipe.ReturnToCheckPoint(testCheckPoint);
-    }
+    // while( canRead && !status.IsMatch)
+    // {
+    //   testCheckPoint = _Pipe.GetCheckPoint();
+    //   canRead = _Pipe.ReadToken(out token);
+    //   if (canRead)
+    //   {
+    //     status = rule.Invoke(token);
+    //   }
+    // }
+    // if (status.IsMatch)
+    // {
+    //   if (testCheckPoint < originalCheckPoint)
+    //     throw new Exception(message:$"\n## Checkpoint {testCheckPoint} before start point of {originalCheckPoint}");
+    //   _Pipe.ReturnToCheckPoint(testCheckPoint);
+    // }
+    ScanRule scanner = (string token) => {
+      var match = rule(token);
+      return new ScanResult() {
+        IsMatched = match.IsMatch,
+        Index = match.MatchIndex
+      };
+    };
+    var result = _Pipe.ScanAhead(scanner);
     return this;
   }
 
