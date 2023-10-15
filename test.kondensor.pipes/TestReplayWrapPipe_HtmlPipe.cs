@@ -36,14 +36,15 @@ public class TestReplayWrapPipe_HtmlPipe
   public void TokensFetchedInOrderFromRootPipe()
   {
     string token = DEFAULT;
+    var rootPipe = _Fixture.RootPipe;
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(rootPipe.ReadToken(out token));
     Assert.Equal(TOK1, token);
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(rootPipe.ReadToken(out token));
     Assert.Equal(TOK2, token);
 
-    Assert.True(_Fixture.RootPipe.ReadToken(out token));
+    Assert.True(rootPipe.ReadToken(out token));
     Assert.Equal(TOK3, token);
   }
 

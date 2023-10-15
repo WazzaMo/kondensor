@@ -18,37 +18,11 @@ public struct HtmlPipe : IPipe
 {
   private static readonly Regex __LineSep = new Regex(pattern: @"\<");
 
-  private class _InternalData
-  {
-    internal TextReader _Input;
-    internal Queue<string> _InputQueue;
-    internal TextPipeWriter _Output;
-    internal bool _IsOpen;
-    internal bool _EofInput;
-    internal char[] _UnprocessedText;
-    internal int _UnprocessedIndex;
-    internal List<IPreprocessor> _Preprocessors;
-
-    internal bool IsLineTerminated() => _Output.IsLineTerminated();
-
-    internal _InternalData( TextReader input, TextWriter output)
-    {
-      _Input = input;
-      _InputQueue = new Queue<string>();
-      _UnprocessedText = EmptyCharArray();
-      _UnprocessedIndex = 0;
-      _Output = new TextPipeWriter( output );
-      _IsOpen = true;
-      _EofInput = false;
-      _Preprocessors = new List<IPreprocessor>();
-    }
-  }
-
-  private _InternalData _Data;
+  private HtmlContext _Data;
 
   public HtmlPipe(TextReader input, TextWriter output)
   {
-    _Data = new _InternalData(input, output);
+    _Data = new HtmlContext(input, output);
   }
 
   public void ClosePipe()
@@ -66,7 +40,7 @@ public struct HtmlPipe : IPipe
   public bool ReadToken(out string token)
   {
     bool isOk;
-    if (_Data._InputQueue.Count == 0)
+    if (HtmlPipeQOps.IsQueueEmpty(ref _Data))
     {
       do
       {
@@ -137,20 +111,17 @@ public struct HtmlPipe : IPipe
     )
     {
       input = _Data._UnprocessedText.ToString() ?? "";
-      result = rule.Invoke(input);
+      result = rule(input);
     }
     while(! result.IsMatched && ! isEof)
     {
-      // isEof = ! TryReadInput(out input);// ! GetTokenFromInput(out input);
       isEof = ! GetTokenFromInput(out input, rule);
       if (! isEof)
         result = rule(input);
     }
+
     if (result.IsMatched)
-    {
       EnqueueToken(input);
-      // TokeniseLineParts(input, rule);
-    }
     return result;
   }
 
@@ -175,7 +146,9 @@ public struct HtmlPipe : IPipe
       isOk = GreedyRead(rule);
       if (isOk)
       {
-        token = DequeueTokenOrEmpty();
+        token = rule == null
+          ? DequeueTokenOrEmpty()
+          : DequeueTokenOrEmpty(rule);
         isOk = true;
       }
       else
@@ -222,7 +195,7 @@ public struct HtmlPipe : IPipe
             if (builder.Length > 0)
             {
               segment = processText();
-              TokeniseLineParts(segment, rule);
+              TokeniseLineParts(segment);
               tokenCount = 0;
             }
           }
@@ -241,7 +214,7 @@ public struct HtmlPipe : IPipe
           else
           {
             segment = processText();
-            TokeniseLineParts(segment, rule);
+            TokeniseLineParts(segment);
             tokenCount = charInput == '<' ? 1 : 0;
           }
         }
@@ -292,12 +265,9 @@ public struct HtmlPipe : IPipe
     return inputLine != null;
   }
 
-  private void TokeniseLineParts(string line, ScanRule? rule = null)
+  private void TokeniseLineParts(string line)
   {
     MatchCollection parts = __LineSep.Matches(line);
-    ScanResult scan = new ScanResult() {
-      IsMatched = rule == null ? true : false
-    };
 
     string token;
 
@@ -312,28 +282,31 @@ public struct HtmlPipe : IPipe
       length = index2 - index1;
 
       token = line.Substring(index1, length);
-      if (rule != null && ! scan.IsMatched)
-        scan = rule(token);
 
-      if (scan.IsMatched)
-        EnqueueToken(token);
-      // string sub = line.Substring(index1, length).Trim();
-      // _Data._InputQueue.Enqueue(sub);
+      EnqueueToken(token);
     }
   }
 
   private void EnqueueToken(string segment)
   {
-    string sub = segment.Trim();
-    _Data._InputQueue.Enqueue(sub);
+    string trimmedOfSpace = segment.Trim();
+    HtmlPipeQOps.Enqueue(ref _Data, trimmedOfSpace);
   }
 
   private string DequeueTokenOrEmpty()
   {
-    string value = _Data._InputQueue.Count > 0
-      ? _Data._InputQueue.Dequeue()
-      : "";
+    string value = 
+      HtmlPipeQOps.TryDequeue(ref _Data, out string item)
+      ? item : "";
+
     return value;
   }
 
+  private string DequeueTokenOrEmpty(ScanRule rule)
+  {
+    string value = "";
+
+    bool isOk = HtmlPipeQOps.TryDequeueUntilMatch(ref _Data, rule, out value);
+    return value;
+  }
 }
