@@ -292,14 +292,14 @@ public class TestParsing
     _Pipe = new ReplayWrapPipe(pipe);
 
     Production first, second;
-    first = parser =>
+    first = (ParseAction parser) =>
       parser
         .SkipUntil(TABLE)
         .Expect(TABLE, annotation: "start:table")
         .SkipUntil(END_TABLE)
         .Expect(END_TABLE, annotation: "end:table");
     
-    second = parser =>
+    second = (ParseAction parser) =>
       parser
         .SkipUntil(PARA)
         .Expect(PARA, annotation: "start:p")
