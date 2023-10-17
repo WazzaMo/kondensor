@@ -121,6 +121,9 @@ public struct HtmlPipe : IPipe
     {
       _Data._InputQueue = ScanData._InputQueue;
       _Data._QueueIndex = ScanData._QueueIndex;
+      _Data._UnprocessedText = ScanData._UnprocessedText;
+      _Data._UnprocessedIndex = ScanData._UnprocessedIndex;
+      _Data._EofInput = ScanData._EofInput;
     }
     return result;
   }
