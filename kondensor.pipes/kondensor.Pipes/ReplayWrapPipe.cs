@@ -68,7 +68,12 @@ public struct ReplayWrapPipe : IPipe
     => _BasePipe.TryScanAheadFor(search, out matchIndex);
 
   public ScanResult ScanAhead(ScanRule rule)
-    => _BasePipe.ScanAhead(rule);
+  {
+    var result = _BasePipe.ScanAhead(rule);
+    if (result.IsMatched)
+      return ReplayTokenHistoryToMatchBase(rule);
+    return result;
+  }
 
   public IPipeWriter WriteFragment(string fragment)
   {
@@ -100,5 +105,22 @@ public struct ReplayWrapPipe : IPipe
   public void AddPreprocessor(IPreprocessor processor)
   {
     _BasePipe.AddPreprocessor(processor);
+  }
+
+  private ScanResult ReplayTokenHistoryToMatchBase(ScanRule rule)
+  {
+    ScanResult seek = new ScanResult();
+    int desiredIndex = -1;
+    string value;
+
+    while(! seek.IsMatched && (desiredIndex+1) < _TokenHistory.Count)
+    {
+      desiredIndex++;
+      value = _TokenHistory[desiredIndex];
+      seek = rule(value);
+    }
+    if (seek.IsMatched)
+      TokenHistoryIndex = desiredIndex;
+    return seek;
   }
 }

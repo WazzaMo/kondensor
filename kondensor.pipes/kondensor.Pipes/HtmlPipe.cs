@@ -103,15 +103,18 @@ public struct HtmlPipe : IPipe
     bool isEof = _Data._EofInput;
     string input  = "";
     HtmlContext ScanData = _Data;
+    ScanData._QueueIndex = 0;
 
-    if ( _Data._UnprocessedText != null
-      && _Data._UnprocessedText.Length > 0
+    if ( ScanData._UnprocessedText != null
+      && ScanData._UnprocessedText.Length > 0
     )
     {
-      input = _Data._UnprocessedText.ToString() ?? "";
+      input = ScanData._UnprocessedText.ToString() ?? "";
       result = rule(input);
     }
-    while(! result.IsMatched && ! isEof)
+    while(! result.IsMatched
+      && ! (isEof && HtmlPipeQOps.IsQueueEmpty(ref ScanData) )
+    )
     {
       isEof = ! HtmlTokenOps.GetTokenFromInput(ref ScanData, out input, rule);
       if (! isEof)

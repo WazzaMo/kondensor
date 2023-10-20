@@ -37,7 +37,7 @@ internal static class HtmlTokenOps
     else
     {
       isOk = GreedyRead(ref _Data, rule);
-      if (isOk)
+      if (isOk || ! HtmlPipeQOps.IsQueueEmpty(ref _Data) )
       {
         isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
       }
