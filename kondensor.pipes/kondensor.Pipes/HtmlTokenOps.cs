@@ -22,21 +22,22 @@ internal static class HtmlTokenOps
   {
     bool isOk;
 
-    if (_Data._EofInput)
+    // if (_Data._EofInput)
+    // {
+    //   if (HtmlPipeQOps.IsQueueEmpty(ref _Data))
+    //   {
+    //     isOk = false;
+    //     token = "";
+    //   }
+    //   else
+    //   {
+    //     isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
+    //   }
+    // }
+    // else
     {
-      if (HtmlPipeQOps.IsQueueEmpty(ref _Data))
-      {
-        isOk = false;
-        token = "";
-      }
-      else
-      {
-        isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
-      }
-    }
-    else
-    {
-      isOk = GreedyRead(ref _Data, rule);
+      var isEof = _Data._EofInput || ! GreedyRead(ref _Data, rule);
+      isOk = ! isEof;
       if (isOk || ! HtmlPipeQOps.IsQueueEmpty(ref _Data) )
       {
         isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);

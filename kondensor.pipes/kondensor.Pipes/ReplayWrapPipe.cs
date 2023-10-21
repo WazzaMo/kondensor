@@ -62,6 +62,7 @@ public struct ReplayWrapPipe : IPipe
     }
     else
     {
+      // throw new InvalidOperationException("Re-reading data.");
       token = _TokenHistory[readIndex];
       readIndex++;
       isOk = true;
@@ -114,7 +115,20 @@ public struct ReplayWrapPipe : IPipe
     }
     if (seek.IsMatched)
       TokenHistoryIndex = desiredIndex;
+    RemoveHistoryBeyond(desiredIndex);
     return seek;
+  }
+
+  private void RemoveHistoryBeyond(int index)
+  {
+    for(
+      int current = _TokenHistory.Count - 1;
+      current > index;
+      current--
+    )
+    {
+      _TokenHistory.RemoveAt(current);
+    }
   }
 
   public void RestoreToCheckPoint(IPipeCheckPoint checkpointWrap)
