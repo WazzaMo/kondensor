@@ -113,7 +113,7 @@ public class TestReplayWrapPipe_HtmlPipe
     Assert.True(_Fixture.Subject.ReadToken(out token));
     Assert.Equal(TOK2, token);
 
-    int checkPoint = _Fixture.Subject.GetCheckPoint();
+    IPipeCheckPoint checkPoint = _Fixture.Subject.GetCheckPoint();
 
     Assert.True(_Fixture.Subject.ReadToken(out token));
     Assert.Equal(TOK3, token);
@@ -124,7 +124,7 @@ public class TestReplayWrapPipe_HtmlPipe
     Assert.True(_Fixture.Subject.ReadToken(out token));
     Assert.Equal(TOK5, token);
 
-    _Fixture.Subject.ReturnToCheckPoint(checkPoint);
+    _Fixture.Subject.RestoreToCheckPoint(checkPoint);
     Assert.True(_Fixture.Subject.ReadToken(out token));
     Assert.Equal(TOK3, token);
 

@@ -307,14 +307,16 @@ public class TestParsing
         .Expect(END_PARA, annotation: "end:p");
 
     List<string> Annotations = new List<string>();
-    var parser = Parsing.Group(_Pipe)
+    var parser = Parsing.Group(_Pipe);
+
+    parser
       .EitherProduction(first, second)
       .AllMatchThen( (list, writer) => list.ForEach(
         (item, idx) => Annotations.Add(item.Annotation)
       ));
     Assert.True(parser.IsAllMatched);
     Assert.Collection(Annotations,
-      x => Assert.Equal("start:p", x),
+      x => Assert.Equal(expected: "start:p", x),
       x => Assert.Equal(expected: "end:p", x)
     );
   }

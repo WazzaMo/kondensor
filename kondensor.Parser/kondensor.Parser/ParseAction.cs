@@ -23,14 +23,14 @@ public struct ParseAction
   private ReplayWrapPipe _Pipe;
   private LinkedList<Matching> _MatchHistory;
   private int[] __CountMatched;
-  private int[] __RollbackPoint;
+  private IPipeCheckPoint[] __RollbackPoint;
 
   private int _CountMatched {
     get => __CountMatched[0];
     set => __CountMatched[0] = value;
   }
 
-  private int _RollbackPoint {
+  private IPipeCheckPoint _RollbackPoint {
     get => __RollbackPoint[0];
     set => __RollbackPoint[0] = value;
   }
@@ -39,7 +39,7 @@ public struct ParseAction
   {
     _Pipe = pipe;
     __CountMatched = new int[1]{0};
-    __RollbackPoint = new int[1]{pipe.GetCheckPoint()};
+    __RollbackPoint = new IPipeCheckPoint[1]{pipe.GetCheckPoint()};
     _MatchHistory = new LinkedList<Matching>();
   }
 
@@ -160,7 +160,7 @@ public struct ParseAction
   /// <returns>same parser object.</returns>
   public ParseAction MayExpect(Matcher maybeRule, string annotation)
   {
-    int checkpoint = _Pipe.GetCheckPoint();
+    IPipeCheckPoint checkpoint = _Pipe.GetCheckPoint();
     bool hasToken = _Pipe.ReadToken(out string token);
 
     if (hasToken)
@@ -178,7 +178,7 @@ public struct ParseAction
       }
       else
       {
-        _Pipe.ReturnToCheckPoint(checkpoint);
+        _Pipe.RestoreToCheckPoint(checkpoint);
       }
     }
     return this;
@@ -298,14 +298,14 @@ public struct ParseAction
   public ParseAction ProductionWhileMatch(Production production)
   {
     var savedHistory = SaveMatchHistory();
-    int checkpoint = _Pipe.GetCheckPoint();
+    IPipeCheckPoint checkpoint = _Pipe.GetCheckPoint();
 
     while( IsAllMatched && IsProductionMatched(production))
     {
       savedHistory = SaveMatchHistory();
       checkpoint = _Pipe.GetCheckPoint();
     }
-    _Pipe.ReturnToCheckPoint(checkpoint);
+    _Pipe.RestoreToCheckPoint(checkpoint);
     RestoreMatchHistory(savedHistory);
     return this;
   }
@@ -340,11 +340,11 @@ public struct ParseAction
     Production second
   )
   {
-    int checkpoint = _Pipe.GetCheckPoint();
+    IPipeCheckPoint checkpoint = _Pipe.GetCheckPoint();
     var savedHistory = SaveMatchHistory();
     if (! IsProductionMatched(first))
     {
-      _Pipe.ReturnToCheckPoint(checkpoint);
+      _Pipe.RestoreToCheckPoint(checkpoint);
       RestoreMatchHistory(savedHistory);
       Expect(second);
     }
@@ -360,7 +360,7 @@ public struct ParseAction
   {
     if (_CountMatched < _MatchHistory.Count)
     {
-      _Pipe.ReturnToCheckPoint(_RollbackPoint);
+      _Pipe.RestoreToCheckPoint(_RollbackPoint);
       if (errHandler != null)
       {
         errHandler.Invoke(_MatchHistory, (IPipeWriter) _Pipe);
@@ -406,7 +406,7 @@ public struct ParseAction
     out bool isEndMatch
   )
   {
-    int checkpoint = _Pipe.GetCheckPoint();
+    IPipeCheckPoint checkpoint = _Pipe.GetCheckPoint();
     bool hasToken = _Pipe.ReadToken(out string token);
     if (hasToken)
     {
@@ -424,7 +424,7 @@ public struct ParseAction
       }
       else
       {
-        _Pipe.ReturnToCheckPoint(checkpoint);
+        _Pipe.RestoreToCheckPoint(checkpoint);
         Expect(production);
         isProdMatch = _CountMatched == _MatchHistory.Count;
         isEndMatch = false;
