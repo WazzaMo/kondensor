@@ -494,7 +494,9 @@ public class TestParsing
   {
     List<string> hrefList = new List<string>();
 
-    var parser = Parsing.Group(_Pipe)
+    var parser = Parsing.Group(_Pipe);
+
+    parser
       .SkipUntil(TABLE)
       .Expect(TABLE)
         .Expect(THEAD)
@@ -502,17 +504,14 @@ public class TestParsing
             .SkipUntil(END_TR)
           .Expect(END_TR, annotation: "end:row-heading")
         .Expect(END_THEAD)
-      .ExpectProductionUntil(p => {
-        DataHref(p, hrefList);
-        return p;
-      },
+      .ExpectProductionUntil(
+        p => {
+          DataHref(p, hrefList);
+          return p;
+        },
         endRule: END_TABLE,
         endAnnodation: "ActionTableEnd"
       )
-      // .ExpectProductionNTimes(numExpected: 10, p => {
-      //   DataHref(p, hrefList);
-      //   return p;
-      // })
       ;
 
       Assert.Collection(hrefList,
