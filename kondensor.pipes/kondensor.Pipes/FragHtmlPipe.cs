@@ -26,6 +26,8 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public bool IsInFlowEnded => throw new NotImplementedException();
 
+  public bool IsCheckPointingSupported => false;
+
   public void AddPreprocessor(IPreprocessor processor)
   {
     if (processor != null)
@@ -43,6 +45,11 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
 
   public bool IsPipeOpen()
     => ! _Data._EoInput && _Data._Output.IsPipeOpen();
+
+  public IPipeCheckPoint GetCheckPoint()
+  {
+    throw new NotImplementedException();
+  }
 
   public bool ReadToken(out string token)
   {
@@ -90,6 +97,11 @@ public struct FragHtmlPipe : IPipe, IPipeWriter
       scan = FragDataOps.ScanForNewBuffer(ref _Data, rule);
     }
     return scan;
+  }
+
+  public void RestoreToCheckPoint(IPipeCheckPoint checkpoint)
+  {
+    throw new NotImplementedException();
   }
 
   internal const string EMPTY = "";

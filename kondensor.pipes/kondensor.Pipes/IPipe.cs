@@ -12,6 +12,27 @@ namespace kondensor.Pipes;
 public interface IPipe : IPipeWriter
 {
   /// <summary>
+  /// Register a preprocessor to perform text operations before lexical matching.
+  /// </summary>
+  /// <param name="processor">preprocessor to register</param>
+  void AddPreprocessor(IPreprocessor processor);
+
+  bool IsInFlowEnded { get; }
+
+  /// <summary>Indicates if the pipe can give and restore context to a checkpoint.</summary>
+  /// <value>True if supported</value>
+  bool IsCheckPointingSupported { get; }
+
+  /// <summary>
+  /// Provides pipe context so the current stream position can be returned
+  /// to later.
+  /// Throws exception if checkpointing not supported.
+  /// </summary>
+  /// <exception cref="InvalidOperationException" />
+  /// <returns>A checkpoint context.</returns>
+  IPipeCheckPoint GetCheckPoint();
+
+  /// <summary>
   /// Rapid scanning method for base pipe types that uses char arrays
   /// and accelerates base pipe processing for raw text.
   /// Wrap pipes will call directly into, bypassing token level operations.
@@ -42,8 +63,11 @@ public interface IPipe : IPipeWriter
   /// <returns>True if valid, false if stream ended.</returns>
   bool ReadToken(out string token);
 
-  bool IsInFlowEnded {get; }
-
-
-  void AddPreprocessor(IPreprocessor processor);
+  /// <summary>
+  /// For pipes that support checkpointing (confirm before calling)
+  /// this returns the pipe's internal stream to the position
+  /// captured when the checkpoint was taken.
+  /// </summary>
+  /// <param name="checkpoint"></param>
+  void RestoreToCheckPoint(IPipeCheckPoint checkpoint);
 }

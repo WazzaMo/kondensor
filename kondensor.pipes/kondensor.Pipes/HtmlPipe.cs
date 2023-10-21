@@ -4,10 +4,9 @@
  *  Distributed without warranty, under the GNU Lesser Public License v 3.0
  */
 
-
-
 using System.IO;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace kondensor.Pipes;
 
@@ -33,6 +32,8 @@ public struct HtmlPipe : IPipe
     => _Data._IsOpen;
 
   public bool IsInFlowEnded => _Data._EofInput;
+
+  public bool IsCheckPointingSupported => true;
 
   public bool ReadToken(out string token)
   {
@@ -103,11 +104,8 @@ public struct HtmlPipe : IPipe
     bool isEof = _Data._EofInput;
     string input  = "";
     HtmlContext ScanData = _Data;
-    ScanData._QueueIndex = 0;
 
-    if ( ScanData._UnprocessedText != null
-      && ScanData._UnprocessedText.Length > 0
-    )
+    if ( ScanData._UnprocessedText.Length > 0 )
     {
       input = ScanData._UnprocessedText.ToString() ?? "";
       result = rule(input);
@@ -137,4 +135,22 @@ public struct HtmlPipe : IPipe
   }
 
   private int GetBufferEndIndex() => _Data._UnprocessedText.Length;
+
+  public IPipeCheckPoint GetCheckPoint()
+  {
+    var checkpoint = new HtmlPipeCheckPoint(ref _Data);
+    return checkpoint;
+  }
+
+  public void RestoreToCheckPoint(IPipeCheckPoint checkpoint)
+  {
+    if (checkpoint is HtmlPipeCheckPoint htmlPoint)
+    {
+      htmlPoint.restoreTo(ref _Data);
+    }
+    else
+      throw new InvalidEnumArgumentException(
+        message: $"{checkpoint.GetType().Name} cannot be passed as a checkpoint."
+      );
+  }
 }

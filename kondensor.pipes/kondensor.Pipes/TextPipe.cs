@@ -41,6 +41,8 @@ public struct TextPipe : IPipe
 
   public bool IsInFlowEnded => _IsEofHit;
 
+  public bool IsCheckPointingSupported => false;
+
   public void AddPreprocessor(IPreprocessor processor)
     => _Preprocessors.Add(processor);
 
@@ -114,5 +116,15 @@ public struct TextPipe : IPipe
       : "";
 
     return finalLine;
+  }
+
+  public IPipeCheckPoint GetCheckPoint()
+  {
+    throw new NotImplementedException();
+  }
+
+  public void RestoreToCheckPoint(IPipeCheckPoint checkpoint)
+  {
+    throw new NotImplementedException();
   }
 }

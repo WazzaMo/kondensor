@@ -27,12 +27,18 @@ public struct ReplayWrapPipe : IPipe
 
   public bool IsInFlowEnded => _BasePipe.IsInFlowEnded;
 
+  public bool IsCheckPointingSupported
+    => _BasePipe.IsCheckPointingSupported;
+
   public ReplayWrapPipe(IPipe mainPipe)
   {
     _BasePipe = mainPipe;
     _TokenHistory = new List<string>();
     _TokenHistoryIndexRaw = new int[]{0};
   }
+
+  public void AddPreprocessor(IPreprocessor processor)
+    => _BasePipe.AddPreprocessor(processor);
 
   public void ClosePipe()
     => _BasePipe.ClosePipe();
@@ -90,37 +96,46 @@ public struct ReplayWrapPipe : IPipe
   public bool IsLineTerminated() => _BasePipe.IsLineTerminated();
 
 
-  public int GetCheckPoint() => TokenHistoryIndex;
-
-  public void ReturnToCheckPoint(int checkPoint)
-  {
-    if (checkPoint <= _TokenHistory.Count)
-    {
-      TokenHistoryIndex = checkPoint;
-    }
-    else
-      throw new ArgumentException(message: $"Illegal checkpoint value given {checkPoint}, history is only {_TokenHistory.Count} long");
-  }
-
-  public void AddPreprocessor(IPreprocessor processor)
-  {
-    _BasePipe.AddPreprocessor(processor);
-  }
+  public IPipeCheckPoint GetCheckPoint()
+    => new ReplayWrapCheckPoint(TokenHistoryIndex, _BasePipe);
 
   private ScanResult ReplayTokenHistoryToMatchBase(ScanRule rule)
   {
     ScanResult seek = new ScanResult();
-    int desiredIndex = -1;
+    bool isMoreData = true;
+    int desiredIndex = 0;
     string value;
 
-    while(! seek.IsMatched && (desiredIndex+1) < _TokenHistory.Count)
+    while(! seek.IsMatched && isMoreData )
     {
-      desiredIndex++;
-      value = _TokenHistory[desiredIndex];
+      desiredIndex = TokenHistoryIndex;
+      isMoreData = ReadToken(out value);
       seek = rule(value);
     }
     if (seek.IsMatched)
       TokenHistoryIndex = desiredIndex;
     return seek;
+  }
+
+  public void RestoreToCheckPoint(IPipeCheckPoint checkpointWrap)
+  {
+    if (checkpointWrap is ReplayWrapCheckPoint rwCp)
+    {
+      int checkPoint = rwCp.TokenHistoryIndex;
+
+      _BasePipe.RestoreToCheckPoint(rwCp._BasePipeCheckPoint);
+      if (checkPoint <= _TokenHistory.Count)
+      {
+        TokenHistoryIndex = checkPoint;
+      }
+      else
+        throw new ArgumentException(
+          message: $"Illegal checkpoint value given {checkPoint}, history is only {_TokenHistory.Count} long"
+        );
+    }
+    else
+      throw new ArgumentException(
+        message: $"Checkpoint type {checkpointWrap.GetType().Name} is invalid to use with {nameof(ReplayWrapPipe)}"
+      );
   }
 }
