@@ -239,7 +239,9 @@ public class TestProduction
     IEnumerable<Matching> found = new Matching[0];
     List<string> headings = new List<string>();
 
-    Parsing.Group(_Pipe)
+    var parser = Parsing.Group(_Pipe);
+    
+    parser
       .SkipUntil(_Table)
       .Expect(_Table)
       .Expect(_ActionTable)
