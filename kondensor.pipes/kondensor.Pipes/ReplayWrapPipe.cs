@@ -77,8 +77,8 @@ public struct ReplayWrapPipe : IPipe
   public ScanResult ScanAhead(ScanRule rule)
   {
     var result = _BasePipe.ScanAhead(rule);
-    if (result.IsMatched)
-      return ReplayTokenHistoryToMatchBase(rule);
+    if (result.IsMatched && _BasePipe.IsCheckPointingSupported)
+      ReplayTokenHistoryToMatchBase(rule);
     return result;
   }
 
@@ -103,7 +103,7 @@ public struct ReplayWrapPipe : IPipe
   private ScanResult ReplayTokenHistoryToMatchBase(ScanRule rule)
   {
     ScanResult seek = new ScanResult();
-    bool isMoreData = true;
+    bool isMoreData = _TokenHistory.Count > TokenHistoryIndex;
     int desiredIndex = 0;
     string value;
 
@@ -131,13 +131,15 @@ public struct ReplayWrapPipe : IPipe
     }
   }
 
-  public void RestoreToCheckPoint(IPipeCheckPoint checkpointWrap)
+  public void RestoreToCheckPoint(IPipeCheckPoint genCheckpoint)
   {
-    if (checkpointWrap is ReplayWrapCheckPoint rwCp)
+    if (genCheckpoint is ReplayWrapCheckPoint wrapCheckPoint)
     {
-      int checkPoint = rwCp.TokenHistoryIndex;
+      int checkPoint = wrapCheckPoint.TokenHistoryIndex;
 
-      _BasePipe.RestoreToCheckPoint(rwCp._BasePipeCheckPoint);
+      if (_BasePipe.IsCheckPointingSupported)
+        _BasePipe.RestoreToCheckPoint(wrapCheckPoint._BasePipeCheckPoint);
+
       if (checkPoint <= _TokenHistory.Count)
       {
         TokenHistoryIndex = checkPoint;
@@ -149,7 +151,7 @@ public struct ReplayWrapPipe : IPipe
     }
     else
       throw new ArgumentException(
-        message: $"Checkpoint type {checkpointWrap.GetType().Name} is invalid to use with {nameof(ReplayWrapPipe)}"
+        message: $"Checkpoint type {genCheckpoint.GetType().Name} is invalid to use with {nameof(ReplayWrapPipe)}"
       );
   }
 }

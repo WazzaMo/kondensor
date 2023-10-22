@@ -18,9 +18,8 @@ internal struct ReplayWrapCheckPoint : IPipeCheckPoint
   internal ReplayWrapCheckPoint(int index, IPipe basePipe)
   {
     TokenHistoryIndex = index;
-    if (basePipe.IsCheckPointingSupported)
-      _BasePipeCheckPoint = basePipe.GetCheckPoint();
-    else
-      throw new ArgumentException("Base pipe does not support checkpointing!");
+    _BasePipeCheckPoint = basePipe.IsCheckPointingSupported
+      ? basePipe.GetCheckPoint()
+      : _BasePipeCheckPoint = new NoCheckPoint();
   }
 }

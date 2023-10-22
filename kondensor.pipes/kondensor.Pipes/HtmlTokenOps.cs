@@ -22,35 +22,25 @@ internal static class HtmlTokenOps
   {
     bool isOk;
 
-    // if (_Data._EofInput)
-    // {
-    //   if (HtmlPipeQOps.IsQueueEmpty(ref _Data))
-    //   {
-    //     isOk = false;
-    //     token = "";
-    //   }
-    //   else
-    //   {
-    //     isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
-    //   }
-    // }
-    // else
+    var isEof = _Data._EofInput || ! GreedyRead(ref _Data, rule);
+    isOk = ! isEof;
+    if (isOk || ! HtmlPipeQOps.IsQueueEmpty(ref _Data) )
     {
-      var isEof = _Data._EofInput || ! GreedyRead(ref _Data, rule);
-      isOk = ! isEof;
-      if (isOk || ! HtmlPipeQOps.IsQueueEmpty(ref _Data) )
-      {
-        isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
-      }
-      else
-      {
-        _Data._EofInput = true;
-        isOk = false;
-        token = "";
-      }
+      isOk = TryDequeueOptionalScanRule(ref _Data, out token, rule);
+    }
+    else
+    {
+      _Data._EofInput = true;
+      isOk = false;
+      token = "";
     }
     return isOk;
   }
+
+  internal static bool HasPendingTokenText(ref HtmlContext _Data)
+    => _Data._UnprocessedText.Length > 0
+    && _Data._UnprocessedIndex < _Data._UnprocessedText.Length
+    &&  _Data._UnprocessedIndex >= 0;
 
   /// <summary>
   /// Read until next token starts.
@@ -77,21 +67,7 @@ internal static class HtmlTokenOps
     {
       do
       {
-        if (_Data._UnprocessedIndex >= _Data._UnprocessedText.Length)
-        {
-          if (!TryReadInputAndPreprocess(ref _Data))
-          {
-            _Data._UnprocessedText = EmptyCharArray();
-            if (builder.Length > 0)
-            {
-              segment = processText();
-              TokeniseLineParts( ref _Data, segment);
-              tokenCount = 0;
-            }
-          }
-        }
-
-        if (_Data._UnprocessedIndex < _Data._UnprocessedText.Length)
+        if ( HasPendingTokenText(ref _Data) )
         {
           charInput = _Data._UnprocessedText[_Data._UnprocessedIndex];
           tokenCount = ((char)charInput) == '<' ? tokenCount + 1 : tokenCount;
@@ -106,6 +82,19 @@ internal static class HtmlTokenOps
             segment = processText();
             TokeniseLineParts(ref _Data, segment);
             tokenCount = charInput == '<' ? 1 : 0;
+          }
+        }
+        else
+        {
+          if (!TryReadInputAndPreprocess(ref _Data))
+          {
+            _Data._UnprocessedText = EmptyCharArray();
+            if (builder.Length > 0)
+            {
+              segment = processText();
+              TokeniseLineParts(ref _Data, segment);
+              tokenCount = 0;
+            }
           }
         }
 

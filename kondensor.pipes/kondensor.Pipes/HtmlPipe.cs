@@ -105,13 +105,11 @@ public struct HtmlPipe : IPipe
     string input  = "";
     HtmlContext ScanData = _Data;
 
-    // if ( ScanData._UnprocessedText.Length > 0 )
-    // {
-    //   input = new string( ScanData._UnprocessedText );
-    //   result = rule(input);
-    // }
     while(! result.IsMatched
-      && ! (isEof && HtmlPipeQOps.IsQueueEmpty(ref ScanData) )
+      && ! (isEof
+        && HtmlPipeQOps.IsQueueEmpty(ref ScanData)
+        && ! HtmlTokenOps.HasPendingTokenText(ref ScanData)
+        )
     )
     {
       isEof = ! HtmlTokenOps.GetTokenFromInput(ref ScanData, out input, rule);
