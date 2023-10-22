@@ -51,8 +51,9 @@ public struct ReplayWrapPipe : IPipe
     bool isOk;
     int readIndex = TokenHistoryIndex;
 
-    if (readIndex == _TokenHistory.Count)
+    if (readIndex >= _TokenHistory.Count || readIndex < 0)
     {
+      readIndex = _TokenHistory.Count;
       isOk = _BasePipe.ReadToken(out token);
       if (isOk)
       {
@@ -62,7 +63,6 @@ public struct ReplayWrapPipe : IPipe
     }
     else
     {
-      // throw new InvalidOperationException("Re-reading data.");
       token = _TokenHistory[readIndex];
       readIndex++;
       isOk = true;
@@ -115,11 +115,11 @@ public struct ReplayWrapPipe : IPipe
     }
     if (seek.IsMatched)
       TokenHistoryIndex = desiredIndex;
-    RemoveHistoryBeyond(desiredIndex);
+    EmptyHistoryToForceReadingFromBasePipe(desiredIndex);
     return seek;
   }
 
-  private void RemoveHistoryBeyond(int index)
+  private void EmptyHistoryToForceReadingFromBasePipe(int index)
   {
     for(
       int current = _TokenHistory.Count - 1;
