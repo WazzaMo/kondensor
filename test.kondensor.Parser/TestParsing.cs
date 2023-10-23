@@ -113,22 +113,26 @@ public class TestParsing
       _thead = Utils.SingularMatchRule(HtmlPatterns.THEAD, "thead"),
       _endThead = Utils.SingularMatchRule(HtmlPatterns.END_THEAD, "end-thead");
     
-    Parsing.Group(_Pipe)
+    var parser = Parsing.Group(_Pipe);
+
+    parser
       .SkipUntil(_table)
       .Expect(_table)
       .Expect(_tr)
       .AllMatchThen( (list, writer) => {
         Assert.True(false, userMessage: "No match - then block should be skipped");
       })
-      .MismatchesThen()
-        .SkipUntil(_table)
-        .Expect(_table)
-        .Expect(_thead)
-        .Expect(_tr)
-        .AllMatchThen((list, writer) => {
-          Assert.Equal(expected: 3, list.Count);
-          isExpectedHandlerUsed = true;
-        });
+      .MismatchesThen(
+        (list,_, p) =>p
+          .SkipUntil(_table)
+          .Expect(_table)
+          .Expect(_thead)
+          .Expect(_tr)
+          .AllMatchThen((list, writer) => {
+            Assert.Equal(expected: 3, list.Count);
+            isExpectedHandlerUsed = true;
+        })
+      );
     Assert.True(isExpectedHandlerUsed, "Expected handler must have been called.");
   }
 
@@ -343,7 +347,7 @@ public class TestParsing
       .AllMatchThen( (list, writer) => list.ForEach(
         (item, idx) => Annotations.Add(item.Annotation)
       ))
-      .MismatchesThen((list,writer) => isMisMatched = true)
+      .MismatchesThen((list,writer, _) => isMisMatched = true)
       ;
     
     Assert.True(isMisMatched);
@@ -575,7 +579,7 @@ public class TestParsing
           hrefs.Add($"[{entry.Annotation}] = {part}");
         });
       })
-      .MismatchesThen((list, writer) => {
+      .MismatchesThen((list, writer, _) => {
         Assert.False(true, userMessage: "Failed to parse without mismatches recorded.");
       })
       ;

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 
 using kondensor.Pipes;
+using System.Security.Cryptography;
 
 namespace kondensor.Parser;
 
@@ -335,19 +336,27 @@ public struct ParseAction
   /// </summary>
   /// <param name="errHandler">Optional error handler</param>
   /// <returns>Same fluid object</returns>
-  public ParseAction MismatchesThen(Action<LinkedList<Matching>, IPipeWriter>? errHandler = null)
+  public ParseAction MismatchesThen(
+    Action<LinkedList<Matching>, IPipeWriter, ParseAction>? errHandler = null
+  )
   {
     if (_CountMatched < _MatchHistory.Count)
     {
       _Pipe.RestoreToCheckPoint(_RollbackPoint);
+      var pastMatches = _MatchHistory;
+      ResetMatchHistory();
+
       if (errHandler != null)
       {
-        errHandler.Invoke(_MatchHistory, (IPipeWriter) _Pipe);
+        errHandler.Invoke(pastMatches, (IPipeWriter) _Pipe, this);
       }
-      ResetMatchHistory();
     }
     return this;
   }
+
+  private void ResetToMatchStateForAlternativeParsingAttempt()
+    => _CountMatched = _MatchHistory.Count;
+  
 
   private void ResetMatchHistory()
   {

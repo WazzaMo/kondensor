@@ -114,8 +114,10 @@ public struct ReplayWrapPipe : IPipe
       seek = rule(value);
     }
     if (seek.IsMatched)
+    {
       TokenHistoryIndex = desiredIndex;
-    EmptyHistoryToForceReadingFromBasePipe(desiredIndex);
+      EmptyHistoryToForceReadingFromBasePipe(desiredIndex);
+    }
     return seek;
   }
 
@@ -123,7 +125,7 @@ public struct ReplayWrapPipe : IPipe
   {
     for(
       int current = _TokenHistory.Count - 1;
-      current > index;
+      current >= index;
       current--
     )
     {

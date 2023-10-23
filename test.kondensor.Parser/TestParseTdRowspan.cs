@@ -88,7 +88,7 @@ public class TestParseTdRowspan
   {
     bool wasParsed = false;
 
-    _Parser.MismatchesThen( (list, writer) => Assert.True(false));
+    _Parser.MismatchesThen( (list, writer, _) => Assert.True(false));
 
     _Parser.AllMatchThen( (list, writer) => {
       wasParsed = true;

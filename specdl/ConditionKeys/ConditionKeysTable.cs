@@ -73,7 +73,11 @@ public struct ConditionKeysTable
     _Data.IsParsedSuccessfully = true;
   }
 
-  private void OnFailedParsing(LinkedList<Matching> list, IPipeWriter writer)
+  private void OnFailedParsing(
+    LinkedList<Matching> list,
+    IPipeWriter writer,
+    ParseAction _
+  )
     => _Data.IsParsedSuccessfully = false;
 
   private void CollectHeadings(LinkedList<Matching> list)
